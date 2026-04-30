@@ -1,0 +1,19 @@
+{
+    "fields": {
+        "name": "Title",
+        "project": "Project",
+        "updateToClient": "Update to Client"
+    },
+    "links": {
+        "project": "Project"
+    },
+    "labels": {
+        "Create ProjectUpdate": "Create Project Update"
+    },
+    "options": {
+        "updateToClient": {
+            "Yes": "Yes",
+            "No": "No"
+        }
+    }
+}

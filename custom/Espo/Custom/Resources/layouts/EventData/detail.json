@@ -1,0 +1,51 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "category"
+                }
+            ],
+            [
+                {
+                    "name": "eventAddressCity"
+                },
+                {
+                    "name": "eventAddressState"
+                },
+                {
+                    "name": "eventAddressCountry"
+                }
+            ],
+            [
+                {
+                    "name": "eventMonth"
+                },
+                {
+                    "name": "hashTag"
+                }
+            ],
+            [
+                {
+                    "name": "eventUrl"
+                },
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "fromData"
+                },
+                {
+                    "name": "endDate"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

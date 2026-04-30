@@ -1,0 +1,18 @@
+{
+    "_delimiter_": {
+        "disabled": true
+    },
+    "stream": {
+        "sticked": true,
+        "index": 0
+    },
+    "opportunities": {
+        "index": 1
+    },
+    "cases": {
+        "index": 2
+    },
+    "emailSchedules": {
+        "index": 3
+    }
+}

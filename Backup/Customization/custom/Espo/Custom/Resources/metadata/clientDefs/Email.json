@@ -1,0 +1,15 @@
+{
+    "relationshipPanels": {
+        "parentAnother": {
+            "layout": null
+        },
+        "dataMaster": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "cDataMaster": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

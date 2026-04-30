@@ -1,0 +1,54 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "accounts"
+                }
+            ],
+            [
+                {
+                    "name": "emailAddress"
+                },
+                {
+                    "name": "phoneNumber"
+                }
+            ],
+            [
+                {
+                    "name": "address"
+                },
+                {
+                    "name": "prospectiveContact"
+                },
+                {
+                    "name": "biddingPortal"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "meetingDate"
+                },
+                {
+                    "name": "linkedin"
+                }
+            ],
+            [
+                {
+                    "name": "cDataMaster1"
+                },
+                {
+                    "name": "cContactFollowup"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

@@ -1,0 +1,24 @@
+{
+    "fields": {
+        "contact": "Client",
+        "emailTemplate": "Email Content",
+        "user": "Reply To",
+        "name": "Subject",
+        "emailDateAndTime": "Email Date and Time",
+        "status": "Status"
+    },
+    "links": {
+        "contact": "Contact",
+        "user": "User"
+    },
+    "labels": {
+        "Create EmailSchedule": "Create Email Schedule"
+    },
+    "options": {
+        "status": {
+            "Pending": "Pending",
+            "Sent": "Sent",
+            "Error": "Error"
+        }
+    }
+}

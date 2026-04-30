@@ -1,0 +1,41 @@
+[
+    {
+        "name": "name",
+        "width": 15,
+        "link": true,
+        "align": "left",
+        "label": "Name"
+    },
+    {
+        "name": "account",
+        "width": 25,
+        "label": "Account"
+    },
+    {
+        "name": "emailAddress",
+        "width": 20,
+        "notSortable": true,
+        "label": "Email"
+    },
+    {
+        "name": "phoneNumber",
+        "width": 18,
+        "notSortable": true,
+        "label": "Phone"
+    },
+    {
+        "name": "addressState",
+        "label": "State"
+    },
+    {
+        "name": "addressCountry",
+        "label": "Country"
+    },
+    {
+        "name": "prospectiveContact",
+        "label": "Prospective Contact"
+    },
+    {
+        "name": "biddingPortal"
+    }
+]

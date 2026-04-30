@@ -1,0 +1,34 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Project Name"
+    },
+    {
+        "name": "contact"
+    },
+    {
+        "name": "assignedUser"
+    },
+    {
+        "name": "startDate"
+    },
+    {
+        "name": "endDate"
+    },
+    {
+        "name": "status"
+    },
+    {
+        "name": "plannedHour"
+    },
+    {
+        "name": "actualHours"
+    },
+    {
+        "name": "totalBudget"
+    },
+    {
+        "name": "totalBudgetUtilized"
+    }
+]

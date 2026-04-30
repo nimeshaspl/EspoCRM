@@ -1,0 +1,46 @@
+[
+    {
+        "name": "taskID"
+    },
+    {
+        "name": "name",
+        "link": true,
+        "label": "Task Name"
+    },
+    {
+        "name": "project",
+        "label": "Project"
+    },
+    {
+        "name": "milestone",
+        "label": "Milestone"
+    },
+    {
+        "name": "assignedUser",
+        "label": "Assigned User"
+    },
+    {
+        "name": "status",
+        "label": "Status"
+    },
+    {
+        "name": "startDate",
+        "label": "Start Date"
+    },
+    {
+        "name": "endDate",
+        "label": "End Date"
+    },
+    {
+        "name": "plannedHours"
+    },
+    {
+        "name": "actualHours"
+    },
+    {
+        "name": "totalCost"
+    },
+    {
+        "name": "createdAt"
+    }
+]

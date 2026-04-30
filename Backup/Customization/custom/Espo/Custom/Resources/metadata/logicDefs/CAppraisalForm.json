@@ -1,0 +1,3393 @@
+{
+    "fields": {
+        "name": {
+            "readOnly": {
+                "conditionGroup": [
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            }
+        },
+        "totalProjectDelivered": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "budgetAdherence": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "issueResolutionTime": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "deliveredQualityProject": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "pMSUsageOnProjectManagement": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    },
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "gitUsageOnProjects": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "clientSatisfactionCSAT": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "numberOfClientEscalations": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "clientProjectUpdateFrequencyDay": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "responsivenessToClientHr": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "motivateTeamMember": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "teamSatisfactionScore": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "teamSkillImprovement": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "profitMarginContribution": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "revenueGrowthThroughProjectDelivery": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "newProcessImprovementsautomationIdeas": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "or",
+                                "value": [
+                                    {
+                                        "type": "equals",
+                                        "attribute": "roleType",
+                                        "value": "Project Manager"
+                                    },
+                                    {
+                                        "type": "equals",
+                                        "attribute": "roleType",
+                                        "value": "TL"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "improvementAutomationIdeasDetails": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "greaterThan",
+                        "attribute": "newProcessImprovementsautomationIdeas",
+                        "value": 0
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "expectedCTC": {
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "projectCompletedOnTimePutNumber": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "Project Manager"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "description": {
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "status": {
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            }
+        },
+        "organicTrafficGrowth": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "keywordRankingImprovement": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "blogPostsPublishedPerMonth": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "contentEngagementRate": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "socialMediaFollowerGrowth": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "averageEngagementRateOnSocialMediaPosts": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "qualifiedLeadsGeneratedPerMonth": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "conversionRateFromLeadToCustomer": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "monthlyPerformanceReportsSubmittedOnTime": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "readOnly": null,
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "revenueGeneratedInFullYear": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "roleType": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "contains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnly": {
+                "conditionGroup": [
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            }
+        },
+        "websiteDAImprovementInYear": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "SEO"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "codeReviewScore": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "TL"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "TL"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "unitTestCoverage": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "TL"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "clientCommunicationEffectiveness": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            }
+        },
+        "crossfunctionalTeamCollaborationScore": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "bugDetectionRateDuringTestingPhase": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "postdeploymentIssueRateBugsKLOC": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "adherenceToDeadlinesForAssignedTasks": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "accuracyAndClarityInDocumentation": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "TL"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "efficiencyOfFullcycleRecruitmentTimetohire": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "HR Manager"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "candidateScreening": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "retentionStrategiesAndTurnoverAnalysis": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "hiringManagerAndCandidateSatisfaction": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "HR Manager"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "HR Manager"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "achievementFulfillment": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "HR Manager"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "uptodateHRPoliciesAndComplianceWithLaborL": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "handlingOfEmployeeRelationsAndInvestigations": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "riskAssessmentsAndAudits": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "minimizationOfLegalDisputes": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "implementationOfEngagementAndWellnessPrograms": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "analysisAndActionOnEngagementSurveys": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "promotionOfDiversityEquityAndInclusionDEI": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "reductionInAbsenteeismAndTurnover": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "executionOfPerformanceAppraisalProcesses": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "managerCoachingAndFeedbackPractices": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "useOfPIPsAndEmployeeSupportMechanisms": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "qualityAndFairnessOfPerformanceReviews": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "assessmentOfTrainingNeedsAndDelivery": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "onboardingAndComplianceTrainingEffectiveness": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "supportForCareerDevelopmentAndInternalPromot": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "trainingFeedbackAndUtilizationRates": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "effectiveCommunicationWithAllLevels": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "relationshipbuildingWithOtherDepartments": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "conflictResolutionAndMediation": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "accuracyAndTimelinessOfPayrollProcessing": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "complianceWithTaxLawsAndStatutoryDeductions": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "handlingPayrollDiscrepanciesAndEmployeeQuerie": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "confidentialityAndIntegrityInPayrollOperation": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "managementOfSalaryReviewAndIncrementCycles": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "nternalEquityAndExternalCompetitivenessOfSal": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "coordinationWithLeadershipForBudgetApprovals": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "transparencyAndCommunicationOfIncrementDecisi": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "strengths": {
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            }
+        },
+        "areasForImprovemen": {
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "goalsForNextReviewPeriod": {
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            }
+        },
+        "hRStrategiesThatSupportBusinessObjectives": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "contributionToStrategicPlanningAndLeadership": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "workforcePlanningAndFutureTalentNeeds": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "changeManagementSupport": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    }
+                ]
+            },
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "roleType",
+                        "value": "HR Manager"
+                    },
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            },
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "status",
+                        "value": "Submit"
+                    }
+                ]
+            }
+        },
+        "releaseAppraisal": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "contains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            }
+        },
+        "nextAppraisalDate": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "or",
+                        "value": [
+                            {
+                                "type": "contains",
+                                "attribute": "$user.teamsIds",
+                                "data": {
+                                    "field": "teams",
+                                    "values": {
+                                        "linkName": "Appraisal Config",
+                                        "linkId": "686ab569b27b170f2"
+                                    }
+                                },
+                                "value": "686ab569b27b170f2"
+                            },
+                            {
+                                "type": "and",
+                                "value": [
+                                    {
+                                        "type": "contains",
+                                        "attribute": "$user.teamsIds",
+                                        "data": {
+                                            "field": "teams",
+                                            "values": {
+                                                "linkName": "HR Team",
+                                                "linkId": "67fca9c4ede9a8af0"
+                                            }
+                                        },
+                                        "value": "67fca9c4ede9a8af0"
+                                    },
+                                    {
+                                        "type": "equals",
+                                        "attribute": "status",
+                                        "value": "Submit"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "invalid": {
+                "conditionGroup": [
+                    {
+                        "type": "inPast",
+                        "attribute": "nextAppraisalDate"
+                    }
+                ]
+            },
+            "readOnly": {
+                "conditionGroup": [
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "nextAppraisalDate"
+                    }
+                ]
+            }
+        },
+        "employeeId": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "contains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            }
+        },
+        "expectationForNextYear": {
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "notContains",
+                        "attribute": "$user.teamsIds",
+                        "data": {
+                            "field": "teams",
+                            "values": {
+                                "linkName": "Appraisal Config",
+                                "linkId": "686ab569b27b170f2"
+                            }
+                        },
+                        "value": "686ab569b27b170f2"
+                    }
+                ]
+            }
+        }
+    }
+}

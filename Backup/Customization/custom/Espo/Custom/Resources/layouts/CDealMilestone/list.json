@@ -1,0 +1,30 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "amount",
+        "width": 16
+    },
+    {
+        "name": "originalDate",
+        "width": 16
+    },
+    {
+        "name": "newDate",
+        "width": 16
+    },
+    {
+        "name": "paymentReceived",
+        "width": 16
+    },
+    {
+        "name": "opportunity",
+        "width": 16
+    },
+    {
+        "name": "assignedUser",
+        "width": 16
+    }
+]

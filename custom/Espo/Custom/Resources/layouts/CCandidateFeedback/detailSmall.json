@@ -1,0 +1,205 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "abilityToWorkInATeamIndividual"
+                }
+            ],
+            [
+                {
+                    "name": "orientationTowardsMakingCareerWithAshapuraSo"
+                },
+                {
+                    "name": "overallEvaluation"
+                }
+            ],
+            [
+                {
+                    "name": "workFlexibilityMultiTasking"
+                },
+                {
+                    "name": "professionalImpression"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "customLabel": "Overview"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "backend"
+                },
+                {
+                    "name": "frontend"
+                }
+            ],
+            [
+                {
+                    "name": "database"
+                },
+                {
+                    "name": "frameworkExperience"
+                }
+            ],
+            [
+                {
+                    "name": "goodAnalyticalSkills"
+                },
+                {
+                    "name": "codingProblemSolving"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "or",
+                    "value": [
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "Asp.Net",
+                                    "linkId": "667ce04b70d3f9029"
+                                }
+                            },
+                            "value": "667ce04b70d3f9029"
+                        },
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "PHP",
+                                    "linkId": "667ce042e54430b04"
+                                }
+                            },
+                            "value": "667ce042e54430b04"
+                        },
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "CoreHR",
+                                    "linkId": "667ce3d03ec306051"
+                                }
+                            },
+                            "value": "667ce3d03ec306051"
+                        }
+                    ]
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "Technical Details",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Technical Details"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "salesKnowledgeAndExperience"
+                },
+                {
+                    "name": "leadGenerationPotentialPlatformsToolsExperien"
+                }
+            ],
+            [
+                {
+                    "name": "presentationWritingContentSkills"
+                },
+                {
+                    "name": "marketResearchAndAnalysis"
+                }
+            ],
+            [
+                {
+                    "name": "clientRelationshipManagement"
+                },
+                {
+                    "name": "strategicPlanningAndImplementation"
+                }
+            ],
+            [
+                {
+                    "name": "negotiationSkills"
+                },
+                {
+                    "name": "achievementOfSalesTargets"
+                }
+            ],
+            [
+                {
+                    "name": "biddingPlatformExperience"
+                },
+                {
+                    "name": "candidateManagement"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "or",
+                    "value": [
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "ASPL Sales",
+                                    "linkId": "649fc71876d936434"
+                                }
+                            },
+                            "value": "649fc71876d936434"
+                        },
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "CoreHR",
+                                    "linkId": "667ce3d03ec306051"
+                                }
+                            },
+                            "value": "667ce3d03ec306051"
+                        }
+                    ]
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "Sales Checklist",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Sales Checklist"
+    }
+]

@@ -1,0 +1,14 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "iconClass": "fas fa-chess-king",
+    "relationshipPanels": {
+        "projectTask": {
+            "layout": null
+        }
+    },
+    "kanbanViewMode": false,
+    "color": null
+}

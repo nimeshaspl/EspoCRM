@@ -1,0 +1,38 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "title",
+        "width": 20
+    },
+    {
+        "name": "addressCity",
+        "width": 20
+    },
+    {
+        "name": "addressCountry",
+        "width": 20
+    },
+    {
+        "name": "companyName",
+        "width": 20
+    },
+    {
+        "name": "status",
+        "width": 20
+    },
+    {
+        "name": "priority",
+        "width": 20
+    },
+    {
+        "name": "assignedUser",
+        "width": 20
+    },
+    {
+        "name": "modifiedAt",
+        "width": 20
+    }
+]

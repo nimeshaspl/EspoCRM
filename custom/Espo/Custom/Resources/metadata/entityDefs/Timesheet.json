@@ -1,0 +1,248 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true,
+            "pattern": "[+-]?([0-9]*[.])?[0-9]+",
+            "options": [],
+            "default": null
+        },
+        "description": {
+            "type": "text",
+            "required": false
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "assignedUser": {
+            "type": "link",
+            "required": true,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams",
+            "readOnly": true
+        },
+        "workDate": {
+            "notNull": false,
+            "type": "date",
+            "required": true,
+            "default": "javascript: return this.dateTime.getToday();",
+            "isCustom": true
+        },
+        "status": {
+            "type": "enum",
+            "options": [
+                "Pending",
+                "Approved",
+                "On Hold",
+                "Rejected"
+            ],
+            "style": {
+                "Pending": null,
+                "Approved": "success",
+                "On Hold": "info",
+                "Rejected": "danger"
+            },
+            "default": "Pending",
+            "audited": true,
+            "inlineEditDisabled": true,
+            "readOnly": true,
+            "isCustom": true
+        },
+        "submissionStatus": {
+            "type": "enum",
+            "options": [
+                "Pending",
+                "Submitted"
+            ],
+            "style": {
+                "Pending": "warning",
+                "Submitted": "success"
+            },
+            "default": "Pending",
+            "isCustom": true,
+            "audited": true,
+            "displayAsLabel": true
+        },
+        "approverStatus": {
+            "type": "enum",
+            "options": [
+                "Pending",
+                "Approved",
+                "Rejected"
+            ],
+            "style": {
+                "Pending": null,
+                "Approved": "success",
+                "Rejected": "danger"
+            },
+            "default": "Pending",
+            "isCustom": true,
+            "audited": true,
+            "readOnly": false,
+            "inlineEditDisabled": true,
+            "displayAsLabel": true
+        },
+        "projectTask": {
+            "type": "link",
+            "required": true
+        },
+        "bugTracker": {
+            "type": "link"
+        },
+        "holidayList": {
+            "type": "link",
+            "readOnly": true
+        },
+        "leave": {
+            "type": "checklist",
+            "storeArrayValues": true,
+            "options": [
+                "On Leave"
+            ],
+            "readOnly": true,
+            "isCustom": true
+        },
+        "users": {
+            "type": "link",
+            "readOnly": false,
+            "inlineEditDisabled": true
+        },
+        "project": {
+            "type": "link",
+            "readOnly": true
+        },
+        "hours": {
+            "notNull": false,
+            "type": "float",
+            "readOnly": true,
+            "isCustom": true
+        },
+        "totalPrice": {
+            "notNull": false,
+            "type": "float",
+            "readOnly": true,
+            "isCustom": true,
+            "decimalPlaces": 2
+        },
+        "syncupdate": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        },
+        "updateText": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "projectTask": {
+            "type": "belongsTo",
+            "foreign": "timesheets",
+            "entity": "ProjectTask",
+            "audited": true,
+            "isCustom": true
+        },
+        "bugTracker": {
+            "type": "belongsTo",
+            "foreign": "timesheets",
+            "entity": "BugTracker",
+            "audited": true,
+            "isCustom": true
+        },
+        "holidayList": {
+            "type": "belongsTo",
+            "foreign": "timesheets",
+            "entity": "HolidayList",
+            "audited": false,
+            "isCustom": true
+        },
+        "users": {
+            "type": "belongsTo",
+            "foreign": "timesheets1",
+            "entity": "User",
+            "audited": false,
+            "isCustom": true
+        },
+        "project": {
+            "type": "belongsTo",
+            "foreign": "timesheets",
+            "entity": "Project",
+            "audited": true,
+            "isCustom": true
+        }
+    },
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": [
+            "name"
+        ],
+        "fullTextSearch": false,
+        "countDisabled": false
+    },
+    "indexes": {
+        "name": {
+            "columns": [
+                "name",
+                "deleted"
+            ]
+        },
+        "assignedUser": {
+            "columns": [
+                "assignedUserId",
+                "deleted"
+            ]
+        },
+        "createdAt": {
+            "columns": [
+                "createdAt"
+            ]
+        },
+        "createdAtId": {
+            "unique": true,
+            "columns": [
+                "createdAt",
+                "id"
+            ]
+        }
+    },
+    "optimisticConcurrencyControl": false
+}

@@ -1,0 +1,36 @@
+{
+    "fields": {
+        "name": "Title",
+        "description": "Answer",
+        "technology": "Technology",
+        "taskDetails": "Task Details",
+        "expertise": "Expertise"
+    },
+    "links": [],
+    "labels": {
+        "Create InterviewQuestions": "Create Interview Questions"
+    },
+    "options": {
+        "technology": {
+            "Asp.net": "Asp.net",
+            "Asp.net Core": "Asp.net Core",
+            "Asp.net MVC": "Asp.net MVC",
+            "SQL Server": "SQL Server",
+            "Mongo DB": "Mongo DB",
+            "Linq": "Linq",
+            "Salesforce Salescloud": "Salesforce Salescloud",
+            "Saleforce LWC": "Saleforce LWC",
+            "Salesforce CPQ": "Salesforce CPQ",
+            "Salesforce APEX": "Salesforce APEX",
+            "Salesforce SOQL": "Salesforce SOQL",
+            "PHP": "PHP",
+            "PHP Laravel": "PHP Laravel",
+            "PHP Codignator": "PHP Codignator"
+        },
+        "expertise": {
+            "Basic": "Basic",
+            "Intermediate": "Intermediate",
+            "Expert": "Expert"
+        }
+    }
+}

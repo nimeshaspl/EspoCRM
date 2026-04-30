@@ -1,0 +1,22 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Title"
+    },
+    {
+        "name": "project",
+        "label": "Project"
+    },
+    {
+        "name": "updateToClient"
+    },
+    {
+        "name": "createdAt",
+        "label": "Created At"
+    },
+    {
+        "name": "createdBy",
+        "label": "Created By"
+    }
+]

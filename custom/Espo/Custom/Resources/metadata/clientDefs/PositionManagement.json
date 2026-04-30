@@ -1,0 +1,8 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#9999ec",
+    "iconClass": "fas fa-archway"
+}

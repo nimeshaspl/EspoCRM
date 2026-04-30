@@ -1,0 +1,28 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Name"
+    },
+    {
+        "name": "assetType"
+    },
+    {
+        "name": "brand"
+    },
+    {
+        "name": "processor"
+    },
+    {
+        "name": "hardDiskSize"
+    },
+    {
+        "name": "rAM"
+    },
+    {
+        "name": "purchaseDate"
+    },
+    {
+        "name": "vendorName"
+    }
+]

@@ -1,0 +1,30 @@
+{
+    "fields": {
+        "linkedin": "Linkedin",
+        "prospectiveContact": "Prospective Contact",
+        "biddingPortal": "Bidding Portal",
+        "meetingDate": "Meeting Date",
+        "projects": "Projects",
+        "emailSchedules": "Email Schedules",
+        "cDataMaster1": "Data Master",
+        "cContactFollowup": "Contact Followup",
+        "cSalesPlanningMonthlies": "Sales Planning Monthlies"
+    },
+    "tooltips": {
+        "linkedin": "Linkedin Profile Url",
+        "biddingPortal": "Bidding Portal Contact"
+    },
+    "links": {
+        "projects": "Projects",
+        "emailSchedules": "Email Schedules",
+        "cDataMaster1": "Data Master",
+        "cSalesPlanningMonthlies": "Sales Planning Monthlies"
+    },
+    "options": {
+        "cContactFollowup": {
+            "None": "None",
+            "Not Relevant": "Not Relevant",
+            "Keep in Touch": "Keep in Touch"
+        }
+    }
+}

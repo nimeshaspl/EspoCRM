@@ -1,0 +1,23 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "iconClass": "fas fa-bug",
+    "relationshipPanels": {
+        "projectTask": {
+            "layout": null
+        },
+        "timesheets": {
+            "layout": null
+        },
+        "account": {
+            "layout": null
+        },
+        "project": {
+            "layout": null
+        }
+    },
+    "kanbanViewMode": true,
+    "color": null
+}

@@ -1,0 +1,25 @@
+{
+    "fields": {
+        "candidateManagements": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": false,
+            "layoutMassUpdateDisabled": false,
+            "layoutListDisabled": false,
+            "noLoad": false,
+            "importDisabled": false,
+            "exportDisabled": false,
+            "customizationDisabled": false,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "candidateManagements": {
+            "type": "hasMany",
+            "relationName": "candidateManagementDocument",
+            "foreign": "documents",
+            "entity": "CandidateManagement",
+            "audited": true,
+            "isCustom": true
+        }
+    }
+}

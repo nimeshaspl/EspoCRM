@@ -1,0 +1,12 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "iconClass": "fas fa-phone-volume",
+    "relationshipPanels": {
+        "candidateManagements": {
+            "layout": null
+        }
+    }
+}

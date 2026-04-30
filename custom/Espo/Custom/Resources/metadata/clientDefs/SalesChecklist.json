@@ -1,0 +1,8 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#4e2dba",
+    "iconClass": "fas fa-cannabis"
+}

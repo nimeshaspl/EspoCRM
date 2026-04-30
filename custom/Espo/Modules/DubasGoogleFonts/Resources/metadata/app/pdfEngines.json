@@ -1,0 +1,24 @@
+{
+    "Tcpdf": {
+        "fontFaceList": [
+            "__APPEND__",
+            "montserrat",
+            "lato",
+            "opensans",
+            "oswald",
+            "raleway",
+            "roboto",
+            "sourcesanspro",
+            "ubuntu",
+            "glory",
+            "nunito",
+            "poppins",
+            "quicksand",
+            "exo",
+            "sacramento",
+            "sofia",
+            "parisienne",
+            "msmadi"
+        ]
+    }
+}

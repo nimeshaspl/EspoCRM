@@ -1,0 +1,24 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "callDate"
+                },
+                {
+                    "name": "status"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "source"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

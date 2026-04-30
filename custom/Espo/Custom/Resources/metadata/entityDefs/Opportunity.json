@@ -1,0 +1,157 @@
+{
+    "fields": {
+        "leadLostReason": {
+            "type": "enum",
+            "options": [
+                "None",
+                "Budget issue",
+                "Feasibility Challange",
+                "Awarded to other",
+                "Not Responding",
+                "On Hold",
+                "Other"
+            ],
+            "style": {
+                "None": null,
+                "Budget issue": null,
+                "Feasibility Challange": null,
+                "Awarded to other": null,
+                "Not Responding": null,
+                "On Hold": null,
+                "Other": null
+            },
+            "default": "None",
+            "isCustom": true
+        },
+        "biddingOpenDate": {
+            "notNull": false,
+            "type": "date",
+            "isCustom": true
+        },
+        "biddingCloseDate": {
+            "notNull": false,
+            "type": "date",
+            "isCustom": true
+        },
+        "qADate": {
+            "notNull": false,
+            "type": "date",
+            "isCustom": true
+        },
+        "type": {
+            "type": "multiEnum",
+            "storeArrayValues": true,
+            "required": true,
+            "options": [
+                "CRM",
+                "ERP",
+                "Web",
+                "Mobile",
+                "AI/ML",
+                "Ecommerce",
+                "BI",
+                "Consulting"
+            ],
+            "style": {
+                "CRM": null,
+                "ERP": null,
+                "Web": null,
+                "Mobile": null,
+                "AI/ML": null,
+                "Ecommerce": null,
+                "BI": null,
+                "Consulting": null
+            },
+            "isCustom": true
+        },
+        "techStack": {
+            "type": "multiEnum",
+            "storeArrayValues": true,
+            "options": [
+                "Salesforce",
+                "PHP",
+                ".Net",
+                "Node js",
+                "React js",
+                "Ui",
+                "UX",
+                "AI/ML",
+                "Python",
+                "Vtiger",
+                "Zoho Crm",
+                "Zoho creator",
+                "Power Bi",
+                "MS Dynamics AX",
+                "Ms Dynamics 360",
+                "Ms Dynamics CRM",
+                "Odoo",
+                "Magento",
+                "Shopify"
+            ],
+            "style": {
+                "Salesforce": null,
+                "PHP": null,
+                ".Net": null,
+                "Node js": null,
+                "React js": null,
+                "Ui": null,
+                "UX": null,
+                "AI/ML": null,
+                "Python": null,
+                "Vtiger": null,
+                "Zoho Crm": null,
+                "Zoho creator": null,
+                "Power Bi": null,
+                "MS Dynamics AX": null,
+                "Ms Dynamics 360": null,
+                "Ms Dynamics CRM": null,
+                "Odoo": null,
+                "Magento": null,
+                "Shopify": null
+            },
+            "isCustom": true
+        },
+        "stage": {
+            "style": {
+                "Prospecting": null,
+                "Qualification": "warning",
+                "Proposal": "info",
+                "Negotiation": "primary",
+                "Closed Won": "success",
+                "Closed Lost": "danger"
+            }
+        },
+        "cSynconetime": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        },
+        "cDataMaster": {
+            "type": "linkOne",
+            "isCustom": true
+        }
+    },
+    "links": {
+        "cDataMaster": {
+            "type": "hasOne",
+            "foreign": "opportunity",
+            "entity": "CDataMaster",
+            "isCustom": true
+        },
+        "cDealMilestones": {
+            "type": "hasMany",
+            "foreign": "opportunity",
+            "entity": "CDealMilestone",
+            "audited": false,
+            "isCustom": true
+        },
+        "cSalesPlanningMonthlies": {
+            "type": "hasMany",
+            "relationName": "cSalesPlanningMonthlyOpportunity",
+            "foreign": "opportunities",
+            "entity": "CSalesPlanningMonthly",
+            "audited": false,
+            "isCustom": true
+        }
+    }
+}

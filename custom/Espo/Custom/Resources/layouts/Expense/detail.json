@@ -1,0 +1,38 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "amount"
+                },
+                {
+                    "name": "expenseDate"
+                }
+            ],
+            [
+                {
+                    "name": "vendorName"
+                },
+                {
+                    "name": "paidBy"
+                },
+                {
+                    "name": "category"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "expenseBillAttachement"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

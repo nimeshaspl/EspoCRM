@@ -1,0 +1,27 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "hoursSpent"
+                },
+                {
+                    "name": "isBilled"
+                }
+            ],
+            [
+                {
+                    "name": "additionalWorkDetails"
+                },
+                {
+                    "name": "description"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

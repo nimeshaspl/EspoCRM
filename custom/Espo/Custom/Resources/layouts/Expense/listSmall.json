@@ -1,0 +1,26 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Expense Title"
+    },
+    {
+        "name": "category"
+    },
+    {
+        "name": "paidBy",
+        "label": "Paid By"
+    },
+    {
+        "name": "amount",
+        "label": "Amount"
+    },
+    {
+        "name": "expenseDate",
+        "label": "Expense Date"
+    },
+    {
+        "name": "createdBy",
+        "label": "Created By"
+    }
+]

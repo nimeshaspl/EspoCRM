@@ -1,0 +1,21 @@
+[
+    {
+        "name": "candidateManagement"
+    },
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "abilityToWorkInATeamIndividual"
+    },
+    {
+        "name": "recommendation"
+    },
+    {
+        "name": "createdAt"
+    },
+    {
+        "name": "createdBy"
+    }
+]

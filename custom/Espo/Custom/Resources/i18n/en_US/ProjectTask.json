@@ -1,0 +1,45 @@
+{
+    "fields": {
+        "name": "Task Name",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "plannedHours": "Planned Hours",
+        "actualHours": "Actual Hours",
+        "document": "Document",
+        "status": "Status",
+        "milestone": "Milestone",
+        "project": "Project",
+        "totalBug": "Total Bug",
+        "pendingBug": "Pending Bug",
+        "resolvedBug": "Resolved Bug",
+        "timesheets": "Timesheets",
+        "bugTrackers": "Bug Trackers",
+        "testCaseses": "Test Caseses",
+        "account": "Account",
+        "cRHour": "CR Hour",
+        "invoiceNo": "Invoice No",
+        "taskID": "TaskID",
+        "totalCost": "TotalCost"
+    },
+    "links": {
+        "milestone": "Milestone",
+        "project": "Project",
+        "timesheets": "Timesheets",
+        "bugTrackers": "Bug Trackers",
+        "testCaseses": "Test Caseses",
+        "account": "Account"
+    },
+    "labels": {
+        "Create ProjectTask": "Create Project Task"
+    },
+    "options": {
+        "status": {
+            "Not Started": "Not Started",
+            "In Progress": "In Progress",
+            "QA": "QA",
+            "UAT": "UAT",
+            "Completed": "Completed",
+            "On Hold": "On Hold"
+        }
+    }
+}

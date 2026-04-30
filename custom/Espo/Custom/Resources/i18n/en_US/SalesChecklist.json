@@ -1,0 +1,22 @@
+{
+    "fields": {
+        "completed": "Completed",
+        "type": "Type",
+        "targetDate": "Target Date"
+    },
+    "links": [],
+    "labels": {
+        "Create SalesChecklist": "Create Sales Checklist"
+    },
+    "options": {
+        "type": {
+            "Document": "Document",
+            "Website": "Website",
+            "Material": "Material",
+            "Credentials": "Credentials",
+            "CRM Module": "CRM Module",
+            "Recruitement": "Recruitement",
+            "Other": "Other"
+        }
+    }
+}

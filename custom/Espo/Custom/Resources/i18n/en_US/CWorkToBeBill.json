@@ -1,0 +1,15 @@
+{
+    "fields": {
+        "project": "Project",
+        "isBilled": "Is Billed?",
+        "additionalWorkDetails": "Additional Work Details",
+        "hoursSpent": "Hours Spent",
+        "description": "Adjustment Details"
+    },
+    "links": {
+        "project": "Project"
+    },
+    "labels": {
+        "Create CWorkToBeBill": "Create Work to Be Bill"
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "smtpPassword": "5M3rbVJ61yQ2qX8F",
+    "restrictedMode": false,
+    "webSocketMessager": "ZeroMQ",
+    "clientSecurityHeadersDisabled": false,
+    "clientCspDisabled": false,
+    "clientCspScriptSourceList": [
+        "https://maps.googleapis.com"
+    ],
+    "passwordSalt": "704cd380bdacdb9e",
+    "cryptKey": "9233b943d03b31e396d0b1d8a11840de",
+    "hashSecretKey": "58eac5e115ba7d44a46c83fb8e54a574",
+    "oidcClientSecret": "OCZ8Q~WuJXYKfrdSP1dk5PU2i5PkSvzpxopbNcVZ",
+    "adminUpgradeDisabled": false,
+    "cleanupAppLog": true,
+    "cleanupAppLogPeriod": "30 days",
+    "apiSecretKeys": {}
+}

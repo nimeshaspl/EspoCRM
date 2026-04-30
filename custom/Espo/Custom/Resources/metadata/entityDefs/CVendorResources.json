@@ -1,0 +1,352 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true,
+            "pattern": "$noBadCharacters",
+            "options": []
+        },
+        "description": {
+            "type": "text"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "assignedUser": {
+            "type": "link",
+            "required": false,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "vendor": {
+            "type": "link"
+        },
+        "experiance": {
+            "notNull": false,
+            "type": "float",
+            "required": true,
+            "decimalPlaces": 1,
+            "isCustom": true
+        },
+        "budget": {
+            "notNull": false,
+            "type": "float",
+            "decimalPlaces": 2,
+            "isCustom": true
+        },
+        "budgetUnit": {
+            "type": "enum",
+            "options": [
+                "Monthly",
+                "Hourly",
+                "Fixed"
+            ],
+            "style": {
+                "Monthly": null,
+                "Hourly": null,
+                "Fixed": null
+            },
+            "default": "Monthly",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "originalCV": {
+            "type": "file",
+            "sourceList": [
+                "Document"
+            ],
+            "accept": [
+                ".docx",
+                ".doc",
+                ".rtf",
+                ".pdf",
+                ".odt"
+            ],
+            "isCustom": true
+        },
+        "sharableCV": {
+            "type": "file",
+            "sourceList": [
+                "Document"
+            ],
+            "accept": [
+                ".pdf",
+                ".odt",
+                ".docx",
+                ".doc",
+                ".rtf"
+            ],
+            "isCustom": true
+        },
+        "skillset": {
+            "type": "multiEnum",
+            "storeArrayValues": true,
+            "default": [],
+            "options": [
+                "ASP.net",
+                "Asp.net core",
+                "Dapper",
+                "Asp.net MVC",
+                "Angular js",
+                "Kendo js",
+                "Devx",
+                "Laravel",
+                "PHP",
+                "Codignator",
+                "Wordpress",
+                "Magento",
+                "Drupal",
+                "Nodejs",
+                "Next JS",
+                "Nuxt Js",
+                "Vue js",
+                "Vtiger CRM",
+                "Espo CRM",
+                "Salesforce Salescloud",
+                "Salesforce Marketing Cloud",
+                "Salesforce Service Cloud",
+                "Salesforce CPQ",
+                "Salesforce Mulesoft",
+                "Salesforce Experiance cloud",
+                "Salesforce Customer portal",
+                "Salesforce CG cloud",
+                "Salesforce Commerce Cloud",
+                "Salesforce Commerce Cloud B2B",
+                "Salesforce Insurance",
+                "Salesforce FSC",
+                "Salesforce Health Cloud",
+                "Salesforce GC",
+                "QA",
+                "UI",
+                "Web designer",
+                "AWS Cloud engineer",
+                "Azure Cloud engineer",
+                "Data Engineer",
+                "AWS Glue",
+                "Apache Spark",
+                "Panda and Nupmhy",
+                "Sharepoint",
+                "AI/ML",
+                "Python",
+                "Azue Blob",
+                "Azure CI/CD",
+                "AWS CI/CD",
+                "Mongo DB",
+                "React Js",
+                "Salesforce Application Architect",
+                "Salesforce AI",
+                "Salesforce Admin",
+                "Salesforce CDP",
+                "Salesforce PD1",
+                "Salesforce PD2",
+                "Salesforce Data Cloud",
+                "Java",
+                "Business Central",
+                "Dynamics CRM",
+                "NAV",
+                "Azure Devops",
+                "Kubernets",
+                "Dynamics 365 & F&O"
+            ],
+            "style": {
+                "ASP.net": null,
+                "Asp.net core": null,
+                "Dapper": null,
+                "Asp.net MVC": null,
+                "Angular js": null,
+                "Kendo js": null,
+                "Devx": null,
+                "Laravel": null,
+                "PHP": null,
+                "Codignator": null,
+                "Wordpress": null,
+                "Magento": null,
+                "Drupal": null,
+                "Nodejs": null,
+                "Next JS": null,
+                "Nuxt Js": null,
+                "Vue js": null,
+                "Vtiger CRM": null,
+                "Espo CRM": null,
+                "Salesforce Salescloud": null,
+                "Salesforce Marketing Cloud": null,
+                "Salesforce Service Cloud": null,
+                "Salesforce CPQ": null,
+                "Salesforce Mulesoft": null,
+                "Salesforce Experiance cloud": null,
+                "Salesforce Customer portal": null,
+                "Salesforce CG cloud": null,
+                "Salesforce Commerce Cloud": null,
+                "Salesforce Commerce Cloud B2B": null,
+                "Salesforce Insurance": null,
+                "Salesforce FSC": null,
+                "Salesforce Health Cloud": null,
+                "Salesforce GC": null,
+                "QA": null,
+                "UI": null,
+                "Web designer": null,
+                "AWS Cloud engineer": null,
+                "Azure Cloud engineer": null,
+                "Data Engineer": null,
+                "AWS Glue": null,
+                "Apache Spark": null,
+                "Panda and Nupmhy": null,
+                "Sharepoint": null,
+                "AI/ML": null,
+                "Python": null,
+                "Azue Blob": null,
+                "Azure CI/CD": null,
+                "AWS CI/CD": null,
+                "Mongo DB": null,
+                "React Js": null,
+                "Salesforce Application Architect": null,
+                "Salesforce AI": null,
+                "Salesforce Admin": null,
+                "Salesforce CDP": null,
+                "Salesforce PD1": null,
+                "Salesforce PD2": null,
+                "Salesforce Data Cloud": null,
+                "Java": null,
+                "Business Central": null,
+                "Dynamics CRM": null,
+                "NAV": null,
+                "Azure Devops": null,
+                "Kubernets": null,
+                "Dynamics 365 & F&O": null
+            },
+            "isSorted": true,
+            "allowCustomOptions": true,
+            "displayAsList": true,
+            "isCustom": true
+        },
+        "panCard": {
+            "type": "file",
+            "sourceList": [],
+            "accept": [],
+            "isCustom": true
+        },
+        "adharCard": {
+            "type": "file",
+            "sourceList": [],
+            "accept": [],
+            "isCustom": true
+        },
+        "email": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        },
+        "phoneNumber": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "vendor": {
+            "type": "belongsTo",
+            "foreign": "cVendorResourceses",
+            "entity": "Vendor",
+            "audited": false,
+            "isCustom": true
+        },
+        "originalCV": {
+            "type": "belongsTo",
+            "entity": "Attachment",
+            "skipOrmDefs": true,
+            "utility": true
+        },
+        "sharableCV": {
+            "type": "belongsTo",
+            "entity": "Attachment",
+            "skipOrmDefs": true,
+            "utility": true
+        },
+        "panCard": {
+            "type": "belongsTo",
+            "entity": "Attachment",
+            "skipOrmDefs": true,
+            "utility": true
+        },
+        "adharCard": {
+            "type": "belongsTo",
+            "entity": "Attachment",
+            "skipOrmDefs": true,
+            "utility": true
+        }
+    },
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": [
+            "name"
+        ],
+        "fullTextSearch": true,
+        "countDisabled": false
+    },
+    "indexes": {
+        "name": {
+            "columns": [
+                "name",
+                "deleted"
+            ]
+        },
+        "assignedUser": {
+            "columns": [
+                "assignedUserId",
+                "deleted"
+            ]
+        },
+        "createdAt": {
+            "columns": [
+                "createdAt"
+            ]
+        },
+        "createdAtId": {
+            "unique": true,
+            "columns": [
+                "createdAt",
+                "id"
+            ]
+        }
+    },
+    "optimisticConcurrencyControl": false
+}

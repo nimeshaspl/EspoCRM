@@ -1,0 +1,18 @@
+{
+    "_delimiter_": {
+        "disabled": true
+    },
+    "stream": {
+        "sticked": false,
+        "index": 0
+    },
+    "opportunities": {
+        "index": 1
+    },
+    "dataMasters": {
+        "index": 2
+    },
+    "contacts": {
+        "index": 3
+    }
+}

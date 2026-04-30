@@ -1,0 +1,14 @@
+{
+    "fields": {
+        "approver": "Approver",
+        "project": "Project",
+        "employeeSalary": "EmployeeSalary"
+    },
+    "links": {
+        "approver": "Approver",
+        "project": "Project"
+    },
+    "labels": {
+        "Create ManagerMapping": "Create Approver List"
+    }
+}

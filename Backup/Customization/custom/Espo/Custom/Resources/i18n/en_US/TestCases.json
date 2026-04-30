@@ -1,0 +1,18 @@
+{
+    "fields": {
+        "projectTask": "Project Task",
+        "name": "Title",
+        "caseHandeled": "Case Handeled"
+    },
+    "links": {
+        "projectTask": "Project Task"
+    },
+    "labels": {
+        "Create TestCases": "Create Test Cases"
+    },
+    "options": {
+        "caseHandeled": {
+            "Handled": "Handled"
+        }
+    }
+}

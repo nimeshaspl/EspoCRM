@@ -1,0 +1,23 @@
+[
+    {
+        "name": ":assignedUser"
+    },
+    {
+        "name": "project"
+    },
+    {
+        "name": "projectTask"
+    },
+    {
+        "name": "bugTracker"
+    },
+    {
+        "name": "holidayList"
+    },
+    {
+        "name": "leave"
+    },
+    {
+        "name": "teams"
+    }
+]

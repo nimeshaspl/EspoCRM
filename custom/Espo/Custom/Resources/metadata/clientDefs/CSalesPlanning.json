@@ -1,0 +1,14 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#a01414",
+    "iconClass": "fas fa-award",
+    "relationshipPanels": {
+        "salesPlanningMonthlies": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

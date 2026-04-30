@@ -1,0 +1,110 @@
+{
+    "fields": {
+        "linkedin": {
+            "type": "url",
+            "copyToClipboard": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "prospectiveContact": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        },
+        "biddingPortal": {
+            "notNull": true,
+            "type": "bool",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "meetingDate": {
+            "notNull": false,
+            "type": "date",
+            "isCustom": true
+        },
+        "projects": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "emailSchedules": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "cDataMaster1": {
+            "type": "linkOne",
+            "isCustom": true
+        },
+        "cContactFollowup": {
+            "type": "enum",
+            "options": [
+                "None",
+                "Not Relevant",
+                "Keep in Touch"
+            ],
+            "default": "None",
+            "audited": true,
+            "style": {
+                "None": null,
+                "Not Relevant": null,
+                "Keep in Touch": null
+            },
+            "maxLength": 100,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "projects": {
+            "type": "hasMany",
+            "foreign": "contact",
+            "entity": "Project",
+            "audited": false,
+            "isCustom": true
+        },
+        "emailSchedules": {
+            "type": "hasMany",
+            "foreign": "contact",
+            "entity": "EmailSchedule",
+            "audited": false,
+            "isCustom": true
+        },
+        "cDataMaster1": {
+            "type": "hasOne",
+            "foreign": "contact1",
+            "entity": "CDataMaster",
+            "isCustom": true
+        },
+        "cSalesPlanningMonthlies": {
+            "type": "hasMany",
+            "relationName": "cSalesPlanningMonthlyContact",
+            "foreign": "contacts",
+            "entity": "CSalesPlanningMonthly",
+            "audited": false,
+            "isCustom": true
+        }
+    },
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": [
+            "name",
+            "emailAddress"
+        ],
+        "fullTextSearch": true,
+        "countDisabled": false
+    },
+    "optimisticConcurrencyControl": false
+}

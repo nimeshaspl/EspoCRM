@@ -1,0 +1,18 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "iconClass": "fas fa-calendar-alt",
+    "relationshipPanels": {
+        "project": {
+            "layout": null
+        },
+        "projectTasks": {
+            "layout": null
+        },
+        "account": {
+            "layout": null
+        }
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#a23838",
+    "iconClass": "fas fa-atom",
+    "relationshipPanels": {
+        "cVendorResourceses": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

@@ -1,0 +1,24 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "targetType"
+    },
+    {
+        "name": "amount"
+    },
+    {
+        "name": "targetCount"
+    },
+    {
+        "name": "fromDate"
+    },
+    {
+        "name": "endDate"
+    },
+    {
+        "name": "assignedUser"
+    }
+]

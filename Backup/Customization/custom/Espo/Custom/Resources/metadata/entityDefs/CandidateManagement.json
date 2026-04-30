@@ -1,0 +1,433 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true,
+            "pattern": "$noBadCharacters",
+            "options": []
+        },
+        "description": {
+            "type": "text"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "assignedUser": {
+            "type": "link",
+            "required": false,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "currentCTC": {
+            "type": "int",
+            "required": true,
+            "audited": true,
+            "isCustom": true
+        },
+        "experience": {
+            "notNull": false,
+            "type": "float",
+            "required": true,
+            "decimalPlaces": 1,
+            "audited": true,
+            "isCustom": true
+        },
+        "stage": {
+            "type": "enum",
+            "options": [
+                "Open",
+                "Screening",
+                "HR Interview",
+                "Technical Interview",
+                "F2F Interview",
+                "Management Interview",
+                "Hired",
+                "Rejected",
+                "Hold",
+                "Not Answered"
+            ],
+            "style": {
+                "Open": null,
+                "Screening": "warning",
+                "HR Interview": "info",
+                "Technical Interview": "primary",
+                "F2F Interview": "info",
+                "Management Interview": "warning",
+                "Hired": "success",
+                "Rejected": "danger",
+                "Hold": "danger",
+                "Not Answered": "danger"
+            },
+            "default": "Open",
+            "audited": true,
+            "isCustom": true
+        },
+        "linkedUrl": {
+            "type": "url",
+            "audited": true,
+            "isCustom": true
+        },
+        "contactNumber": {
+            "type": "text",
+            "required": true,
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "audited": true,
+            "isCustom": true,
+            "rows": 1
+        },
+        "email": {
+            "type": "text",
+            "required": true,
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "readOnly": false,
+            "isCustom": true,
+            "audited": true,
+            "rows": 1
+        },
+        "cVUrl": {
+            "type": "url",
+            "required": true,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "positionManagement": {
+            "type": "link"
+        },
+        "documents": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": false,
+            "layoutMassUpdateDisabled": false,
+            "layoutListDisabled": false,
+            "noLoad": false,
+            "importDisabled": false,
+            "exportDisabled": false,
+            "customizationDisabled": false,
+            "isCustom": true
+        },
+        "parent": {
+            "type": "linkParent",
+            "entityList": [
+                "Call",
+                "Email",
+                "Task"
+            ]
+        },
+        "recruitementCalls": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": false,
+            "layoutMassUpdateDisabled": false,
+            "layoutListDisabled": false,
+            "noLoad": false,
+            "importDisabled": false,
+            "exportDisabled": false,
+            "customizationDisabled": false,
+            "isCustom": true
+        },
+        "expectedCTC": {
+            "type": "int",
+            "isCustom": true
+        },
+        "experianceType": {
+            "type": "enum",
+            "options": [
+                "Intern",
+                "Fresher",
+                "Mid Level experienced",
+                "Highly experienced",
+                "Junior"
+            ],
+            "style": {
+                "Intern": null,
+                "Fresher": null,
+                "Mid Level experienced": null,
+                "Highly experienced": null,
+                "Junior": null
+            },
+            "default": "Intern",
+            "isCustom": true
+        },
+        "futureReferance": {
+            "notNull": true,
+            "type": "bool",
+            "audited": true,
+            "isCustom": true
+        },
+        "cCandidateFeedbacks": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "tasks": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "source": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "Email",
+                "Linked-In",
+                "Website",
+                "Indeed",
+                "Naukri",
+                "Others"
+            ],
+            "style": {
+                "Email": null,
+                "Linked-In": null,
+                "Website": null,
+                "Indeed": null,
+                "Naukri": null,
+                "Others": null
+            },
+            "default": "Email",
+            "isSorted": true,
+            "displayAsLabel": true,
+            "audited": true,
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "lastIncrementDate": {
+            "notNull": false,
+            "type": "date",
+            "audited": true,
+            "isCustom": true
+        },
+        "lastIncrementAmount": {
+            "notNull": false,
+            "type": "float",
+            "required": true,
+            "min": 1,
+            "decimalPlaces": 2,
+            "isCustom": true
+        },
+        "callStatus": {
+            "type": "enum",
+            "style": {
+                "Connected": null,
+                "No Answer": null,
+                "Invalid Number": null,
+                "Not Tried": null
+            },
+            "maxLength": 100,
+            "isCustom": true,
+            "options": [
+                "Connected",
+                "No Answer",
+                "Invalid Number",
+                "Not Tried"
+            ],
+            "default": "Not Tried",
+            "isSorted": true
+        },
+        "currentLocation": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        },
+        "homeTown": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        },
+        "readyToRelocate": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        },
+        "englishCommunication": {
+            "type": "enum",
+            "options": [
+                "Intermediate",
+                "Medium",
+                "Fluent"
+            ],
+            "default": "Intermediate",
+            "style": {
+                "Intermediate": null,
+                "Medium": null,
+                "Fluent": null
+            },
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "interviewType": {
+            "type": "enum",
+            "options": [
+                "Virtual Interview",
+                "Face to Face Interview"
+            ],
+            "default": "Virtual Interview",
+            "style": {
+                "Virtual Interview": null,
+                "Face to Face Interview": null
+            },
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "bondOfYearServiceAgreement": {
+            "type": "int",
+            "audited": true,
+            "isCustom": true
+        },
+        "salaryOffered": {
+            "notNull": false,
+            "type": "float",
+            "decimalPlaces": 2,
+            "audited": true,
+            "isCustom": true
+        },
+        "dateOfJoining": {
+            "notNull": false,
+            "type": "date",
+            "audited": true,
+            "isCustom": true
+        },
+        "remarks": {
+            "type": "wysiwyg",
+            "audited": true,
+            "isCustom": true
+        },
+        "noticePeriod": {
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "positionManagement": {
+            "type": "belongsTo",
+            "foreign": "candidateManagements",
+            "entity": "PositionManagement",
+            "audited": false,
+            "isCustom": true
+        },
+        "documents": {
+            "type": "hasMany",
+            "relationName": "candidateManagementDocument",
+            "foreign": "candidateManagements",
+            "entity": "Document",
+            "audited": false,
+            "isCustom": true
+        },
+        "parent": {
+            "type": "belongsToParent",
+            "foreign": "candidateManagements",
+            "isCustom": true
+        },
+        "recruitementCalls": {
+            "type": "hasMany",
+            "relationName": "candidateManagementRecruitementCall",
+            "foreign": "candidateManagements",
+            "entity": "RecruitementCall",
+            "audited": false,
+            "isCustom": true
+        },
+        "cCandidateFeedbacks": {
+            "type": "hasMany",
+            "foreign": "candidateManagement",
+            "entity": "CCandidateFeedback",
+            "audited": false,
+            "isCustom": true
+        },
+        "tasks": {
+            "type": "hasMany",
+            "foreign": "cCandidateManagement",
+            "entity": "Task",
+            "audited": false,
+            "isCustom": true
+        }
+    },
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": [
+            "name",
+            "description"
+        ],
+        "fullTextSearch": true,
+        "countDisabled": false
+    },
+    "indexes": {
+        "name": {
+            "columns": [
+                "name",
+                "deleted"
+            ]
+        },
+        "assignedUser": {
+            "columns": [
+                "assignedUserId",
+                "deleted"
+            ]
+        },
+        "createdAt": {
+            "columns": [
+                "createdAt"
+            ]
+        },
+        "createdAtId": {
+            "unique": true,
+            "columns": [
+                "createdAt",
+                "id"
+            ]
+        }
+    },
+    "optimisticConcurrencyControl": false
+}

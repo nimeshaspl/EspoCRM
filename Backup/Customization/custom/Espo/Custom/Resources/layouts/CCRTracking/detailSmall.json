@@ -1,0 +1,32 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "amount"
+                },
+                {
+                    "name": "hours"
+                }
+            ],
+            [
+                {
+                    "name": "status"
+                },
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "supportiveDocument"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

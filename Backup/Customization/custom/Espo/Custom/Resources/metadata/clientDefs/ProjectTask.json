@@ -1,0 +1,43 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "iconClass": "fas fa-briefcase",
+    "relationshipPanels": {
+        "milestone": {
+            "layout": null
+        },
+        "project": {
+            "layout": null
+        },
+        "timesheets": {
+            "layout": null
+        },
+        "bugTrackers": {
+            "layout": null
+        },
+        "testCaseses": {
+            "layout": null
+        },
+        "account": {
+            "layout": null
+        }
+    },
+    "kanbanViewMode": true,
+    "color": null,
+    "dynamicLogic": {
+        "fields": {
+            "invoiceNo": {
+                "readOnly": {
+                    "conditionGroup": [
+                        {
+                            "type": "isEmpty",
+                            "attribute": "cRHour"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,24 @@
+{
+    "fields": {
+        "originalDate": {
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "originalDate"
+                    }
+                ]
+            }
+        },
+        "newDate": {
+            "invalid": {
+                "conditionGroup": [
+                    {
+                        "type": "inPast",
+                        "attribute": "newDate"
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,27 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "type"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "targetDate"
+                },
+                {
+                    "name": "completed"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

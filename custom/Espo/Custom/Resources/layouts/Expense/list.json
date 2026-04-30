@@ -1,0 +1,31 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Expense Title"
+    },
+    {
+        "name": "vendorName",
+        "label": "Vendor Name"
+    },
+    {
+        "name": "category"
+    },
+    {
+        "name": "paidBy",
+        "notSortable": true,
+        "label": "Paid By"
+    },
+    {
+        "name": "amount",
+        "label": "Amount"
+    },
+    {
+        "name": "expenseDate",
+        "label": "Expense Date"
+    },
+    {
+        "name": "assignedUser",
+        "label": "Exp Created By"
+    }
+]

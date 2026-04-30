@@ -1,0 +1,16 @@
+{
+    "relationshipPanels": {
+        "candidateManagement": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "dataMaster": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "parent": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

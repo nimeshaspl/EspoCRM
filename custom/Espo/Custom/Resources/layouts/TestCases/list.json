@@ -1,0 +1,27 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Title"
+    },
+    {
+        "name": "description",
+        "label": "Description"
+    },
+    {
+        "name": "projectTask",
+        "label": "Project Task"
+    },
+    {
+        "name": "createdAt",
+        "label": "Created At"
+    },
+    {
+        "name": "createdBy",
+        "label": "Created By"
+    },
+    {
+        "name": "caseHandeled",
+        "notSortable": true
+    }
+]

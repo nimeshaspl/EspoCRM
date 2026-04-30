@@ -1,0 +1,16 @@
+[
+    "createdAt",
+    "createdBy",
+    "assignedUser",
+    "assetType",
+    "name",
+    "processor",
+    "rAM",
+    "vendorName",
+    "hardDiskSize",
+    "brand",
+    "warrantyEndDate",
+    "warratyActive",
+    "invoiceNumber",
+    "isDamaged"
+]

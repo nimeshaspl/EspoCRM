@@ -1,0 +1,17 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "approver": {
+            "layout": null
+        },
+        "project": {
+            "layout": null
+        }
+    },
+    "kanbanViewMode": false,
+    "color": null,
+    "iconClass": "fas fa-bezier-curve"
+}

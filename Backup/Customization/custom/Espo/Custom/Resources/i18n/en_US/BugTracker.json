@@ -1,0 +1,48 @@
+{
+    "fields": {
+        "name": "Title",
+        "status": "Status",
+        "bugBy": "Bug By",
+        "files": "Files",
+        "priority": "Priority",
+        "totalHours": "Total Hours",
+        "projectTask": "Project Task",
+        "timesheets": "Timesheets",
+        "account": "Account",
+        "project": "Project",
+        "cRHour": "CR Hour",
+        "invoiceNo": "Invoice No",
+        "testingData": "Testing Data",
+        "bugId": "Bug Id",
+        "totalCost": "TotalCost",
+        "totalBugHours": "TotalBugHours"
+    },
+    "links": {
+        "projectTask": "Project Task",
+        "timesheets": "Timesheets",
+        "account": "Account",
+        "project": "Project"
+    },
+    "labels": {
+        "Create BugTracker": "Create Bug Tracker"
+    },
+    "options": {
+        "status": {
+            "Pending": "Pending",
+            "In Progress": "In Progress",
+            "QA": "QA",
+            "UAT": "UAT",
+            "Completed": "Completed"
+        },
+        "bugBy": {
+            "Client": "Client",
+            "QA": "QA",
+            "PM": "PM"
+        },
+        "priority": {
+            "Low": "Low",
+            "Medium": "Medium",
+            "High": "High"
+        }
+    }
+}

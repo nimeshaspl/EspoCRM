@@ -1,0 +1,42 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Task Duraion"
+    },
+    {
+        "name": "project"
+    },
+    {
+        "name": "projectTask",
+        "label": "Project Task"
+    },
+    {
+        "name": "workDate",
+        "label": "Work Date"
+    },
+    {
+        "name": "description",
+        "label": "Description"
+    },
+    {
+        "name": "submissionStatus",
+        "label": "Submission Status"
+    },
+    {
+        "name": "createdBy",
+        "label": "Employee"
+    },
+    {
+        "name": "users",
+        "notSortable": true,
+        "label": "Approver"
+    },
+    {
+        "name": "approverStatus",
+        "label": "Approver Status"
+    },
+    {
+        "name": "totalPrice"
+    }
+]

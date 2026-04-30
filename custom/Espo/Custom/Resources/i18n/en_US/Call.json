@@ -1,0 +1,20 @@
+{
+    "fields": {
+        "cDataMaster": "Data Master",
+        "cCallRecordingId": "Call recording id",
+        "cFrom": "From",
+        "cCallDuration": "Call Duration",
+        "cCallRecordingURL": "Call Recording URL",
+        "cPriority": "Priority"
+    },
+    "links": {
+        "cDataMaster": "Data Master"
+    },
+    "options": {
+        "cPriority": {
+            "Normal": "Normal",
+            "Medium": "Medium",
+            "High": "High"
+        }
+    }
+}

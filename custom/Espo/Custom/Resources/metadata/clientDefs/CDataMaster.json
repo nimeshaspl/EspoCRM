@@ -1,0 +1,42 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#cd6767",
+    "iconClass": "fas fa-address-card",
+    "kanbanViewMode": true,
+    "relationshipPanels": {
+        "calls": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "tasks": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "parent": {
+            "layout": null
+        },
+        "emails": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "contact1": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "account": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "opportunity": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "salesPlanningMonthlies": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

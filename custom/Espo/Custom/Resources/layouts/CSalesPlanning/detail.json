@@ -1,0 +1,129 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "year"
+                },
+                {
+                    "name": "quarter"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "primaryFocus"
+                }
+            ],
+            [
+                {
+                    "name": "totalRevenueTarget"
+                },
+                {
+                    "name": "avgTicketSizePerDeal"
+                },
+                {
+                    "name": "totalDataRequiredQuarter"
+                },
+                {
+                    "name": "leadsRequired"
+                }
+            ],
+            [
+                {
+                    "name": "countries"
+                },
+                {
+                    "name": "specificStateRegion"
+                },
+                {
+                    "name": "averageSalesCycleDays"
+                },
+                {
+                    "name": "expectedWinRate"
+                }
+            ],
+            [
+                {
+                    "name": "keyAssumptions"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "targetType"
+                },
+                {
+                    "name": "industryFocus"
+                },
+                {
+                    "name": "companySize"
+                }
+            ],
+            [
+                {
+                    "name": "decisionMakerTitles"
+                },
+                {
+                    "name": "budgetRange"
+                }
+            ],
+            [
+                {
+                    "name": "keyPainPoints"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "Target Market & ICP",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Target Market & ICP"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "dataMiningSources"
+                },
+                {
+                    "name": "totalDealsRequired"
+                }
+            ],
+            [
+                {
+                    "name": "marketingMaterialsRequirement"
+                },
+                {
+                    "name": "anySpecificTrainingDetails"
+                }
+            ],
+            [
+                {
+                    "name": "toolsAndCostPlanning"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "Data Planning & Material",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Data Planning & Material"
+    }
+]

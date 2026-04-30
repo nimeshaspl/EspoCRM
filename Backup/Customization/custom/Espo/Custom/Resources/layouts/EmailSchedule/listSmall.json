@@ -1,0 +1,16 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Subject"
+    },
+    {
+        "name": "contact"
+    },
+    {
+        "name": "user"
+    },
+    {
+        "name": "status"
+    }
+]

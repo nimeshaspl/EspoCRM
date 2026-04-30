@@ -1,0 +1,15 @@
+[
+    "testingData",
+    "invoiceNo",
+    "cRHour",
+    "account",
+    "assignedUser",
+    "bugId",
+    "createdAt",
+    "createdBy",
+    "bugBy",
+    "status",
+    "priority",
+    "project",
+    "projectTask"
+]

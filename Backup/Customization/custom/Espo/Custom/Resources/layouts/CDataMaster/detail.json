@@ -1,0 +1,162 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "title"
+                },
+                {
+                    "name": "linkedinUrl"
+                }
+            ],
+            [
+                {
+                    "name": "contactNo"
+                },
+                {
+                    "name": "contactNo2"
+                },
+                {
+                    "name": "personalEmail"
+                },
+                {
+                    "name": "personalEmailValidation"
+                }
+            ],
+            [
+                {
+                    "name": "companyName"
+                },
+                {
+                    "name": "companyEmail"
+                },
+                {
+                    "name": "companyEmailValidation"
+                },
+                {
+                    "name": "employeeSize"
+                }
+            ],
+            [
+                {
+                    "name": "address"
+                },
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "website"
+                }
+            ],
+            [
+                {
+                    "name": "requirementLink"
+                },
+                {
+                    "name": "source"
+                },
+                {
+                    "name": "status"
+                },
+                {
+                    "name": "prospectiveClient"
+                }
+            ],
+            [
+                {
+                    "name": "numberOfFollowupEmail"
+                },
+                {
+                    "name": "numberOfFollowupVoice"
+                },
+                {
+                    "name": "priority"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "contact1"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "isNotEmpty",
+                    "attribute": "contact1Id",
+                    "data": {
+                        "field": "contact1"
+                    }
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "label": ""
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "account"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "isNotEmpty",
+                    "attribute": "accountId",
+                    "data": {
+                        "field": "account"
+                    }
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "label": ""
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "opportunity"
+                },
+                false
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "isNotEmpty",
+                    "attribute": "opportunityId",
+                    "data": {
+                        "field": "opportunity"
+                    }
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "label": ""
+    }
+]

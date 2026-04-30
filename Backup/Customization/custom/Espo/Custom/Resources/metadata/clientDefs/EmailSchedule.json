@@ -1,0 +1,15 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "iconClass": "fas fa-blender-phone",
+    "relationshipPanels": {
+        "contact": {
+            "layout": null
+        },
+        "user": {
+            "layout": null
+        }
+    }
+}

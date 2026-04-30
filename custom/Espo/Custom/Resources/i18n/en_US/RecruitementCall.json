@@ -1,0 +1,27 @@
+{
+    "fields": {
+        "name": "Description",
+        "callDate": "Date",
+        "status": "Status",
+        "candidateManagements": "Candidate Managements",
+        "source": "Source"
+    },
+    "links": {
+        "candidateManagements": "Candidate Managements"
+    },
+    "labels": {
+        "Create RecruitementCall": "Create Recruitement Call"
+    },
+    "options": {
+        "status": {
+            "Held": "Held",
+            "Not Connected": "Not Connected",
+            "Call disconnected": "Call disconnected"
+        },
+        "source": {
+            "Call": "Call",
+            "Email": "Email",
+            "Linkedin": "Linkedin"
+        }
+    }
+}

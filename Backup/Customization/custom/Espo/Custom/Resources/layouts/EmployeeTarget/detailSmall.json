@@ -1,0 +1,43 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "targetType"
+                }
+            ],
+            [
+                {
+                    "name": "endDate"
+                },
+                {
+                    "name": "fromDate"
+                }
+            ],
+            [
+                {
+                    "name": "amount"
+                },
+                {
+                    "name": "targetCount"
+                },
+                {
+                    "name": "leadCount"
+                },
+                {
+                    "name": "newClientTarget"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

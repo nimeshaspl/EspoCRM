@@ -1,0 +1,40 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "technology"
+                },
+                {
+                    "name": "addedToDocument"
+                }
+            ],
+            [
+                {
+                    "name": "aboutClient"
+                },
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "challange"
+                },
+                {
+                    "name": "solution"
+                }
+            ],
+            [
+                {
+                    "name": "businessBenefits"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

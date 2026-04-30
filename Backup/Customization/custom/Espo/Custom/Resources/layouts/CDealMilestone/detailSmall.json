@@ -1,0 +1,32 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "amount"
+                }
+            ],
+            [
+                {
+                    "name": "originalDate"
+                },
+                {
+                    "name": "newDate"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "paymentReceived"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

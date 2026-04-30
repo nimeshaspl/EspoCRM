@@ -1,0 +1,26 @@
+[
+    {
+        "name": "name",
+        "link": "true"
+    },
+    {
+        "name": "status",
+        "width": 25
+    },
+    {
+        "name": "cCallDuration",
+        "width": 20
+    },
+    {
+        "name": "dateStart",
+        "width": 25
+    },
+    {
+        "name": "cPriority",
+        "width": 20
+    },
+    {
+        "name": "cCallRecordingURL",
+        "width": 20
+    }
+]

@@ -1,0 +1,16 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "PS Title"
+    },
+    {
+        "name": "description"
+    },
+    {
+        "name": "solution"
+    },
+    {
+        "name": "resolved"
+    }
+]

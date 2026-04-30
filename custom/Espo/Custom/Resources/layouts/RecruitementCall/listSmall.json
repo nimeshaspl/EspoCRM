@@ -1,0 +1,23 @@
+[
+    {
+        "name": "candidateManagements",
+        "notSortable": true
+    },
+    {
+        "name": "callDate",
+        "label": "Date"
+    },
+    {
+        "name": "status",
+        "label": "Status"
+    },
+    {
+        "name": "source",
+        "label": "Source"
+    },
+    {
+        "name": "name",
+        "link": true,
+        "label": "Description (name)"
+    }
+]

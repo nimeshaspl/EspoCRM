@@ -1,0 +1,63 @@
+{
+    "fields": {
+        "parent": {
+            "entityList": [
+                "Account",
+                "Lead",
+                "Contact",
+                "Opportunity",
+                "Case"
+            ]
+        },
+        "cDataMaster": {
+            "type": "link"
+        },
+        "cCallRecordingId": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cFrom": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cCallDuration": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cCallRecordingURL": {
+            "type": "url",
+            "isCustom": true
+        },
+        "cPriority": {
+            "type": "enum",
+            "options": [
+                "Normal",
+                "Medium",
+                "High"
+            ],
+            "style": {
+                "Normal": null,
+                "Medium": null,
+                "High": null
+            },
+            "default": "Normal",
+            "maxLength": 100,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "cDataMaster": {
+            "type": "belongsTo",
+            "foreign": "calls",
+            "entity": "CDataMaster",
+            "audited": false,
+            "isCustom": true
+        }
+    }
+}

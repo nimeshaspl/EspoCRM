@@ -1,0 +1,12 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "iconClass": "fas fa-calendar-check",
+    "relationshipPanels": {
+        "timesheets": {
+            "layout": null
+        }
+    }
+}

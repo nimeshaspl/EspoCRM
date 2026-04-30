@@ -1,0 +1,29 @@
+[
+    {
+        "name": "name",
+        "width": 40,
+        "link": true,
+        "align": "left",
+        "label": "Name"
+    },
+    {
+        "name": "description",
+        "label": "Description"
+    },
+    {
+        "name": "type",
+        "label": "Type"
+    },
+    {
+        "name": "assignedUser",
+        "label": "Assigned User"
+    },
+    {
+        "name": "targetDate",
+        "label": "Target Date"
+    },
+    {
+        "name": "completed",
+        "label": "Completed"
+    }
+]

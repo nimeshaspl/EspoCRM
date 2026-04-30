@@ -1,0 +1,30 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "targetType"
+    },
+    {
+        "name": "amount"
+    },
+    {
+        "name": "targetCount"
+    },
+    {
+        "name": "leadCount"
+    },
+    {
+        "name": "newClientTarget"
+    },
+    {
+        "name": "fromDate"
+    },
+    {
+        "name": "endDate"
+    },
+    {
+        "name": "assignedUser"
+    }
+]

@@ -1,0 +1,24 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "priority"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "status"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

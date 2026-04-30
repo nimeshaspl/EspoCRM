@@ -1,0 +1,17 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Name"
+    },
+    {
+        "name": "positionManagement",
+        "label": "Position Management"
+    },
+    {
+        "name": "experianceType"
+    },
+    {
+        "name": "stage"
+    }
+]

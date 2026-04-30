@@ -1,0 +1,27 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "approver"
+                },
+                {
+                    "name": "employeeSalary"
+                }
+            ],
+            [
+                {
+                    "name": "role"
+                },
+                {
+                    "name": "appraisalFormReleaseDate"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

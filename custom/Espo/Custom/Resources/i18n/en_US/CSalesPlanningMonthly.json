@@ -1,0 +1,32 @@
+{
+    "fields": {
+        "name": "Month",
+        "noOfDataRequired": "No. of Data Required",
+        "plannedLeads": "Planned Leads",
+        "plannedDeals": "Planned Deals",
+        "plannedClosures": "Planned Closures (USD)",
+        "plannedClosuresCurrency": "Planned Closures (USD) (Currency)",
+        "plannedClosuresConverted": "Planned Closures (USD) (Converted)",
+        "description": "Key Activities",
+        "risksRemarks": "Risks / Remarks",
+        "salesPlanning": "Sales Planning",
+        "dataMasters": "Data Masters",
+        "opportunities": "Opportunities",
+        "contacts": "Contacts"
+    },
+    "links": {
+        "salesPlanning": "Sales Planning",
+        "dataMasters": "Data Masters",
+        "opportunities": "Opportunities",
+        "contacts": "Contacts"
+    },
+    "labels": {
+        "Create CSalesPlanningMonthly": "Create Sales Planning Monthly"
+    },
+    "tooltips": {
+        "name": "Month 1/2/3",
+        "plannedLeads": "Planned Leads For Specific Month",
+        "plannedDeals": "Planned Deals For Specific Month",
+        "plannedClosures": "Planned Closures In USD"
+    }
+}

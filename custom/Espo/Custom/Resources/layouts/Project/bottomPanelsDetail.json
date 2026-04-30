@@ -1,0 +1,30 @@
+{
+    "_delimiter_": {
+        "disabled": true
+    },
+    "stream": {
+        "sticked": true,
+        "index": 0
+    },
+    "milestones": {
+        "index": 1
+    },
+    "projectUpdates": {
+        "index": 2
+    },
+    "cRTrackings": {
+        "index": 3
+    },
+    "projectTasks": {
+        "index": 4
+    },
+    "workToBeBills": {
+        "index": 5
+    },
+    "bugTrackers": {
+        "index": 6
+    },
+    "timesheets": {
+        "index": 7
+    }
+}

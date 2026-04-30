@@ -1,0 +1,32 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "technology"
+                },
+                {
+                    "name": "type"
+                }
+            ],
+            [
+                {
+                    "name": "vendorAddress"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "website"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

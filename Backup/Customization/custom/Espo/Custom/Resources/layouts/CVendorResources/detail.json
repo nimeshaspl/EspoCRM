@@ -1,0 +1,59 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "experiance"
+                },
+                {
+                    "name": "vendor"
+                }
+            ],
+            [
+                {
+                    "name": "email"
+                },
+                {
+                    "name": "phoneNumber"
+                }
+            ],
+            [
+                {
+                    "name": "skillset"
+                },
+                {
+                    "name": "budget"
+                },
+                {
+                    "name": "budgetUnit"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "originalCV"
+                },
+                {
+                    "name": "sharableCV"
+                }
+            ],
+            [
+                {
+                    "name": "panCard"
+                },
+                {
+                    "name": "adharCard"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

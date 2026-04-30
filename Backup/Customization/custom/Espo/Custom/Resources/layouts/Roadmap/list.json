@@ -1,0 +1,16 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Name"
+    },
+    {
+        "name": "description"
+    },
+    {
+        "name": "priority"
+    },
+    {
+        "name": "status"
+    }
+]

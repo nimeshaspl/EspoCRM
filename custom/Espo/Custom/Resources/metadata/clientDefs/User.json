@@ -1,0 +1,16 @@
+{
+    "relationshipPanels": {
+        "timesheets": {
+            "layout": null
+        },
+        "managerMappings": {
+            "layout": null
+        },
+        "timesheets1": {
+            "layout": null
+        },
+        "emailSchedules": {
+            "layout": null
+        }
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#e12727",
+    "iconClass": "fas fa-calendar-day",
+    "relationshipPanels": {
+        "salesPlanning": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "dataMasters": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "opportunities": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "contacts": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

@@ -1,0 +1,104 @@
+{
+    "fields": {
+        "name": "Quarter Details",
+        "quarter": "Quarter",
+        "year": "Year",
+        "description": "Quarter Objective",
+        "primaryFocus": "Primary Focus",
+        "totalRevenueTarget": "Total Revenue Target",
+        "totalRevenueTargetCurrency": "Total Revenue Target (Currency)",
+        "totalRevenueTargetConverted": "Total Revenue Target (Converted)",
+        "avgTicketSizePerDeal": "Avg Ticket Size per Deal",
+        "avgTicketSizePerDealCurrency": "Avg Ticket Size per Deal (Currency)",
+        "avgTicketSizePerDealConverted": "Avg Ticket Size per Deal (Converted)",
+        "totalDealsRequired": "Total Deals Required",
+        "expectedWinRate": "Expected Win Rate (%)",
+        "leadsRequired": "Leads Required",
+        "countries": "Countries",
+        "specificStateRegion": "Specific State / Region",
+        "averageSalesCycleDays": "Average Sales Cycle (Days)",
+        "keyAssumptions": "Key Assumptions",
+        "targetType": "Target Type",
+        "industryFocus": "Industry Focus",
+        "companySize": "Company Size",
+        "decisionMakerTitles": "Decision Maker Titles",
+        "keyPainPoints": "Key Pain Points",
+        "budgetRange": "Budget Range",
+        "budgetRangeCurrency": "Budget Range (Currency)",
+        "budgetRangeConverted": "Budget Range (Converted)",
+        "dataMiningSources": "Data Mining Sources",
+        "totalDataRequiredQuarter": "Total Data Required (Quarter)",
+        "toolsAndCostPlanning": "Tools and Cost Planning",
+        "marketingMaterialsRequirement": "Marketing Materials Requirement",
+        "anySpecificTrainingDetails": "Any Specific Training Details",
+        "salesPlanningMonthlies": "Sales Planning Monthlies"
+    },
+    "links": {
+        "salesPlanningMonthlies": "Sales Planning Monthlies"
+    },
+    "labels": {
+        "Create CSalesPlanning": "Create Sales Planning"
+    },
+    "tooltips": {
+        "name": "Quarter Year and Number like \"2026 Q1\"",
+        "quarter": "Quarter Number",
+        "primaryFocus": "Primary Focus Area",
+        "avgTicketSizePerDeal": "Avg Ticket Size per Deal",
+        "expectedWinRate": "Expected Win Rate (%)",
+        "specificStateRegion": "Specific State / Region by comma seperated",
+        "averageSalesCycleDays": "Average Sales Cycle in Days",
+        "keyAssumptions": "Key Assumptions",
+        "targetType": "Target Type",
+        "keyPainPoints": "Key Pain Points to Focus for Client",
+        "budgetRange": "Budget Range We Are Expecting.",
+        "dataMiningSources": "Data Mining Sources",
+        "totalDataRequiredQuarter": "Total Data Required (Quarter)",
+        "toolsAndCostPlanning": "Required tools along with it's monthly cost",
+        "marketingMaterialsRequirement": "Marketing Materials Requirement to Focus on Prospect.",
+        "anySpecificTrainingDetails": "Any specific training required then update on this,"
+    },
+    "options": {
+        "quarter": {
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4"
+        },
+        "year": {
+            "2025": "2025",
+            "2026": "2026",
+            "2027": "2027",
+            "2028": "2028",
+            "2029": "2029",
+            "2030": "2030"
+        },
+        "primaryFocus": {
+            "Existing Client": "Existing Client",
+            "New Client": "New Client",
+            "B2B": "B2B",
+            "B2C": "B2C",
+            "Dedicated Resource": "Dedicated Resource",
+            "Upsell": "Upsell",
+            "Renewal": "Renewal"
+        },
+        "countries": {
+            "United States": "United States",
+            "United Kingdom": "United Kingdom",
+            "Germany": "Germany",
+            "Netherlands": "Netherlands",
+            "Sweden": "Sweden",
+            "Estonia": "Estonia",
+            "Denmark": "Denmark",
+            "Norway": "Norway",
+            "Spain": "Spain",
+            "India": "India",
+            "UAE": "UAE",
+            "Saudi Arabia": "Saudi Arabia",
+            "Qatar": "Qatar"
+        },
+        "targetType": {
+            "B2B": "B2B",
+            "B2C": "B2C"
+        }
+    }
+}

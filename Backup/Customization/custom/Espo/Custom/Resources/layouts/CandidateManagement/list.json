@@ -1,0 +1,34 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Name"
+    },
+    {
+        "name": "email",
+        "label": "Email"
+    },
+    {
+        "name": "stage",
+        "label": "Stage"
+    },
+    {
+        "name": "contactNumber",
+        "label": "Contact Number"
+    },
+    {
+        "name": "experianceType",
+        "label": "Experiance Type"
+    },
+    {
+        "name": "currentCTC",
+        "label": "Current CTC"
+    },
+    {
+        "name": "expectedCTC"
+    },
+    {
+        "name": "positionManagement",
+        "label": "Position Management"
+    }
+]

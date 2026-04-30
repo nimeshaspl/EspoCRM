@@ -1,0 +1,58 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "assetType"
+                },
+                {
+                    "name": "brand"
+                }
+            ],
+            [
+                {
+                    "name": "vendorName"
+                },
+                {
+                    "name": "invoiceNumber"
+                },
+                {
+                    "name": "warrantyEndDate"
+                },
+                {
+                    "name": "purchaseDate"
+                }
+            ],
+            [
+                {
+                    "name": "processor"
+                },
+                {
+                    "name": "rAM"
+                },
+                {
+                    "name": "hardDiskSize"
+                },
+                {
+                    "name": "warratyActive"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "isDamaged"
+                },
+                {
+                    "name": "invoiceCopy"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

@@ -1,0 +1,57 @@
+{
+    "fields": {
+        "assetType": "Asset Type",
+        "vendorName": "Vendor Name",
+        "purchaseDate": "Purchase Date",
+        "warrantyEndDate": "Warranty End Date",
+        "rAM": "RAM in GB",
+        "processor": "Processor",
+        "hardDiskSize": "Hard disk Size(GB)",
+        "brand": "Brand",
+        "invoiceNumber": "Invoice Number",
+        "warratyActive": "Warraty Active",
+        "isDamaged": "Is Damaged?",
+        "invoiceCopy": "Invoice Copy"
+    },
+    "links": [],
+    "labels": {
+        "Create Asset": "Create Asset"
+    },
+    "options": {
+        "assetType": {
+            "Computer": "Computer",
+            "Laptop": "Laptop",
+            "Mouse": "Mouse",
+            "MousePad": "Mouse Pad",
+            "Charger": "Charger",
+            "Head Phone": "Head Phone",
+            "LED": "LED",
+            "Keyboard": "Keyboard",
+            "Other": "Other",
+            "Lan Cable": "Lan Cable",
+            "Printer": "Printer"
+        },
+        "vendorName": {
+            "None": "None",
+            "Arnam Solutions": "Arnam Solutions",
+            "Namrata Solutions": "Namrata Solutions",
+            "Solutions 365": "Solutions 365"
+        },
+        "processor": {
+            "I3": "I3",
+            "I5": "I5",
+            "I7": "I7",
+            "AMD": "AMD",
+            "Dual Core": "Dual Core",
+            "None": "None"
+        },
+        "brand": {
+            "Other": "Other",
+            "Dell": "Dell",
+            "HP": "HP",
+            "Asus": "Asus",
+            "Apple": "Apple",
+            "Logitech": "Logitech"
+        }
+    }
+}

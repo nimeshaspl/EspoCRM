@@ -1,0 +1,25 @@
+{
+    "relationshipPanels": {
+        "projects": {
+            "layout": null
+        },
+        "emailSchedules": {
+            "layout": null
+        },
+        "dataMaster": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "dataMaster1": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "salesPlanningMonthlies": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    },
+    "kanbanViewMode": false,
+    "color": "#a4c5e0",
+    "iconClass": "fas fa-id-badge"
+}

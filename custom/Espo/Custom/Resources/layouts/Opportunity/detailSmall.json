@@ -1,0 +1,63 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                }
+            ],
+            [
+                {
+                    "name": "account"
+                }
+            ],
+            [
+                {
+                    "name": "stage"
+                },
+                {
+                    "name": "closeDate"
+                }
+            ],
+            [
+                {
+                    "name": "amount"
+                }
+            ],
+            [
+                {
+                    "name": "contacts"
+                }
+            ],
+            [
+                {
+                    "name": "biddingOpenDate"
+                },
+                {
+                    "name": "qADate"
+                },
+                {
+                    "name": "biddingCloseDate"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "leadSource"
+                }
+            ],
+            [
+                {
+                    "name": "type"
+                },
+                {
+                    "name": "techStack"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

@@ -1,0 +1,26 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "solution"
+                }
+            ],
+            [
+                {
+                    "name": "resolved"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

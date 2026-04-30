@@ -1,0 +1,29 @@
+{
+    "fields": {
+        "name": "Position Name",
+        "experience": "Experience",
+        "noOfOpening": "No. of Opening",
+        "status": "Status",
+        "candidateManagement": "Candidate Management",
+        "candidateManagements": "Candidate Managements",
+        "parent": "Parent"
+    },
+    "links": {
+        "candidateManagement": "Candidate Management",
+        "candidateManagements": "Candidate Managements",
+        "parent": "Parent"
+    },
+    "labels": {
+        "Create PositionManagement": "Create Position Management"
+    },
+    "tooltips": {
+        "experience": "Experience in Years"
+    },
+    "options": {
+        "status": {
+            "Open": "Open",
+            "On Hold": "On Hold",
+            "Fulfiled": "Fulfiled"
+        }
+    }
+}

@@ -1,0 +1,41 @@
+{
+    "fields": {
+        "challange": "Challange",
+        "description": "About Project",
+        "solution": "Solution",
+        "businessBenefits": "Business Benefits",
+        "aboutClient": "About Client",
+        "technology": "Technology",
+        "addedToDocument": "Added To Document"
+    },
+    "links": [],
+    "labels": {
+        "Create CaseStudy": "Create Case Study"
+    },
+    "options": {
+        "technology": {
+            "Zoho CRM": "Zoho CRM",
+            "Zoho Desk": "Zoho Desk",
+            "Zoho Creator": "Zoho Creator",
+            "Hubspot": "Hubspot",
+            "Zoho website": "Zoho website",
+            "Odoo": "Odoo",
+            "Salesforce": "Salesforce",
+            "Asp.net": "Asp.net",
+            "Asp.net Core": "Asp.net Core",
+            "Laravel": "Laravel",
+            "Wordpress": "Wordpress",
+            "Mobile App": "Mobile App",
+            "Shopify": "Shopify",
+            "Magento": "Magento",
+            "Woocomerce": "Woocomerce",
+            "SFMC": "SFMC",
+            "Commerce Cloud": "Commerce Cloud",
+            "Other": "Other",
+            "Zoho one": "Zoho one",
+            "Power bi": "Power bi",
+            "Zoho Analytics": "Zoho Analytics",
+            "Drupal": "Drupal"
+        }
+    }
+}

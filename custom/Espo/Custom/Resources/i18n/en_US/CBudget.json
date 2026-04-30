@@ -1,0 +1,29 @@
+{
+    "fields": {
+        "departmentType": "Department/Type",
+        "budgetFromDate": "Budget From Date",
+        "budgetEndDate": "Budget End Date",
+        "type": "Type"
+    },
+    "links": [],
+    "labels": {
+        "Create CBudget": "Create Budget"
+    },
+    "options": {
+        "departmentType": {
+            "Asp.Net": "Asp.Net",
+            "Salesforce": "Salesforce",
+            "HR": "HR",
+            "Sales": "Sales",
+            "Digital Marketing": "Digital Marketing",
+            "PHP": "PHP",
+            "Zoho": "Zoho",
+            "Odoo": "Odoo",
+            "Ai/ML": "Ai/ML"
+        },
+        "type": {
+            "Planned": "Planned",
+            "Actual": "Actual"
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "_delimiter_": {
+        "disabled": true
+    },
+    "stream": {
+        "sticked": true,
+        "index": 0
+    },
+    "_tabBreak_0": {
+        "index": 1,
+        "tabBreak": true
+    },
+    "cVendorResourceses": {
+        "index": 2
+    }
+}

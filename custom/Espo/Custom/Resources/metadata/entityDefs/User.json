@@ -1,0 +1,123 @@
+{
+    "fields": {
+        "employeeTarget": {
+            "type": "link"
+        },
+        "timesheets": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "managerMappings": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": false,
+            "layoutMassUpdateDisabled": false,
+            "layoutListDisabled": false,
+            "noLoad": false,
+            "importDisabled": false,
+            "exportDisabled": false,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "timesheets1": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "emailSchedules": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "cAppraisalDate": {
+            "notNull": false,
+            "type": "date",
+            "isCustom": true
+        },
+        "cAppraisalTemplate": {
+            "type": "enum",
+            "options": [
+                "Project Manager",
+                "Developer",
+                "HR Manager",
+                "SEO",
+                "BDE",
+                "BDM",
+                "TL"
+            ],
+            "default": "Project Manager",
+            "style": {
+                "Project Manager": null,
+                "Developer": null,
+                "HR Manager": null,
+                "SEO": null,
+                "BDE": null,
+                "BDM": null,
+                "TL": null
+            },
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "cAppraisalRelease": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        }
+    },
+    "links": {
+        "employeeTarget": {
+            "type": "belongsTo",
+            "foreign": "users",
+            "entity": "EmployeeTarget",
+            "audited": false,
+            "isCustom": true
+        },
+        "timesheets": {
+            "type": "hasMany",
+            "relationName": "timesheetUser",
+            "foreign": "users",
+            "entity": "Timesheet",
+            "audited": false,
+            "isCustom": true
+        },
+        "managerMappings": {
+            "type": "hasMany",
+            "foreign": "approver",
+            "entity": "ManagerMapping",
+            "audited": false,
+            "isCustom": true
+        },
+        "timesheets1": {
+            "type": "hasMany",
+            "foreign": "users",
+            "entity": "Timesheet",
+            "audited": false,
+            "isCustom": true
+        },
+        "emailSchedules": {
+            "type": "hasMany",
+            "foreign": "user",
+            "entity": "EmailSchedule",
+            "audited": false,
+            "isCustom": true
+        }
+    }
+}

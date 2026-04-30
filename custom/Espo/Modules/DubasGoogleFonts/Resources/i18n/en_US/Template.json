@@ -1,0 +1,23 @@
+{
+    "options": {
+        "fontFace": {
+            "exo": "Exo",
+            "lato": "Lato",
+            "montserrat": "Montserrat",
+            "opensans": "Open Sans",
+            "oswald": "Oswald",
+            "raleway": "Raleway",
+            "roboto": "Roboto",
+            "sourcesanspro": "Source Sans Pro",
+            "ubuntu": "Ubuntu",
+            "glory": "Glory",
+            "nunito": "Nunito",
+            "poppins": "Poppins",
+            "quicksand": "Quicksand",
+            "sacramento": "Sacramento",
+            "sofia": "Sofia",
+            "parisienne": "Parisienne",
+            "msmadi": "Ms Madi"
+        }
+    }
+}

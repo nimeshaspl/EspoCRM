@@ -1,0 +1,31 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "assetType"
+    },
+    {
+        "name": "brand"
+    },
+    {
+        "name": "assignedUser"
+    },
+    {
+        "name": "createdAt",
+        "width": 16
+    },
+    {
+        "name": "createdBy",
+        "width": 16
+    },
+    {
+        "name": "modifiedAt",
+        "width": 16
+    },
+    {
+        "name": "modifiedBy",
+        "width": 16
+    }
+]

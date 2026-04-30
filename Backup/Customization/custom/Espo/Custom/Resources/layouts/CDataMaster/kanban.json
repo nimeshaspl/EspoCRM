@@ -1,0 +1,27 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "contactNo"
+    },
+    {
+        "name": "contactNo2"
+    },
+    {
+        "name": "personalEmail"
+    },
+    {
+        "name": "companyEmail"
+    },
+    {
+        "name": "addressState"
+    },
+    {
+        "name": "addressCountry"
+    },
+    {
+        "name": "assignedUser"
+    }
+]

@@ -1,0 +1,113 @@
+{
+    "fields": {
+        "name": "Name",
+        "website": "Website",
+        "title": "Title",
+        "companyEmail": "Company Email",
+        "linkedinUrl": "Linkedin Url",
+        "personalEmail": "Personal Email",
+        "contactNo": "Contact No",
+        "address": "Address",
+        "addressStreet": "Address Street",
+        "addressCity": "Address City",
+        "addressState": "Address State",
+        "addressCountry": "Address Country",
+        "addressPostalCode": "Address Postal Code",
+        "addressMap": "Address Map",
+        "contactNo2": "Contact no 2",
+        "source": "Source",
+        "employeeSize": "Employee Size",
+        "requirementLink": "Requirement Link",
+        "companyName": "Company Name",
+        "calls": "Calls",
+        "tasks": "Tasks",
+        "emails": "Emails",
+        "status": "Status",
+        "contact1": "Contact1",
+        "account": "Account",
+        "opportunity": "Opportunity",
+        "prospectiveClient": "Prospective Client",
+        "numberOfFollowupEmail": "Number of Followup Email",
+        "numberOfFollowupVoice": "Number of Followup Voice",
+        "salesPlanningMonthlies": "Sales Planning Monthlies",
+        "priority": "Priority",
+        "personalEmailValidation": "Personal Email Validation",
+        "companyEmailValidation": "Company Email Validation"
+    },
+    "links": {
+        "calls": "Calls",
+        "tasks": "Tasks",
+        "emails": "Emails",
+        "contact1": "Contact1",
+        "account": "Account",
+        "opportunity": "Opportunity",
+        "salesPlanningMonthlies": "Sales Planning Monthlies"
+    },
+    "labels": {
+        "Create CDataMaster": "Create Data Master"
+    },
+    "options": {
+        "source": {
+            "Lusha": "Lusha",
+            "Apollo": "Apollo",
+            "Google": "Google",
+            "LinkedIn": "LinkedIn",
+            "GoodFirms": "GoodFirms",
+            "Clutch": "Clutch",
+            "Others": "Others",
+            "Job Portal": "Job Portal",
+            "Upwork": "Upwork",
+            "SF Partner Directory": "SF Partner Directory",
+            "Salesforce AppExchange": "Salesforce AppExchange",
+            "Salesforce B2C Database": "Salesforce B2C Database"
+        },
+        "status": {
+            "No Answer/Voice Mail": "No Answer/Voice Mail",
+            "Call back": "Call back",
+            "Wrong Number": "Wrong Number",
+            "Lead not available": "Lead not available",
+            "Not Interested": "Not Interested",
+            "DNC (Do Not Call)": "DNC (Do Not Call)",
+            "Prospect": "Prospect",
+            "Client": "Client",
+            "None": "None",
+            "Follow up": "Follow up",
+            "Connected over LI": "Connected over LI",
+            "In-progress": "In-progress",
+            "Local Partner": "Local Partner"
+        },
+        "numberOfFollowupEmail": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"
+        ],
+        "numberOfFollowupVoice": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"
+        ],
+        "priority": {
+            "High": "High",
+            "Medium": "Medium",
+            "Low": "Low"
+        }
+    },
+    "tooltips": {
+        "companyEmailValidation": "Clean: Safe to send\nDirty: Remove from campaigns\nUnknown: Inconclusive result",
+        "personalEmailValidation": "Clean: Safe to send\nDirty: Remove from campaigns\nUnknown: Inconclusive result"
+    }
+}

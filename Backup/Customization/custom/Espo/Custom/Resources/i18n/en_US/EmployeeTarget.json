@@ -1,0 +1,36 @@
+{
+    "fields": {
+        "name": "Target Name",
+        "fromDate": "From Date",
+        "endDate": "End Date",
+        "amount": "Revenue Target Amount",
+        "amountCurrency": "Amount (Currency)",
+        "amountConverted": "Amount (Converted)",
+        "targetType": "Target Type",
+        "targetCount": "Target Contacts Count",
+        "leadCount": "Lead Count",
+        "newClientTarget": "New Client Target"
+    },
+    "links": {
+        "users": "Employee"
+    },
+    "labels": {
+        "Create EmployeeTarget": "Create Employee Target"
+    },
+    "tooltips": {
+        "fromDate": "From Date",
+        "amount": "Target Amount",
+        "targetType": "Target Type",
+        "targetCount": "Target Count",
+        "leadCount": "Number of Leads",
+        "newClientTarget": "New Client Target"
+    },
+    "options": {
+        "targetType": {
+            "Lead Generation": "Lead Generation",
+            "Revenue Generation": "Revenue Generation",
+            "Contact Creation": "Contact Creation",
+            "New Client": "New Client"
+        }
+    }
+}

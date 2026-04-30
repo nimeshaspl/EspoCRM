@@ -1,0 +1,64 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "category"
+                }
+            ],
+            [
+                {
+                    "name": "eventAddressStreet"
+                },
+                {
+                    "name": "eventAddressCity"
+                },
+                {
+                    "name": "eventAddressState"
+                }
+            ],
+            [
+                {
+                    "name": "eventAddressCountry"
+                },
+                {
+                    "name": "eventAddressPostalCode"
+                }
+            ],
+            [
+                {
+                    "name": "eventMonth"
+                },
+                {
+                    "name": "hashTag"
+                },
+                {
+                    "name": "eventUrl"
+                }
+            ],
+            [
+                {
+                    "name": "fromData"
+                },
+                {
+                    "name": "endDate"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "eventAddressMap"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

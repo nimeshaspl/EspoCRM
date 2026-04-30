@@ -1,0 +1,25 @@
+{
+    "fields": {
+        "name": "Milestone Name",
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "totalHours": "Total Hours",
+        "totalTask": "Total Task",
+        "pendingTask": "Pending Task",
+        "completedTask": "Completed Task",
+        "inProgressTask": "In Progress Task",
+        "totalBugs": "Total Bugs",
+        "project": "Project",
+        "documents": "Documents",
+        "projectTasks": "Project Tasks",
+        "account": "Account"
+    },
+    "links": {
+        "project": "Project",
+        "projectTasks": "Project Tasks",
+        "account": "Account"
+    },
+    "labels": {
+        "Create Milestone": "Create Milestone"
+    }
+}

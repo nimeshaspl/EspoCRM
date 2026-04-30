@@ -1,0 +1,146 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "positionManagement"
+                }
+            ],
+            [
+                {
+                    "name": "contactNumber"
+                },
+                {
+                    "name": "email"
+                },
+                {
+                    "name": "source"
+                }
+            ],
+            [
+                {
+                    "name": "experience"
+                },
+                {
+                    "name": "experianceType"
+                },
+                {
+                    "name": "currentCTC"
+                },
+                {
+                    "name": "expectedCTC"
+                }
+            ],
+            [
+                {
+                    "name": "englishCommunication"
+                },
+                {
+                    "name": "currentLocation"
+                },
+                {
+                    "name": "homeTown"
+                }
+            ],
+            [
+                {
+                    "name": "callStatus"
+                },
+                {
+                    "name": "interviewType"
+                },
+                {
+                    "name": "readyToRelocate"
+                },
+                {
+                    "name": "recruitementCalls"
+                }
+            ],
+            [
+                {
+                    "name": "cVUrl"
+                },
+                {
+                    "name": "linkedUrl"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "stage"
+                },
+                {
+                    "name": "futureReferance"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "lastIncrementDate"
+                },
+                {
+                    "name": "lastIncrementAmount"
+                },
+                {
+                    "name": "noticePeriod"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Past Experience"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "bondOfYearServiceAgreement"
+                },
+                {
+                    "name": "salaryOffered"
+                },
+                {
+                    "name": "dateOfJoining"
+                }
+            ],
+            [
+                {
+                    "name": "parent"
+                },
+                {
+                    "name": "remarks"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "stage",
+                    "value": "Hired"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Hired"
+    }
+]

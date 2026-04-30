@@ -1,0 +1,44 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                }
+            ],
+            [
+                {
+                    "name": "accounts"
+                }
+            ],
+            [
+                {
+                    "name": "emailAddress"
+                }
+            ],
+            [
+                {
+                    "name": "phoneNumber"
+                }
+            ],
+            [
+                {
+                    "name": "addressCity"
+                },
+                {
+                    "name": "addressCountry"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "linkedin"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

@@ -1,0 +1,11 @@
+[
+    "expenseDate",
+    "createdAt",
+    "createdBy",
+    "vendorName",
+    "name",
+    "paidBy",
+    "amount",
+    "category",
+    "expenseBillAttachement"
+]

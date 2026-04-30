@@ -1,0 +1,23 @@
+[
+    {
+        "name": "taskID"
+    },
+    {
+        "name": ":assignedUser"
+    },
+    {
+        "name": "project"
+    },
+    {
+        "name": "milestone"
+    },
+    {
+        "name": "status"
+    },
+    {
+        "name": "teams"
+    },
+    {
+        "name": "account"
+    }
+]

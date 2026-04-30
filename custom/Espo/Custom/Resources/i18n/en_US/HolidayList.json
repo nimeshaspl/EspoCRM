@@ -1,0 +1,13 @@
+{
+    "fields": {
+        "name": "Holiday Name",
+        "holidayDate": "Holiday Date",
+        "timesheets": "Timesheets"
+    },
+    "links": {
+        "timesheets": "Timesheets"
+    },
+    "labels": {
+        "Create HolidayList": "Create Holiday List"
+    }
+}

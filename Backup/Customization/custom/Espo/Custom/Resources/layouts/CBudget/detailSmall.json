@@ -1,0 +1,32 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "departmentType"
+                },
+                {
+                    "name": "type"
+                }
+            ],
+            [
+                {
+                    "name": "budgetFromDate"
+                },
+                {
+                    "name": "budgetEndDate"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

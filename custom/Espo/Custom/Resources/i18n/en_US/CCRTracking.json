@@ -1,0 +1,28 @@
+{
+    "fields": {
+        "supportiveDocument": "Supportive Document",
+        "hours": "Hours",
+        "status": "Status",
+        "amount": "Amount",
+        "amountCurrency": "Amount (Currency)",
+        "amountConverted": "Amount (Converted)",
+        "project": "Project"
+    },
+    "links": {
+        "project": "Project"
+    },
+    "labels": {
+        "Create CCRTracking": "Create CR Tracking"
+    },
+    "tooltips": {
+        "hours": "CR Proposed hours"
+    },
+    "options": {
+        "status": {
+            "Pending": "Pending",
+            "Approved": "Approved",
+            "Rejected": "Rejected",
+            "On Hold": "On Hold"
+        }
+    }
+}

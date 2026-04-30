@@ -1,0 +1,44 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "userName"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "title"
+                }
+            ],
+            [
+                {
+                    "name": "emailAddress"
+                },
+                {
+                    "name": "phoneNumber"
+                }
+            ],
+            [
+                {
+                    "name": "gender"
+                },
+                {
+                    "name": "cAppraisalDate"
+                },
+                {
+                    "name": "cAppraisalTemplate"
+                },
+                {
+                    "name": "cAppraisalRelease"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

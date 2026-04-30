@@ -1,0 +1,726 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "nextAppraisalDate"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "dynamicLogicStyled": null,
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "customLabel": "Overview"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "hRStrategiesThatSupportBusinessObjectives"
+                },
+                {
+                    "name": "contributionToStrategicPlanningAndLeadership"
+                }
+            ],
+            [
+                {
+                    "name": "workforcePlanningAndFutureTalentNeeds"
+                },
+                {
+                    "name": "changeManagementSupport"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "roleType",
+                    "value": "HR Manager"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "HR Manager",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Strategic Contribution"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "efficiencyOfFullcycleRecruitmentTimetohire"
+                },
+                {
+                    "name": "retentionStrategiesAndTurnoverAnalysis"
+                }
+            ],
+            [
+                {
+                    "name": "hiringManagerAndCandidateSatisfaction"
+                },
+                {
+                    "name": "candidateScreening"
+                },
+                {
+                    "name": "achievementFulfillment"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "roleType",
+                    "value": "HR Manager"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Recruitment & Retention"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "uptodateHRPoliciesAndComplianceWithLaborL"
+                },
+                {
+                    "name": "handlingOfEmployeeRelationsAndInvestigations"
+                }
+            ],
+            [
+                {
+                    "name": "riskAssessmentsAndAudits"
+                },
+                {
+                    "name": "minimizationOfLegalDisputes"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "roleType",
+                    "value": "HR Manager"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Policy & Compliance"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "implementationOfEngagementAndWellnessPrograms"
+                },
+                {
+                    "name": "analysisAndActionOnEngagementSurveys"
+                }
+            ],
+            [
+                {
+                    "name": "promotionOfDiversityEquityAndInclusionDEI"
+                },
+                {
+                    "name": "reductionInAbsenteeismAndTurnover"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "roleType",
+                    "value": "HR Manager"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Employee Engagement"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "executionOfPerformanceAppraisalProcesses"
+                },
+                {
+                    "name": "managerCoachingAndFeedbackPractices"
+                }
+            ],
+            [
+                {
+                    "name": "useOfPIPsAndEmployeeSupportMechanisms"
+                },
+                {
+                    "name": "qualityAndFairnessOfPerformanceReviews"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "roleType",
+                    "value": "HR Manager"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Performance Management"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "assessmentOfTrainingNeedsAndDelivery"
+                },
+                {
+                    "name": "onboardingAndComplianceTrainingEffectiveness"
+                }
+            ],
+            [
+                {
+                    "name": "supportForCareerDevelopmentAndInternalPromot"
+                },
+                {
+                    "name": "trainingFeedbackAndUtilizationRates"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "roleType",
+                    "value": "HR Manager"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Training & Development"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "effectiveCommunicationWithAllLevels"
+                },
+                {
+                    "name": "relationshipbuildingWithOtherDepartments"
+                }
+            ],
+            [
+                {
+                    "name": "conflictResolutionAndMediation"
+                },
+                false
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "roleType",
+                    "value": "HR Manager"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Communication & Leadership"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "accuracyAndTimelinessOfPayrollProcessing"
+                },
+                {
+                    "name": "complianceWithTaxLawsAndStatutoryDeductions"
+                }
+            ],
+            [
+                {
+                    "name": "handlingPayrollDiscrepanciesAndEmployeeQuerie"
+                },
+                {
+                    "name": "confidentialityAndIntegrityInPayrollOperation"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "roleType",
+                    "value": "HR Manager"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Payroll Management"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "managementOfSalaryReviewAndIncrementCycles"
+                },
+                {
+                    "name": "nternalEquityAndExternalCompetitivenessOfSal"
+                }
+            ],
+            [
+                {
+                    "name": "coordinationWithLeadershipForBudgetApprovals"
+                },
+                {
+                    "name": "transparencyAndCommunicationOfIncrementDecisi"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "roleType",
+                    "value": "HR Manager"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Compensation & Increment Planning"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "totalProjectDelivered"
+                },
+                {
+                    "name": "budgetAdherence"
+                }
+            ],
+            [
+                {
+                    "name": "issueResolutionTime"
+                },
+                {
+                    "name": "projectCompletedOnTimePutNumber"
+                }
+            ],
+            [
+                {
+                    "name": "adherenceToDeadlinesForAssignedTasks"
+                },
+                false
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "or",
+                    "value": [
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "Project Manager"
+                        },
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "TL"
+                        }
+                    ]
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "Project Delivery",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Project Delivery"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "codeReviewScore"
+                },
+                {
+                    "name": "unitTestCoverage"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "or",
+                    "value": [
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "TL"
+                        }
+                    ]
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Code Review"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "deliveredQualityProject"
+                },
+                {
+                    "name": "pMSUsageOnProjectManagement"
+                },
+                {
+                    "name": "gitUsageOnProjects"
+                }
+            ],
+            [
+                {
+                    "name": "bugDetectionRateDuringTestingPhase"
+                },
+                {
+                    "name": "postdeploymentIssueRateBugsKLOC"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "or",
+                    "value": [
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "Project Manager"
+                        },
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "TL"
+                        }
+                    ]
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Quality and Process"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "clientSatisfactionCSAT"
+                },
+                {
+                    "name": "numberOfClientEscalations"
+                }
+            ],
+            [
+                {
+                    "name": "clientProjectUpdateFrequencyDay"
+                },
+                {
+                    "name": "responsivenessToClientHr"
+                }
+            ],
+            [
+                {
+                    "name": "clientCommunicationEffectiveness"
+                },
+                {
+                    "name": "accuracyAndClarityInDocumentation"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "or",
+                    "value": [
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "Project Manager"
+                        },
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "TL"
+                        }
+                    ]
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "Client",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Client Satisfaction\/Coordination"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "motivateTeamMember"
+                },
+                {
+                    "name": "teamSatisfactionScore"
+                },
+                {
+                    "name": "teamSkillImprovement"
+                }
+            ],
+            [
+                {
+                    "name": "crossfunctionalTeamCollaborationScore"
+                },
+                false
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "or",
+                    "value": [
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "Project Manager"
+                        },
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "TL"
+                        }
+                    ]
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "Team Management",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Team Management\/Coordination"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "profitMarginContribution"
+                },
+                {
+                    "name": "revenueGrowthThroughProjectDelivery"
+                }
+            ],
+            [
+                {
+                    "name": "newProcessImprovementsautomationIdeas"
+                },
+                {
+                    "name": "improvementAutomationIdeasDetails"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "or",
+                    "value": [
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "Project Manager"
+                        },
+                        {
+                            "type": "equals",
+                            "attribute": "roleType",
+                            "value": "TL"
+                        }
+                    ]
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "Other Initiative",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Other Initiative"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "organicTrafficGrowth"
+                },
+                {
+                    "name": "keywordRankingImprovement"
+                }
+            ],
+            [
+                {
+                    "name": "blogPostsPublishedPerMonth"
+                },
+                {
+                    "name": "contentEngagementRate"
+                }
+            ],
+            [
+                {
+                    "name": "socialMediaFollowerGrowth"
+                },
+                {
+                    "name": "averageEngagementRateOnSocialMediaPosts"
+                }
+            ],
+            [
+                {
+                    "name": "qualifiedLeadsGeneratedPerMonth"
+                },
+                {
+                    "name": "conversionRateFromLeadToCustomer"
+                }
+            ],
+            [
+                {
+                    "name": "monthlyPerformanceReportsSubmittedOnTime"
+                },
+                {
+                    "name": "revenueGeneratedInFullYear"
+                },
+                {
+                    "name": "websiteDAImprovementInYear"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": {
+            "conditionGroup": [
+                {
+                    "type": "equals",
+                    "attribute": "roleType",
+                    "value": "SEO"
+                }
+            ]
+        },
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "SEO",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "SEO"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "expectedCTC"
+                },
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "strengths"
+                },
+                {
+                    "name": "areasForImprovemen"
+                }
+            ],
+            [
+                {
+                    "name": "goalsForNextReviewPeriod"
+                },
+                {
+                    "name": "expectationForNextYear"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": true,
+        "tabLabel": "Other Details",
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Other Details"
+    }
+]

@@ -1,0 +1,47 @@
+[
+    {
+        "name": "name",
+        "width": 11,
+        "link": true,
+        "align": "left"
+    },
+    {
+        "name": "companyName"
+    },
+    {
+        "name": "contactNo"
+    },
+    {
+        "name": "personalEmail"
+    },
+    {
+        "name": "addressCity"
+    },
+    {
+        "name": "addressCountry"
+    },
+    {
+        "name": "employeeSize"
+    },
+    {
+        "name": "assignedUser"
+    },
+    {
+        "name": "status"
+    },
+    {
+        "name": "source"
+    },
+    {
+        "name": "priority",
+        "width": 16
+    },
+    {
+        "name": "createdAt",
+        "width": 16
+    },
+    {
+        "name": "modifiedAt",
+        "width": 16
+    }
+]

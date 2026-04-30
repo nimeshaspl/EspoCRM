@@ -1,0 +1,25 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Milestone Name"
+    },
+    {
+        "name": "startDate"
+    },
+    {
+        "name": "endDate"
+    },
+    {
+        "name": "assignedUser"
+    },
+    {
+        "name": "totalTask"
+    },
+    {
+        "name": "totalBugs"
+    },
+    {
+        "name": "totalHours"
+    }
+]

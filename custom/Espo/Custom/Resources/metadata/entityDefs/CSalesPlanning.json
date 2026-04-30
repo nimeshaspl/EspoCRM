@@ -1,0 +1,356 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true,
+            "pattern": "$noBadCharacters",
+            "options": [],
+            "tooltip": true
+        },
+        "description": {
+            "type": "text",
+            "required": true
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "assignedUser": {
+            "type": "link",
+            "required": false,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "quarter": {
+            "type": "enum",
+            "required": true,
+            "options": [
+                "1",
+                "2",
+                "3",
+                "4"
+            ],
+            "style": {
+                "1": null,
+                "2": null,
+                "3": null,
+                "4": null
+            },
+            "default": "1",
+            "tooltip": true,
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "year": {
+            "type": "enum",
+            "options": [
+                "2025",
+                "2026",
+                "2027",
+                "2028",
+                "2029",
+                "2030"
+            ],
+            "style": {
+                "2025": null,
+                "2026": null,
+                "2027": null,
+                "2028": null,
+                "2029": null,
+                "2030": null
+            },
+            "default": "2025",
+            "audited": true,
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "primaryFocus": {
+            "type": "multiEnum",
+            "storeArrayValues": true,
+            "default": [
+                "New Client"
+            ],
+            "options": [
+                "Existing Client",
+                "New Client",
+                "B2B",
+                "B2C",
+                "Dedicated Resource",
+                "Upsell",
+                "Renewal"
+            ],
+            "style": {
+                "Existing Client": null,
+                "New Client": null,
+                "B2B": null,
+                "B2C": null,
+                "Dedicated Resource": null,
+                "Upsell": null,
+                "Renewal": null
+            },
+            "isSorted": true,
+            "maxCount": 3,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "totalRevenueTarget": {
+            "type": "currency",
+            "required": true,
+            "audited": true,
+            "isCustom": true
+        },
+        "avgTicketSizePerDeal": {
+            "type": "currency",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "totalDealsRequired": {
+            "type": "int",
+            "required": true,
+            "min": 1,
+            "audited": true,
+            "isCustom": true
+        },
+        "expectedWinRate": {
+            "notNull": false,
+            "type": "float",
+            "min": 1,
+            "max": 100,
+            "decimalPlaces": 2,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "leadsRequired": {
+            "type": "int",
+            "min": 1,
+            "audited": true,
+            "isCustom": true
+        },
+        "countries": {
+            "type": "multiEnum",
+            "storeArrayValues": true,
+            "default": [
+                "United States"
+            ],
+            "options": [
+                "United States",
+                "United Kingdom",
+                "Germany",
+                "Netherlands",
+                "Sweden",
+                "Estonia",
+                "Denmark",
+                "Norway",
+                "Spain",
+                "India",
+                "UAE",
+                "Saudi Arabia",
+                "Qatar"
+            ],
+            "style": {
+                "United States": null,
+                "United Kingdom": null,
+                "Germany": null,
+                "Netherlands": null,
+                "Sweden": null,
+                "Estonia": null,
+                "Denmark": null,
+                "Norway": null,
+                "Spain": null,
+                "India": null,
+                "UAE": null,
+                "Saudi Arabia": null,
+                "Qatar": null
+            },
+            "allowCustomOptions": true,
+            "isSorted": true,
+            "audited": true,
+            "isCustom": true
+        },
+        "specificStateRegion": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "averageSalesCycleDays": {
+            "type": "int",
+            "required": true,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "keyAssumptions": {
+            "type": "wysiwyg",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "targetType": {
+            "type": "multiEnum",
+            "storeArrayValues": true,
+            "required": true,
+            "default": [
+                "B2C"
+            ],
+            "options": [
+                "B2B",
+                "B2C"
+            ],
+            "style": {
+                "B2B": null,
+                "B2C": null
+            },
+            "isSorted": true,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "industryFocus": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "rows": 5,
+            "audited": true,
+            "isCustom": true
+        },
+        "companySize": {
+            "type": "int",
+            "required": true,
+            "min": 1,
+            "audited": true,
+            "isCustom": true
+        },
+        "decisionMakerTitles": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "keyPainPoints": {
+            "type": "wysiwyg",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "budgetRange": {
+            "type": "currency",
+            "min": 1,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "dataMiningSources": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "rows": 7,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "totalDataRequiredQuarter": {
+            "type": "int",
+            "required": true,
+            "min": 1,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "toolsAndCostPlanning": {
+            "type": "wysiwyg",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "marketingMaterialsRequirement": {
+            "type": "wysiwyg",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "anySpecificTrainingDetails": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "salesPlanningMonthlies": {
+            "type": "linkMultiple"
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "salesPlanningMonthlies": {
+            "type": "hasMany",
+            "foreign": "salesPlanning",
+            "entity": "CSalesPlanningMonthly",
+            "audited": false,
+            "isCustom": true
+        }
+    },
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc"
+    },
+    "indexes": {
+        "name": {
+            "columns": [
+                "name",
+                "deleted"
+            ]
+        },
+        "assignedUser": {
+            "columns": [
+                "assignedUserId",
+                "deleted"
+            ]
+        },
+        "createdAt": {
+            "columns": [
+                "createdAt"
+            ]
+        },
+        "createdAtId": {
+            "unique": true,
+            "columns": [
+                "createdAt",
+                "id"
+            ]
+        }
+    }
+}

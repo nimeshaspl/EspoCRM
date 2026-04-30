@@ -1,0 +1,52 @@
+[
+    {
+        "name": "taskID"
+    },
+    {
+        "name": "name",
+        "width": 30,
+        "link": true,
+        "align": "left",
+        "label": "Task Name"
+    },
+    {
+        "name": "project",
+        "label": "Project"
+    },
+    {
+        "name": "milestone",
+        "label": "Milestone"
+    },
+    {
+        "name": "status",
+        "label": "Status"
+    },
+    {
+        "name": "startDate",
+        "label": "Start Date"
+    },
+    {
+        "name": "endDate",
+        "label": "End Date"
+    },
+    {
+        "name": "plannedHours",
+        "label": "Planned Hours"
+    },
+    {
+        "name": "actualHours",
+        "label": "Actual Hours"
+    },
+    {
+        "name": "assignedUser",
+        "label": "Assigned User"
+    },
+    {
+        "name": "cRHour",
+        "label": "CR Hour"
+    },
+    {
+        "name": "invoiceNo",
+        "label": "Invoice No"
+    }
+]

@@ -1,0 +1,35 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "noOfDataRequired"
+                }
+            ],
+            [
+                {
+                    "name": "plannedDeals"
+                },
+                {
+                    "name": "plannedLeads"
+                },
+                {
+                    "name": "plannedClosures"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "risksRemarks"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

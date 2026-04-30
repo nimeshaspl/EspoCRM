@@ -1,0 +1,19 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Title"
+    },
+    {
+        "name": "description",
+        "label": "Answer"
+    },
+    {
+        "name": "technology",
+        "notSortable": true,
+        "label": "Technology"
+    },
+    {
+        "name": "expertise"
+    }
+]

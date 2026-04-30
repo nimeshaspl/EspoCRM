@@ -1,0 +1,23 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "type",
+        "width": 16
+    },
+    {
+        "name": "accountParent"
+    },
+    {
+        "name": "billingAddressState"
+    },
+    {
+        "name": "billingAddressCountry",
+        "width": 18
+    },
+    {
+        "name": "assignedUser"
+    }
+]

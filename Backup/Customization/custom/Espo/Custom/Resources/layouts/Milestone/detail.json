@@ -1,0 +1,51 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "totalHours"
+                }
+            ],
+            [
+                {
+                    "name": "startDate"
+                },
+                {
+                    "name": "endDate"
+                },
+                {
+                    "name": "totalBugs"
+                }
+            ],
+            [
+                {
+                    "name": "totalTask"
+                },
+                {
+                    "name": "pendingTask"
+                },
+                {
+                    "name": "inProgressTask"
+                },
+                {
+                    "name": "completedTask"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "documents"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

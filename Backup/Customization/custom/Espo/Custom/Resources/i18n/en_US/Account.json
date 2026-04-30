@@ -1,0 +1,20 @@
+{
+    "fields": {
+        "accounts": "Accounts",
+        "accountParent": "Partner Referance",
+        "parent": "Referred Company",
+        "bugTrackers": "Bug Trackers",
+        "projectTasks": "Project Tasks",
+        "milestones": "Milestones",
+        "cDataMaster": "Data Master"
+    },
+    "links": {
+        "accounts": "Accounts",
+        "accountParent": "Partner Referance",
+        "parent": "Referred Company",
+        "bugTrackers": "Bug Trackers",
+        "projectTasks": "Project Tasks",
+        "milestones": "Milestones",
+        "cDataMaster": "Data Master"
+    }
+}

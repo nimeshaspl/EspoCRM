@@ -1,0 +1,18 @@
+{
+    "_delimiter_": {
+        "disabled": true
+    },
+    "stream": {
+        "sticked": true,
+        "index": 0
+    },
+    "testCaseses": {
+        "index": 1
+    },
+    "bugTrackers": {
+        "index": 2
+    },
+    "timesheets": {
+        "index": 3
+    }
+}

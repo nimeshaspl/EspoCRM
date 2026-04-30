@@ -1,0 +1,21 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "project"
+    },
+    {
+        "name": "description"
+    },
+    {
+        "name": "assignedUser"
+    },
+    {
+        "name": "startDate"
+    },
+    {
+        "name": "endDate"
+    }
+]

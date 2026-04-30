@@ -1,0 +1,59 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "parent"
+                }
+            ],
+            [
+                {
+                    "name": "status"
+                },
+                {
+                    "name": "direction"
+                },
+                {
+                    "name": "cPriority"
+                }
+            ],
+            [
+                {
+                    "name": "dateStart"
+                },
+                {
+                    "name": "dateEnd"
+                }
+            ],
+            [
+                {
+                    "name": "duration"
+                },
+                {
+                    "name": "reminders"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "cCallDuration"
+                },
+                {
+                    "name": "cCallRecordingURL"
+                },
+                {
+                    "name": "cCallRecordingId"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

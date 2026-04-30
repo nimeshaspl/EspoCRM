@@ -1,0 +1,40 @@
+{
+    "fields": {
+        "source": {
+            "options": [
+                "",
+                "Call",
+                "Email",
+                "Existing Customer",
+                "Partner",
+                "Public Relations",
+                "Web Site",
+                "Campaign",
+                "Other",
+                "Bidding",
+                "PS Bidding",
+                "Event"
+            ],
+            "style": {
+                "": null,
+                "Call": null,
+                "Email": null,
+                "Existing Customer": null,
+                "Partner": null,
+                "Public Relations": null,
+                "Web Site": null,
+                "Campaign": null,
+                "Other": null,
+                "Bidding": null,
+                "PS Bidding": null,
+                "Event": null
+            }
+        },
+        "cProspectiveClient": {
+            "notNull": true,
+            "type": "bool",
+            "audited": true,
+            "isCustom": true
+        }
+    }
+}

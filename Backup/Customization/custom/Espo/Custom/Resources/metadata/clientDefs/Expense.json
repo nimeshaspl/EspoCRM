@@ -1,0 +1,8 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#e237df",
+    "iconClass": "fas fa-money-bill-alt"
+}

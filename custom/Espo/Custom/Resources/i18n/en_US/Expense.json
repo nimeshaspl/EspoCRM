@@ -1,0 +1,37 @@
+{
+    "fields": {
+        "name": "Expense Title",
+        "assignedUser": "Exp Created By",
+        "expenseBillAttachement": "Expense Bill Attachement",
+        "amount": "Amount",
+        "vendorName": "Vendor Name",
+        "otherDescription": "Other Description",
+        "paidBy": "Paid By",
+        "expenseDate": "Expense Date",
+        "category": "Category"
+    },
+    "links": [],
+    "labels": {
+        "Create Expense": "Create Expense"
+    },
+    "options": {
+        "paidBy": {
+            "Petty Cash": "Petty Cash",
+            "Personal": "Personal",
+            "Direct": "Direct",
+            "Pending": "Pending"
+        },
+        "category": {
+            "Milk": "Milk",
+            "Water": "Water",
+            "Grocery": "Grocery",
+            "Employee Refreshment": "Employee Refreshment",
+            "Hardware Repair": "Hardware Repair",
+            "Hardware Purchase": "Hardware Purchase",
+            "Stationary": "Stationary",
+            "Travelling": "Travelling",
+            "Fuel": "Fuel",
+            "Other": "Other"
+        }
+    }
+}

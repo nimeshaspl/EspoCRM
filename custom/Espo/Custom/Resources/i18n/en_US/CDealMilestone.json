@@ -1,0 +1,18 @@
+{
+    "fields": {
+        "name": "Milestone Title",
+        "amount": "Amount",
+        "amountCurrency": "Amount (Currency)",
+        "amountConverted": "Amount (Converted)",
+        "originalDate": "Original Date",
+        "newDate": "New Date",
+        "paymentReceived": "Payment Received",
+        "opportunity": "Opportunity"
+    },
+    "links": {
+        "opportunity": "Opportunity"
+    },
+    "labels": {
+        "Create CDealMilestone": "Create Deal Milestone"
+    }
+}

@@ -1,0 +1,22 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "amount",
+        "width": 20
+    },
+    {
+        "name": "originalDate",
+        "width": 20
+    },
+    {
+        "name": "newDate",
+        "width": 20
+    },
+    {
+        "name": "paymentReceived",
+        "width": 20
+    }
+]

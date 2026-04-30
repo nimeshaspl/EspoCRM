@@ -1,0 +1,34 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "status",
+        "width": 16
+    },
+    {
+        "name": "expectedCTC",
+        "width": 16
+    },
+    {
+        "name": "nextAppraisalDate",
+        "width": 16
+    },
+    {
+        "name": "assignedUser",
+        "width": 16
+    },
+    {
+        "name": "createdAt",
+        "width": 16
+    },
+    {
+        "name": "modifiedAt",
+        "width": 16
+    },
+    {
+        "name": "roleType",
+        "width": 16
+    }
+]

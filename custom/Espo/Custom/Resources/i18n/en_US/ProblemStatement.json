@@ -1,0 +1,11 @@
+{
+    "fields": {
+        "name": "PS Title",
+        "solution": "Solution",
+        "resolved": "Resolved"
+    },
+    "links": [],
+    "labels": {
+        "Create ProblemStatement": "Create Problem Statement"
+    }
+}

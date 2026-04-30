@@ -1,0 +1,15 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#516ce2",
+    "iconClass": "fas fa-ankh",
+    "relationshipPanels": {
+        "vendor": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    },
+    "kanbanViewMode": false
+}

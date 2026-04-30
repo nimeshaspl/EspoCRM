@@ -1,0 +1,21 @@
+[
+    {
+        "name": "name",
+        "link": "true"
+    },
+    {
+        "name": "status",
+        "width": 20
+    },
+    {
+        "name": "priority",
+        "width": 20
+    },
+    {
+        "name": "dateStart"
+    },
+    {
+        "name": "dateEnd",
+        "width": 20
+    }
+]

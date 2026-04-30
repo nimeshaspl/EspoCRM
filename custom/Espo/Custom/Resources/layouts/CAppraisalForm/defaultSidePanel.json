@@ -1,0 +1,17 @@
+[
+    {
+        "name": ":assignedUser"
+    },
+    {
+        "name": "employeeId"
+    },
+    {
+        "name": "releaseAppraisal"
+    },
+    {
+        "name": "status"
+    },
+    {
+        "name": "roleType"
+    }
+]

@@ -1,0 +1,40 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Task Duraion"
+    },
+    {
+        "name": "project",
+        "label": "Project"
+    },
+    {
+        "name": "projectTask",
+        "label": "Project Task"
+    },
+    {
+        "name": "description",
+        "label": "Description"
+    },
+    {
+        "name": "submissionStatus",
+        "label": "Submission Status"
+    },
+    {
+        "name": "users",
+        "notSortable": true,
+        "label": "Approver"
+    },
+    {
+        "name": "approverStatus",
+        "label": "Approver Status"
+    },
+    {
+        "name": "workDate",
+        "label": "Work Date"
+    },
+    {
+        "name": "assignedUser",
+        "label": "Assigned User"
+    }
+]

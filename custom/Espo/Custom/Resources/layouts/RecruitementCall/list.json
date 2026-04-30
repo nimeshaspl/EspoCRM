@@ -1,0 +1,18 @@
+[
+    {
+        "name": "callDate",
+        "label": "Date"
+    },
+    {
+        "name": "status",
+        "label": "Status"
+    },
+    {
+        "name": "source"
+    },
+    {
+        "name": "name",
+        "link": true,
+        "label": "Description (name)"
+    }
+]

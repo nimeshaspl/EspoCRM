@@ -1,0 +1,64 @@
+{
+    "fields": {
+        "name": "Communication Skills",
+        "goodAnalyticalSkills": "Good Analytical Skills",
+        "abilityToWorkInATeamIndividual": "Ability to work in a team/Individual",
+        "frontend": "Frontend",
+        "candidateManagement": "Candidate Management",
+        "backend": "Backend",
+        "database": "Database",
+        "codingProblemSolving": "Coding/Problem solving",
+        "workFlexibilityMultiTasking": "Work Flexibility/ Multi Tasking",
+        "professionalImpression": "Professional Impression",
+        "orientationTowardsMakingCareerWithAshapuraSo": "Orientation towards making career with Ashapura Softech?",
+        "overallEvaluation": "Overall Evaluation",
+        "recommendation": "Recommendation",
+        "frameworkExperience": "Framework Experience",
+        "salesKnowledgeAndExperience": "Sales Knowledge and Experience",
+        "leadGenerationPotentialPlatformsToolsExperien": "Lead Generation Potential/Platforms/Tools Experience",
+        "presentationWritingContentSkills": "Presentation/Writing/Content Skills",
+        "marketResearchAndAnalysis": "Market Research and Analysis",
+        "clientRelationshipManagement": "Client Relationship Management",
+        "strategicPlanningAndImplementation": "Strategic Planning and Implementation",
+        "negotiationSkills": "Negotiation Skills",
+        "achievementOfSalesTargets": "Achievement of Sales Targets",
+        "biddingPlatformExperience": "Bidding Platform Experience"
+    },
+    "links": {
+        "candidateManagement": "Candidate Management"
+    },
+    "labels": {
+        "Create CCandidateFeedback": "Create Candidate Feedback"
+    },
+    "tooltips": {
+        "name": "Assess ability to express ideas and thoughts clearly, as well as experiences involving team settings and customer orientation.",
+        "goodAnalyticalSkills": "Able to solve their problem by own,",
+        "abilityToWorkInATeamIndividual": "Perform task as individuals with team",
+        "frontend": "HTML, CSS, JavaScript, jQuery, Ajax",
+        "backend": "ASP.Net: C#, OOPS Concepts, .Net,\nPHP: String, Composer, Database connection, Data Types, Constants, Operators, Array, Functions, Ajax, Try catch, JSON, XML,Files, Include,Math, Callback function, Constructor, Jquery, Javascript",
+        "database": "SQL Concepts, Queries",
+        "codingProblemSolving": "small coding and logical questions",
+        "workFlexibilityMultiTasking": "Should be flexible in work as well as time",
+        "professionalImpression": "Consider self-confidence, personality, maturity, and presence to assess the candidate’s level of professionalism",
+        "orientationTowardsMakingCareerWithAshapuraSo": "Orientation towards making career with Ashapura Softech?",
+        "overallEvaluation": "Please summarize your perceptions of the candidate’s strengths and any concerns that should be considered:",
+        "frameworkExperience": "Any Relevant Framework Experience Like Laravel for PHP and Asp.net core for Asp.net",
+        "salesKnowledgeAndExperience": "Shows an understanding of basic sales principles, customer service practices, and sales pipeline ",
+        "leadGenerationPotentialPlatformsToolsExperien": "Demonstrates the potential to identify and develop new business opportunities.",
+        "presentationWritingContentSkills": "Shows potential to prepare and deliver compelling presentations(Basic generic approach understanding). ",
+        "marketResearchAndAnalysis": "Ability to conduct market research and analyze trends to identify new opportunities. ",
+        "clientRelationshipManagement": "Effectiveness in building and maintaining strong client relationships. ",
+        "strategicPlanningAndImplementation": "Ability to develop and implement strategic plans to achieve business goals. ",
+        "negotiationSkills": " Proficiency in negotiating terms and closing deals. ",
+        "achievementOfSalesTargets": "Consistency in achieving or exceeding sales targets. ",
+        "biddingPlatformExperience": "Experience with bidding platforms (e.g., Upwork, Freelancer) and ability to manage bids and proposals. "
+    },
+    "options": {
+        "recommendation": {
+            "Hire": "Hire",
+            "Consider for Practical Interview": "Consider for Practical Interview",
+            "Possible Interest": "Possible Interest",
+            "Reject": "Reject"
+        }
+    }
+}

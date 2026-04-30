@@ -1,0 +1,193 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "dynamicLogic": {
+        "fields": {
+            "approverStatus": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "notEquals",
+                            "attribute": "approverStatus",
+                            "value": "Pending"
+                        }
+                    ]
+                },
+                "readOnly": {
+                    "conditionGroup": [
+                        {
+                            "type": "notEquals",
+                            "attribute": "approverStatus",
+                            "value": "Pending"
+                        },
+                        {
+                            "type": "notEquals",
+                            "attribute": "$user.id",
+                            "data": {
+                                "values": {
+                                    "name": "Kuldip Thakkar"
+                                }
+                            },
+                            "value": "649ab165ad77cf9d5"
+                        }
+                    ]
+                },
+                "invalid": null
+            },
+            "submissionStatus": {
+                "readOnly": {
+                    "conditionGroup": [
+                        {
+                            "type": "equals",
+                            "attribute": "submissionStatus",
+                            "value": "Submitted"
+                        },
+                        {
+                            "type": "notEquals",
+                            "attribute": "$user.id",
+                            "data": {
+                                "values": {
+                                    "name": "Kuldip Thakkar"
+                                }
+                            },
+                            "value": "649ab165ad77cf9d5"
+                        }
+                    ]
+                }
+            },
+            "workDate": {
+                "readOnly": {
+                    "conditionGroup": [
+                        {
+                            "type": "equals",
+                            "attribute": "submissionStatus",
+                            "value": "Submitted"
+                        },
+                        {
+                            "type": "and",
+                            "value": [
+                                {
+                                    "type": "notEquals",
+                                    "attribute": "$user.id",
+                                    "data": {
+                                        "values": {
+                                            "name": "Kuldip Thakkar"
+                                        }
+                                    },
+                                    "value": "649ab165ad77cf9d5"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "name": {
+                "readOnly": {
+                    "conditionGroup": [
+                        {
+                            "type": "equals",
+                            "attribute": "submissionStatus",
+                            "value": "Submitted"
+                        },
+                        {
+                            "type": "notEquals",
+                            "attribute": "$user.id",
+                            "data": {
+                                "values": {
+                                    "name": "Kuldip Thakkar"
+                                }
+                            },
+                            "value": "649ab165ad77cf9d5"
+                        }
+                    ]
+                }
+            },
+            "description": {
+                "readOnly": {
+                    "conditionGroup": [
+                        {
+                            "type": "equals",
+                            "attribute": "submissionStatus",
+                            "value": "Submitted"
+                        }
+                    ]
+                }
+            },
+            "assignedUser": {
+                "readOnly": {
+                    "conditionGroup": [
+                        {
+                            "type": "equals",
+                            "attribute": "submissionStatus",
+                            "value": "Submitted"
+                        },
+                        {
+                            "type": "notEquals",
+                            "attribute": "$user.id",
+                            "data": {
+                                "values": {
+                                    "name": "Kuldip Thakkar"
+                                }
+                            },
+                            "value": "649ab165ad77cf9d5"
+                        }
+                    ]
+                }
+            },
+            "projectTask": {
+                "readOnly": {
+                    "conditionGroup": [
+                        {
+                            "type": "equals",
+                            "attribute": "submissionStatus",
+                            "value": "Submitted"
+                        },
+                        {
+                            "type": "notEquals",
+                            "attribute": "$user.id",
+                            "data": {
+                                "values": {
+                                    "name": "Kuldip Thakkar"
+                                }
+                            },
+                            "value": "649ab165ad77cf9d5"
+                        }
+                    ]
+                }
+            },
+            "bugTracker": {
+                "readOnly": {
+                    "conditionGroup": [
+                        {
+                            "type": "equals",
+                            "attribute": "submissionStatus",
+                            "value": "Submitted"
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "relationshipPanels": {
+        "projectTask": {
+            "layout": null
+        },
+        "bugTracker": {
+            "layout": null
+        },
+        "holidayList": {
+            "layout": null
+        },
+        "users": {
+            "layout": null
+        },
+        "project": {
+            "layout": null
+        }
+    },
+    "kanbanViewMode": false,
+    "color": null,
+    "iconClass": "far fa-calendar-alt"
+}

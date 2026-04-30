@@ -1,0 +1,22 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "hoursSpent",
+        "width": 20
+    },
+    {
+        "name": "isBilled",
+        "width": 20
+    },
+    {
+        "name": "createdAt",
+        "width": 20
+    },
+    {
+        "name": "createdBy",
+        "width": 20
+    }
+]

@@ -1,0 +1,35 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "emailDateAndTime"
+                }
+            ],
+            [
+                {
+                    "name": "contact"
+                },
+                {
+                    "name": "user"
+                }
+            ],
+            [
+                {
+                    "name": "emailTemplate"
+                }
+            ],
+            [
+                {
+                    "name": "status"
+                },
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

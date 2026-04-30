@@ -1,0 +1,46 @@
+[
+    {
+        "name": "bugId"
+    },
+    {
+        "name": "name",
+        "link": true,
+        "label": "Title"
+    },
+    {
+        "name": "project",
+        "label": "Project"
+    },
+    {
+        "name": "projectTask",
+        "label": "Project Task"
+    },
+    {
+        "name": "bugBy",
+        "label": "Bug By"
+    },
+    {
+        "name": "priority",
+        "label": "Priority"
+    },
+    {
+        "name": "status",
+        "label": "Status"
+    },
+    {
+        "name": "assignedUser",
+        "label": "Assigned User"
+    },
+    {
+        "name": "totalHours",
+        "label": "Total Hours"
+    },
+    {
+        "name": "createdBy",
+        "label": "Created By"
+    },
+    {
+        "name": "createdAt",
+        "label": "Created At"
+    }
+]

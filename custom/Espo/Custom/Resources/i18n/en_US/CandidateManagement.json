@@ -1,0 +1,93 @@
+{
+    "fields": {
+        "currentCTC": "Current CTC",
+        "experience": "Experience",
+        "stage": "Stage",
+        "linkedUrl": "Linked url",
+        "contactNumber": "Contact Number",
+        "email": "Email",
+        "cVUrl": "CV Url",
+        "positionManagement": "Position Management",
+        "parent": "Task Panel",
+        "documents": "Documents",
+        "recruitementCalls": "Recruitement Calls",
+        "expectedCTC": "Expected CTC",
+        "experianceType": "Experiance Type",
+        "futureReferance": "Future Referance",
+        "cCandidateFeedbacks": "Candidate Feedbacks",
+        "tasks": "Tasks",
+        "source": "Source",
+        "lastIncrementDate": "Last Increment Date",
+        "lastIncrementAmount": "LastIncrementAmount",
+        "callStatus": "Call Status",
+        "currentLocation": "Current Location",
+        "homeTown": "Home Town",
+        "readyToRelocate": "Ready to relocate",
+        "englishCommunication": "English Communication",
+        "interviewType": "Interview Type",
+        "bondOfYearServiceAgreement": "Bond of year (Service Agreement)",
+        "salaryOffered": "Salary Offered",
+        "dateOfJoining": "Date of Joining",
+        "remarks": "Remarks",
+        "noticePeriod": "Notice Period"
+    },
+    "links": {
+        "positionManagements": "Position Managements",
+        "positionManagement": "Position Management",
+        "parent": "Task Panel",
+        "documents": "Documents",
+        "recruitementCalls": "Recruitement Calls",
+        "cCandidateFeedbacks": "Candidate Feedbacks",
+        "tasks": "Tasks"
+    },
+    "labels": {
+        "Create CandidateManagement": "Create Candidate Management"
+    },
+    "options": {
+        "stage": {
+            "Open": "Open",
+            "Screening": "Screening",
+            "HR Interview": "HR Interview",
+            "Technical Interview": "Technical Interview",
+            "F2F Interview": "F2F Interview",
+            "Management Interview": "Management Interview",
+            "Hired": "Hired",
+            "Rejected": "Rejected",
+            "Hold": "Hold",
+            "Not Answered": "Not Answered"
+        },
+        "experianceType": {
+            "Intern": "Intern",
+            "Fresher": "Fresher",
+            "Mid Level experienced": "Mid Level experienced",
+            "Highly experienced": "Highly experienced",
+            "Junior": "Junior"
+        },
+        "source": {
+            "Email": "Email",
+            "Linked-In": "Linked-In",
+            "Website": "Website",
+            "Indeed": "Indeed",
+            "Naukri": "Naukri",
+            "Others": "Others"
+        },
+        "callStatus": {
+            "Connected": "Connected",
+            "No Answer": "No Answer",
+            "Invalid Number": "Invalid Number",
+            "Not Tried": "Not Tried"
+        },
+        "englishCommunication": {
+            "Intermediate": "Intermediate",
+            "Medium": "Medium",
+            "Fluent": "Fluent"
+        },
+        "interviewType": {
+            "Virtual Interview": "Virtual Interview",
+            "Face to Face Interview": "Face to Face Interview"
+        }
+    },
+    "tooltips": {
+        "cVUrl": "One driver url link"
+    }
+}

@@ -1,0 +1,9 @@
+[
+    "name",
+    "category",
+    "eventAddressCity",
+    "eventAddressState",
+    "eventAddressCountry",
+    "eventMonth",
+    "hashTag"
+]

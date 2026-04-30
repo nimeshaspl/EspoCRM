@@ -1,0 +1,40 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "contact"
+                },
+                {
+                    "name": "plannedHour"
+                }
+            ],
+            [
+                {
+                    "name": "startDate"
+                },
+                {
+                    "name": "endDate"
+                },
+                {
+                    "name": "actualHours"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "projectDocuments"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

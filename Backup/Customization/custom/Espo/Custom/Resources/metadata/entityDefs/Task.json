@@ -1,0 +1,36 @@
+{
+    "fields": {
+        "parent": {
+            "entityList": [
+                "Account",
+                "Contact",
+                "Lead",
+                "Opportunity",
+                "Case",
+                "CDataMaster"
+            ]
+        },
+        "cCandidateManagement": {
+            "type": "link"
+        },
+        "cDataMaster": {
+            "type": "link"
+        }
+    },
+    "links": {
+        "cCandidateManagement": {
+            "type": "belongsTo",
+            "foreign": "tasks",
+            "entity": "CandidateManagement",
+            "audited": false,
+            "isCustom": true
+        },
+        "cDataMaster": {
+            "type": "belongsTo",
+            "foreign": "tasks",
+            "entity": "CDataMaster",
+            "audited": false,
+            "isCustom": true
+        }
+    }
+}

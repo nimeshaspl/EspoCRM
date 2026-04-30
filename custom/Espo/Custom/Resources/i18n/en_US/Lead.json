@@ -1,0 +1,21 @@
+{
+    "options": {
+        "source": {
+            "": "",
+            "Call": "Call",
+            "Email": "Email",
+            "Existing Customer": "Existing Customer",
+            "Partner": "Partner",
+            "Public Relations": "Public Relations",
+            "Web Site": "Web Site",
+            "Campaign": "Campaign",
+            "Other": "Other",
+            "Bidding": "Bidding",
+            "PS Bidding": "PS Bidding",
+            "Event": "Event"
+        }
+    },
+    "fields": {
+        "cProspectiveClient": "Prospective Client"
+    }
+}

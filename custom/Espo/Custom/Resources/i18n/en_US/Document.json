@@ -1,0 +1,8 @@
+{
+    "fields": {
+        "candidateManagements": "cv"
+    },
+    "links": {
+        "candidateManagements": "cv"
+    }
+}

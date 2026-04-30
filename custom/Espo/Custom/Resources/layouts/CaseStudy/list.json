@@ -1,0 +1,21 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Name"
+    },
+    {
+        "name": "aboutClient"
+    },
+    {
+        "name": "description",
+        "label": "About Project"
+    },
+    {
+        "name": "technology",
+        "label": "Technology"
+    },
+    {
+        "name": "addedToDocument"
+    }
+]

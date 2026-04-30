@@ -1,0 +1,16 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "type"
+    },
+    {
+        "name": "vendorAddressCity"
+    },
+    {
+        "name": "technology",
+        "notSortable": true
+    }
+]

@@ -1,0 +1,925 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#b92525",
+    "iconClass": "fas fa-address-book",
+    "relationshipPanels": {
+        "candidateManagement": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    },
+    "dynamicLogic": {
+        "fields": {
+            "salesKnowledgeAndExperience": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "ASPL Sales",
+                                            "linkId": "649fc71876d936434"
+                                        }
+                                    },
+                                    "value": "649fc71876d936434"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "ASPL Sales",
+                                    "linkId": "649fc71876d936434"
+                                }
+                            },
+                            "value": "649fc71876d936434"
+                        }
+                    ]
+                }
+            },
+            "leadGenerationPotentialPlatformsToolsExperien": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "ASPL Sales",
+                                            "linkId": "649fc71876d936434"
+                                        }
+                                    },
+                                    "value": "649fc71876d936434"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "ASPL Sales",
+                                    "linkId": "649fc71876d936434"
+                                }
+                            },
+                            "value": "649fc71876d936434"
+                        }
+                    ]
+                }
+            },
+            "presentationWritingContentSkills": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "ASPL Sales",
+                                            "linkId": "649fc71876d936434"
+                                        }
+                                    },
+                                    "value": "649fc71876d936434"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "ASPL Sales",
+                                    "linkId": "649fc71876d936434"
+                                }
+                            },
+                            "value": "649fc71876d936434"
+                        }
+                    ]
+                }
+            },
+            "marketResearchAndAnalysis": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "ASPL Sales",
+                                            "linkId": "649fc71876d936434"
+                                        }
+                                    },
+                                    "value": "649fc71876d936434"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "ASPL Sales",
+                                    "linkId": "649fc71876d936434"
+                                }
+                            },
+                            "value": "649fc71876d936434"
+                        }
+                    ]
+                }
+            },
+            "clientRelationshipManagement": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "ASPL Sales",
+                                            "linkId": "649fc71876d936434"
+                                        }
+                                    },
+                                    "value": "649fc71876d936434"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "strategicPlanningAndImplementation": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "ASPL Sales",
+                                            "linkId": "649fc71876d936434"
+                                        }
+                                    },
+                                    "value": "649fc71876d936434"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "negotiationSkills": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "ASPL Sales",
+                                            "linkId": "649fc71876d936434"
+                                        }
+                                    },
+                                    "value": "649fc71876d936434"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "ASPL Sales",
+                                    "linkId": "649fc71876d936434"
+                                }
+                            },
+                            "value": "649fc71876d936434"
+                        }
+                    ]
+                }
+            },
+            "achievementOfSalesTargets": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "ASPL Sales",
+                                            "linkId": "649fc71876d936434"
+                                        }
+                                    },
+                                    "value": "649fc71876d936434"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "ASPL Sales",
+                                    "linkId": "649fc71876d936434"
+                                }
+                            },
+                            "value": "649fc71876d936434"
+                        }
+                    ]
+                }
+            },
+            "biddingPlatformExperience": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "ASPL Sales",
+                                            "linkId": "649fc71876d936434"
+                                        }
+                                    },
+                                    "value": "649fc71876d936434"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "contains",
+                            "attribute": "$user.teamsIds",
+                            "data": {
+                                "field": "teams",
+                                "values": {
+                                    "linkName": "ASPL Sales",
+                                    "linkId": "649fc71876d936434"
+                                }
+                            },
+                            "value": "649fc71876d936434"
+                        }
+                    ]
+                }
+            },
+            "goodAnalyticalSkills": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "frontend": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "backend": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "database": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "codingProblemSolving": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            "frameworkExperience": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "CoreHR",
+                                            "linkId": "667ce3d03ec306051"
+                                        }
+                                    },
+                                    "value": "667ce3d03ec306051"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "required": {
+                    "conditionGroup": [
+                        {
+                            "type": "or",
+                            "value": [
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "Asp.Net",
+                                            "linkId": "667ce04b70d3f9029"
+                                        }
+                                    },
+                                    "value": "667ce04b70d3f9029"
+                                },
+                                {
+                                    "type": "contains",
+                                    "attribute": "$user.teamsIds",
+                                    "data": {
+                                        "field": "teams",
+                                        "values": {
+                                            "linkName": "PHP",
+                                            "linkId": "667ce042e54430b04"
+                                        }
+                                    },
+                                    "value": "667ce042e54430b04"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

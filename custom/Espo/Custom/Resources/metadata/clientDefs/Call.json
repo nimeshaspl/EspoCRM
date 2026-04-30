@@ -1,0 +1,8 @@
+{
+    "relationshipPanels": {
+        "dataMaster": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

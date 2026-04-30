@@ -1,0 +1,25 @@
+[
+    {
+        "name": "name",
+        "width": 35,
+        "link": "true",
+        "label": "Name"
+    },
+    {
+        "name": "account",
+        "width": 35,
+        "label": "Account"
+    },
+    {
+        "name": "addressCity",
+        "label": "City"
+    },
+    {
+        "name": "addressState",
+        "label": "State"
+    },
+    {
+        "name": "assignedUser",
+        "label": "Assigned User"
+    }
+]

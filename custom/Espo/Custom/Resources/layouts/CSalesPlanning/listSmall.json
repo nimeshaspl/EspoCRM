@@ -1,0 +1,18 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "quarter",
+        "width": 20
+    },
+    {
+        "name": "year",
+        "width": 20
+    },
+    {
+        "name": "assignedUser",
+        "width": 20
+    }
+]

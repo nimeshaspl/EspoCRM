@@ -1,0 +1,35 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "workDate"
+                },
+                {
+                    "name": "name"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "submissionStatus"
+                }
+            ],
+            [
+                {
+                    "name": "users"
+                },
+                {
+                    "name": "approverStatus"
+                },
+                {
+                    "name": "totalPrice"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

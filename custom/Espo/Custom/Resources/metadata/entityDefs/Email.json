@@ -1,0 +1,36 @@
+{
+    "fields": {
+        "parent": {
+            "entityList": [
+                "Account",
+                "Lead",
+                "Contact",
+                "Opportunity",
+                "Case"
+            ]
+        },
+        "cParentAnother": {
+            "type": "linkParent",
+            "entityList": [
+                "CDataMaster"
+            ]
+        },
+        "cDataMaster": {
+            "type": "link"
+        }
+    },
+    "links": {
+        "cParentAnother": {
+            "type": "belongsToParent",
+            "foreign": "cEmailsAnother",
+            "isCustom": true
+        },
+        "cDataMaster": {
+            "type": "belongsTo",
+            "foreign": "emails",
+            "entity": "CDataMaster",
+            "audited": false,
+            "isCustom": true
+        }
+    }
+}

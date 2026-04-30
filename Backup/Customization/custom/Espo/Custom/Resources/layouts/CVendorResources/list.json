@@ -1,0 +1,22 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "experiance"
+    },
+    {
+        "name": "skillset",
+        "notSortable": true
+    },
+    {
+        "name": "vendor"
+    },
+    {
+        "name": "budgetUnit"
+    },
+    {
+        "name": "budget"
+    }
+]

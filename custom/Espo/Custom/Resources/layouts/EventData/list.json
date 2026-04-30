@@ -1,0 +1,31 @@
+[
+    {
+        "name": "name",
+        "link": true,
+        "label": "Name"
+    },
+    {
+        "name": "category",
+        "notSortable": true,
+        "label": "Category"
+    },
+    {
+        "name": "eventAddressCity",
+        "label": "Event Address City"
+    },
+    {
+        "name": "eventAddressState"
+    },
+    {
+        "name": "eventAddressCountry",
+        "label": "Event Address Country"
+    },
+    {
+        "name": "eventMonth",
+        "label": "Event Month"
+    },
+    {
+        "name": "eventUrl",
+        "label": "Event Url"
+    }
+]

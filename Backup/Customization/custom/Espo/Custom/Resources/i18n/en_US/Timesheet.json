@@ -1,0 +1,52 @@
+{
+    "fields": {
+        "name": "Task Duraion",
+        "workDate": "Work Date",
+        "status": "Status",
+        "submissionStatus": "Submission Status",
+        "approverStatus": "Approver Status",
+        "approver": "Approver",
+        "users": "Approver",
+        "projectTask": "Project Task",
+        "bugTracker": "Bug Tracker",
+        "holidayList": "Holiday List",
+        "leave": "Leave",
+        "createdBy": "Employee",
+        "project": "Project",
+        "hours": "Hours",
+        "totalPrice": "TotalPrice",
+        "syncupdate": "Syncupdate",
+        "updateText": "UpdateText"
+    },
+    "links": {
+        "users": "Users",
+        "approver": "Approver",
+        "projectTask": "Project Task",
+        "bugTracker": "Bug Tracker",
+        "holidayList": "Holiday List",
+        "project": "Project"
+    },
+    "labels": {
+        "Create Timesheet": "Create Timesheet"
+    },
+    "options": {
+        "status": {
+            "Pending": "Pending",
+            "Approved": "Approved",
+            "On Hold": "On Hold",
+            "Rejected": "Rejected"
+        },
+        "submissionStatus": {
+            "Pending": "Pending",
+            "Submitted": "Submitted"
+        },
+        "approverStatus": {
+            "Approved": "Approved",
+            "Rejected": "Rejected",
+            "Pending": "Pending"
+        },
+        "leave": {
+            "On Leave": "On Leave"
+        }
+    }
+}

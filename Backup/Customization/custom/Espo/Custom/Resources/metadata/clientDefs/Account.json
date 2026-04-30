@@ -1,0 +1,17 @@
+{
+    "relationshipPanels": {
+        "bugTrackers": {
+            "layout": null
+        },
+        "projectTasks": {
+            "layout": null
+        },
+        "milestones": {
+            "layout": null
+        },
+        "dataMaster": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

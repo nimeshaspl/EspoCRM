@@ -1,0 +1,39 @@
+{
+    "fields": {
+        "name": "Vendor Name",
+        "vendorAddress": "Vendor Address",
+        "vendorAddressStreet": "Vendor Address Street",
+        "vendorAddressCity": "Vendor Address City",
+        "vendorAddressState": "Vendor Address State",
+        "vendorAddressCountry": "Vendor Address Country",
+        "vendorAddressPostalCode": "Vendor Address Postal Code",
+        "vendorAddressMap": "Vendor Address Map",
+        "technology": "Technology",
+        "cVendorResourceses": "Vendor Resourceses",
+        "type": "Type",
+        "website": "Website"
+    },
+    "links": {
+        "cVendorResourceses": "Vendor Resourceses"
+    },
+    "labels": {
+        "Create Vendor": "Create Vendor"
+    },
+    "options": {
+        "technology": {
+            "Salesforce Salescloud": "Salesforce Salescloud",
+            "Marketing Cloud": "Marketing Cloud",
+            "Zoho": "Zoho",
+            "Hubspot": "Hubspot",
+            "CRM": "CRM",
+            "Service cloud": "Service cloud",
+            "Microsoft": "Microsoft",
+            "Open source": "Open source",
+            "Node js": "Node js"
+        },
+        "type": {
+            "Individual": "Individual",
+            "Company": "Company"
+        }
+    }
+}

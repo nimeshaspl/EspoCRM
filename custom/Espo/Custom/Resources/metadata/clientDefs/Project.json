@@ -1,0 +1,40 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": null,
+    "iconClass": "fas fa-atom",
+    "relationshipPanels": {
+        "contact": {
+            "layout": null
+        },
+        "milestones": {
+            "layout": null
+        },
+        "projectTasks": {
+            "layout": null
+        },
+        "projectUpdates": {
+            "layout": null
+        },
+        "bugTrackers": {
+            "layout": null
+        },
+        "timesheets": {
+            "layout": null
+        },
+        "managerMappings": {
+            "layout": null
+        },
+        "workToBeBills": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "cRTrackings": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    },
+    "kanbanViewMode": false
+}

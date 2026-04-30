@@ -1,0 +1,98 @@
+{
+    "fields": {
+        "accounts": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "accountParent": {
+            "type": "link"
+        },
+        "bugTrackers": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "projectTasks": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "milestones": {
+            "type": "linkMultiple",
+            "layoutDetailDisabled": true,
+            "layoutMassUpdateDisabled": true,
+            "layoutListDisabled": true,
+            "noLoad": true,
+            "importDisabled": true,
+            "exportDisabled": true,
+            "customizationDisabled": true,
+            "isCustom": true
+        },
+        "cDataMaster": {
+            "type": "linkOne",
+            "isCustom": true
+        }
+    },
+    "links": {
+        "accounts": {
+            "type": "hasMany",
+            "foreign": "accountParent",
+            "entity": "Account",
+            "audited": false,
+            "isCustom": true
+        },
+        "accountParent": {
+            "type": "belongsTo",
+            "foreign": "accounts",
+            "entity": "Account",
+            "audited": false,
+            "isCustom": true
+        },
+        "bugTrackers": {
+            "type": "hasMany",
+            "foreign": "account",
+            "entity": "BugTracker",
+            "audited": false,
+            "isCustom": true
+        },
+        "projectTasks": {
+            "type": "hasMany",
+            "foreign": "account",
+            "entity": "ProjectTask",
+            "audited": false,
+            "isCustom": true
+        },
+        "milestones": {
+            "type": "hasMany",
+            "foreign": "account",
+            "entity": "Milestone",
+            "audited": false,
+            "isCustom": true
+        },
+        "cDataMaster": {
+            "type": "hasOne",
+            "foreign": "account",
+            "entity": "CDataMaster",
+            "isCustom": true
+        }
+    }
+}

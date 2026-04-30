@@ -1,0 +1,10 @@
+{
+    "fields": {
+        "cParentAnother": "Parent Another",
+        "cDataMaster": "Data Master"
+    },
+    "links": {
+        "cParentAnother": "Parent Another",
+        "cDataMaster": "Data Master"
+    }
+}

@@ -1,0 +1,764 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true,
+            "pattern": "$noBadCharacters",
+            "options": []
+        },
+        "description": {
+            "type": "text",
+            "required": false
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "assignedUser": {
+            "type": "link",
+            "required": false,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "projectCompletedOnTimePutNumber": {
+            "type": "int",
+            "required": false,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "totalProjectDelivered": {
+            "type": "int",
+            "required": false,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "budgetAdherence": {
+            "type": "int",
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "responsivenessToClientHr": {
+            "type": "enum",
+            "options": [
+                "2",
+                "5",
+                "12"
+            ],
+            "style": {
+                "2": null,
+                "5": null,
+                "12": null
+            },
+            "default": "5",
+            "audited": true,
+            "tooltip": true,
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "clientProjectUpdateFrequencyDay": {
+            "type": "enum",
+            "options": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "Never"
+            ],
+            "default": "Never",
+            "style": {
+                "1": null,
+                "2": null,
+                "3": null,
+                "4": null,
+                "5": null,
+                "6": null,
+                "7": null,
+                "8": null,
+                "9": null,
+                "10": null,
+                "Never": null
+            },
+            "maxLength": 100,
+            "isCustom": true,
+            "audited": true
+        },
+        "issueResolutionTime": {
+            "type": "enum",
+            "options": [
+                "On Time",
+                "Minimum Delay",
+                "Maximum Delay"
+            ],
+            "default": "On Time",
+            "style": {
+                "On Time": null,
+                "Minimum Delay": null,
+                "Maximum Delay": null
+            },
+            "maxLength": 100,
+            "isCustom": true,
+            "audited": true
+        },
+        "deliveredQualityProject": {
+            "type": "int",
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "teamSatisfactionScore": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true,
+            "required": false
+        },
+        "teamSkillImprovement": {
+            "type": "int",
+            "required": false,
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "isCustom": true,
+            "tooltip": true
+        },
+        "clientSatisfactionCSAT": {
+            "type": "int",
+            "required": false,
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "numberOfClientEscalations": {
+            "type": "int",
+            "required": false,
+            "readOnly": false,
+            "isCustom": true,
+            "tooltip": true
+        },
+        "newProcessImprovementsautomationIdeas": {
+            "type": "int",
+            "audited": true,
+            "isCustom": true,
+            "required": false,
+            "tooltip": true
+        },
+        "revenueGrowthThroughProjectDelivery": {
+            "type": "int",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "profitMarginContribution": {
+            "notNull": false,
+            "type": "float",
+            "required": false,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true,
+            "min": 0,
+            "max": 100
+        },
+        "pMSUsageOnProjectManagement": {
+            "type": "int",
+            "min": 0,
+            "max": 100,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "gitUsageOnProjects": {
+            "type": "int",
+            "min": 0,
+            "max": 100,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "motivateTeamMember": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "improvementAutomationIdeasDetails": {
+            "type": "wysiwyg",
+            "isCustom": true
+        },
+        "expectedCTC": {
+            "notNull": false,
+            "type": "float",
+            "isCustom": true
+        },
+        "status": {
+            "type": "enum",
+            "options": [
+                "Draft",
+                "Submit"
+            ],
+            "default": "Draft",
+            "style": {
+                "Draft": null,
+                "Submit": null
+            },
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "roleType": {
+            "type": "enum",
+            "options": [
+                "Project Manager",
+                "Developer",
+                "HR Manager",
+                "SEO",
+                "BDE",
+                "BDM",
+                "TL"
+            ],
+            "style": {
+                "Project Manager": null,
+                "Developer": null,
+                "HR Manager": null,
+                "SEO": null,
+                "BDE": null,
+                "BDM": null,
+                "TL": null
+            },
+            "default": "Project Manager",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "organicTrafficGrowth": {
+            "notNull": false,
+            "type": "float",
+            "min": 0,
+            "max": 100,
+            "decimalPlaces": 2,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "keywordRankingImprovement": {
+            "type": "wysiwyg",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "blogPostsPublishedPerMonth": {
+            "type": "int",
+            "min": 0,
+            "audited": true,
+            "isCustom": true
+        },
+        "contentEngagementRate": {
+            "notNull": false,
+            "type": "float",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "socialMediaFollowerGrowth": {
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "averageEngagementRateOnSocialMediaPosts": {
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "isCustom": true
+        },
+        "qualifiedLeadsGeneratedPerMonth": {
+            "type": "int",
+            "isCustom": true
+        },
+        "conversionRateFromLeadToCustomer": {
+            "notNull": false,
+            "type": "float",
+            "decimalPlaces": 2,
+            "audited": true,
+            "isCustom": true
+        },
+        "monthlyPerformanceReportsSubmittedOnTime": {
+            "notNull": true,
+            "type": "bool",
+            "audited": true,
+            "isCustom": true
+        },
+        "revenueGeneratedInFullYear": {
+            "type": "currency",
+            "audited": true,
+            "isCustom": true
+        },
+        "websiteDAImprovementInYear": {
+            "notNull": false,
+            "type": "float",
+            "min": 0,
+            "max": 100,
+            "audited": true,
+            "isCustom": true
+        },
+        "codeReviewScore": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "unitTestCoverage": {
+            "notNull": false,
+            "type": "float",
+            "min": 0,
+            "max": 100,
+            "decimalPlaces": 2,
+            "audited": true,
+            "isCustom": true
+        },
+        "clientCommunicationEffectiveness": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "crossfunctionalTeamCollaborationScore": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "bugDetectionRateDuringTestingPhase": {
+            "notNull": false,
+            "type": "float",
+            "min": 0,
+            "max": 5,
+            "decimalPlaces": 2,
+            "audited": true,
+            "isCustom": true
+        },
+        "postdeploymentIssueRateBugsKLOC": {
+            "notNull": false,
+            "type": "float",
+            "min": 0,
+            "max": 5,
+            "decimalPlaces": 2,
+            "audited": true,
+            "isCustom": true
+        },
+        "adherenceToDeadlinesForAssignedTasks": {
+            "notNull": false,
+            "type": "float",
+            "min": 0,
+            "max": 100,
+            "decimalPlaces": 2,
+            "audited": true,
+            "isCustom": true
+        },
+        "accuracyAndClarityInDocumentation": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "efficiencyOfFullcycleRecruitmentTimetohire": {
+            "type": "int",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "candidateScreening": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "retentionStrategiesAndTurnoverAnalysis": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "hiringManagerAndCandidateSatisfaction": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "isCustom": true
+        },
+        "achievementFulfillment": {
+            "type": "int",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "uptodateHRPoliciesAndComplianceWithLaborL": {
+            "type": "int",
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "handlingOfEmployeeRelationsAndInvestigations": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "riskAssessmentsAndAudits": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "minimizationOfLegalDisputes": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "isCustom": true
+        },
+        "implementationOfEngagementAndWellnessPrograms": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "isCustom": true
+        },
+        "analysisAndActionOnEngagementSurveys": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "isCustom": true
+        },
+        "promotionOfDiversityEquityAndInclusionDEI": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "reductionInAbsenteeismAndTurnover": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "executionOfPerformanceAppraisalProcesses": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "managerCoachingAndFeedbackPractices": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "useOfPIPsAndEmployeeSupportMechanisms": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "qualityAndFairnessOfPerformanceReviews": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "assessmentOfTrainingNeedsAndDelivery": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "onboardingAndComplianceTrainingEffectiveness": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "supportForCareerDevelopmentAndInternalPromot": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "trainingFeedbackAndUtilizationRates": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "effectiveCommunicationWithAllLevels": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "relationshipbuildingWithOtherDepartments": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "conflictResolutionAndMediation": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "accuracyAndTimelinessOfPayrollProcessing": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "complianceWithTaxLawsAndStatutoryDeductions": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "handlingPayrollDiscrepanciesAndEmployeeQuerie": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "confidentialityAndIntegrityInPayrollOperation": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "managementOfSalaryReviewAndIncrementCycles": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "nternalEquityAndExternalCompetitivenessOfSal": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "coordinationWithLeadershipForBudgetApprovals": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "transparencyAndCommunicationOfIncrementDecisi": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "strengths": {
+            "type": "wysiwyg",
+            "required": false,
+            "audited": true,
+            "isCustom": true
+        },
+        "areasForImprovemen": {
+            "type": "wysiwyg",
+            "isCustom": true
+        },
+        "goalsForNextReviewPeriod": {
+            "type": "wysiwyg",
+            "required": false,
+            "isCustom": true
+        },
+        "hRStrategiesThatSupportBusinessObjectives": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "contributionToStrategicPlanningAndLeadership": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "isCustom": true
+        },
+        "workforcePlanningAndFutureTalentNeeds": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "changeManagementSupport": {
+            "type": "int",
+            "min": 0,
+            "max": 5,
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "releaseAppraisal": {
+            "notNull": true,
+            "type": "bool",
+            "audited": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "nextAppraisalDate": {
+            "notNull": false,
+            "type": "date",
+            "isCustom": true
+        },
+        "employeeId": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        },
+        "expectationForNextYear": {
+            "type": "wysiwyg",
+            "isCustom": true
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        }
+    },
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc",
+        "textFilterFields": [
+            "name"
+        ],
+        "fullTextSearch": false,
+        "countDisabled": false
+    },
+    "indexes": {
+        "name": {
+            "columns": [
+                "name",
+                "deleted"
+            ]
+        },
+        "assignedUser": {
+            "columns": [
+                "assignedUserId",
+                "deleted"
+            ]
+        },
+        "createdAt": {
+            "columns": [
+                "createdAt"
+            ]
+        },
+        "createdAtId": {
+            "unique": true,
+            "columns": [
+                "createdAt",
+                "id"
+            ]
+        }
+    },
+    "optimisticConcurrencyControl": false
+}

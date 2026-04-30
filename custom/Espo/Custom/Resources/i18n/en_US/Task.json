@@ -1,0 +1,11 @@
+{
+    "links": {
+        "candidateManagements": "Candidate Managements",
+        "cCandidateManagement": "Candidate Management",
+        "cDataMaster": "Data Master"
+    },
+    "fields": {
+        "cCandidateManagement": "Candidate Management",
+        "cDataMaster": "Data Master"
+    }
+}

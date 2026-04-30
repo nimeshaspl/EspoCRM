@@ -1,0 +1,21 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "contactNumber"
+    },
+    {
+        "name": "email"
+    },
+    {
+        "name": "experience"
+    },
+    {
+        "name": "cVUrl"
+    },
+    {
+        "name": "positionManagement"
+    }
+]

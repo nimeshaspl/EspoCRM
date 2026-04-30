@@ -1,0 +1,22 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#36aaf1",
+    "kanbanViewMode": true,
+    "iconClass": "fas fa-chalkboard-teacher",
+    "relationshipPanels": {
+        "recruitementCalls": {
+            "layout": null
+        },
+        "cCandidateFeedbacks": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "tasks": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

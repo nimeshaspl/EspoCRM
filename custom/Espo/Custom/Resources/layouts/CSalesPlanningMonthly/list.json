@@ -1,0 +1,22 @@
+[
+    {
+        "name": "salesPlanning",
+        "width": 16
+    },
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "noOfDataRequired",
+        "width": 16
+    },
+    {
+        "name": "plannedClosures",
+        "width": 16
+    },
+    {
+        "name": "assignedUser",
+        "width": 16
+    }
+]

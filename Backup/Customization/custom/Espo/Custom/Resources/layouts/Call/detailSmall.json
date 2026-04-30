@@ -1,0 +1,54 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                }
+            ],
+            [
+                {
+                    "name": "status"
+                },
+                {
+                    "name": "direction"
+                },
+                {
+                    "name": "cPriority"
+                }
+            ],
+            [
+                {
+                    "name": "dateStart"
+                }
+            ],
+            [
+                {
+                    "name": "duration"
+                }
+            ],
+            [
+                {
+                    "name": "dateEnd"
+                }
+            ],
+            [
+                {
+                    "name": "parent"
+                }
+            ],
+            [
+                {
+                    "name": "reminders"
+                }
+            ],
+            [
+                {
+                    "name": "description"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

@@ -1,0 +1,30 @@
+{
+    "fields": {
+        "employeeTarget": "Employee Target",
+        "timesheets": "Timesheets",
+        "timesheets1": "Timesheets1",
+        "managerMappings": "Manager Mappings",
+        "emailSchedules": "Email Schedules",
+        "cAppraisalDate": "Appraisal Date",
+        "cAppraisalTemplate": "Appraisal Template",
+        "cAppraisalRelease": "Appraisal Release"
+    },
+    "links": {
+        "employeeTarget": "Employee Target",
+        "timesheets": "Timesheets",
+        "timesheets1": "Timesheets1",
+        "managerMappings": "Manager Mappings",
+        "emailSchedules": "Email Schedules"
+    },
+    "options": {
+        "cAppraisalTemplate": {
+            "Project Manager": "Project Manager",
+            "Developer": "Developer",
+            "HR Manager": "HR Manager",
+            "SEO": "SEO",
+            "BDE": "BDE",
+            "BDM": "BDM",
+            "TL": "TL"
+        }
+    }
+}

@@ -1,0 +1,53 @@
+{
+    "fields": {
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "name": "Project Name",
+        "plannedHour": "Planned Hour",
+        "contact": "Contact",
+        "status": "Status",
+        "actualHours": "Actual Hours",
+        "projectDocuments": "Project Documents",
+        "milestones": "Milestones",
+        "projectTasks": "Project Tasks",
+        "projectUpdates": "Project Updates",
+        "bugTrackers": "Bug Trackers",
+        "timesheets": "Timesheets",
+        "managerMappings": "Manager Mappings",
+        "totalBudgetUtilized": "TotalBudgetUtilized",
+        "totalBudget": "Total Budget",
+        "workToBeBills": "Work To Be Bills",
+        "cRTrackings": "CR Tracking"
+    },
+    "links": {
+        "contact": "Contact",
+        "milestones": "Milestones",
+        "projectTasks": "Project Tasks",
+        "projectUpdates": "Project Updates",
+        "bugTrackers": "Bug Trackers",
+        "timesheets": "Timesheets",
+        "managerMappings": "Manager Mappings",
+        "workToBeBills": "Work To Be Bills",
+        "cRTrackings": "CR Tracking"
+    },
+    "labels": {
+        "Create Project": "Create Project"
+    },
+    "tooltips": {
+        "startDate": "Start Date Of Project",
+        "endDate": "End Date Of Project"
+    },
+    "options": {
+        "status": {
+            "Draft": "Draft",
+            "Documentation": "Documentation",
+            "In-Progress": "In-Progress",
+            "UAT": "UAT",
+            "Support": "Support",
+            "Completed": "Completed",
+            "On Hold": "On Hold",
+            "Cancelled": "Cancelled"
+        },
+        "actualHours": []
+    }
+}

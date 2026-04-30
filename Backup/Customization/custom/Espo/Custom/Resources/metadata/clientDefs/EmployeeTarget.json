@@ -1,0 +1,16 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#3bf108",
+    "iconClass": "fas fa-money-check",
+    "dynamicLogic": {
+        "fields": {
+            "endDate": {
+                "invalid": null
+            }
+        }
+    },
+    "kanbanViewMode": false
+}
