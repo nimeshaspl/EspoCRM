@@ -1,0 +1,7 @@
+{
+  "controller": "custom:controllers/my-desk",
+  "views": {
+    "view": "custom:views/my-desk/view"
+  },
+  "iconClass": "fas fa-user"
+}

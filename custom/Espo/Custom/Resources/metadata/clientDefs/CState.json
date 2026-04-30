@@ -1,0 +1,24 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "country": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "cities": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeePastExperiences": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeeAddresses": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

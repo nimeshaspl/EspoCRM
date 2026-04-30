@@ -1,0 +1,11 @@
+{
+    "view": "custom:views/dashlets/quick-attendance",
+    "name": "Quick Attendance",
+    "options": null,
+    "acrAllow": true,
+    "category": "Misc",
+    "defaultSize": {
+        "width": 4,
+        "height": 2
+    }
+}

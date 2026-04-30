@@ -1,0 +1,4 @@
+{
+    "beforeSaveCustomScript": "\nstate.countryName = countryName;\ncity.stateName = stateName;",
+    "beforeSaveApiScript": "state.countryName = countryName;\ncity.stateName = stateName;"
+}

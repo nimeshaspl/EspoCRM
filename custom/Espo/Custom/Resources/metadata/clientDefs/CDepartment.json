@@ -1,0 +1,20 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "employee": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "user": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "designations": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

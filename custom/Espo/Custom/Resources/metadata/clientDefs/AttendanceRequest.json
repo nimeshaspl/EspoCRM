@@ -1,0 +1,7 @@
+{
+  "controller": "custom:controllers/attendance-request",
+  "views": {
+    "view": "custom:views/attendance-request/view"
+  },
+  "iconClass": "fas fa-user"
+}

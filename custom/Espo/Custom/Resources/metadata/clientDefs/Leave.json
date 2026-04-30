@@ -1,0 +1,7 @@
+{
+  "controller": "custom:controllers/leave",
+  "views": {
+    "view": "custom:views/leave/view"
+  },
+  "iconClass": "fas fa-user"
+}

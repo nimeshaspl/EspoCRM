@@ -1,0 +1,19 @@
+{
+    "controller": "controllers/record",
+    "views": {
+        "list": "custom:views/c-paypackage/list"
+    },
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "package": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "payslips": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

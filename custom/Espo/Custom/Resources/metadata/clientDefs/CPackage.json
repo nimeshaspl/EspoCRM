@@ -1,0 +1,20 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "views": {
+        "list": "custom:views/c-package/list"
+    },
+    "iconClass": "fas fa-boxes-packing",
+    "relationshipPanels": {
+        "payPackage": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employee": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

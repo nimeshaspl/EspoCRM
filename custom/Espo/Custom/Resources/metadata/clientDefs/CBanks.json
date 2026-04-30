@@ -1,0 +1,19 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "kanbanViewMode": false,
+    "color": null,
+    "iconClass": null,
+    "relationshipPanels": {
+        "employeeBanks": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeeAddress": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

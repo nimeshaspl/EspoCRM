@@ -134,6 +134,12 @@
         "CurrencyRecordRate": "Currency Rates"
     },
     "labels": {
+        "Profile": "Profile",
+        "MyDesk": "My Desk",
+        "Leave": "Leave",
+        "Holiday": "Holiday",
+        "AttendancePage": "Attendance",
+        "AttendanceRequest": "Attendance Request",
         "Previous Page": "Previous Page",
         "Next Page": "Next Page",
         "First Page": "First Page",

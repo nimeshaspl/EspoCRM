@@ -1,0 +1,28 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "employee": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "country": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "state": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "city": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "workRole": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

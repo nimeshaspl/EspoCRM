@@ -1,0 +1,16 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "user": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "holidaySelections": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

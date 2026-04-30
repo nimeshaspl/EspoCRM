@@ -1,0 +1,7 @@
+{
+  "controller": "custom:controllers/profile",
+  "views": {
+    "view": "custom:views/profile/view"
+  },
+  "iconClass": "fas fa-user"
+}

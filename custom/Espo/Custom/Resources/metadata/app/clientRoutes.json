@@ -1,0 +1,38 @@
+{
+  "Profile": {
+    "params": {
+      "controller": "Profile",
+      "action": "view"
+    }
+  },
+  "MyDesk": {
+    "params": {
+      "controller": "MyDesk",
+      "action": "view"
+    }
+  },
+  "Leave": {
+    "params": {
+      "controller": "Leave",
+      "action": "view"
+    }
+  },
+  "Holiday": {
+    "params": {
+      "controller": "Holiday",
+      "action": "view"
+    }
+  },
+  "AttendacePage": {
+    "params": {
+      "controller": "AttendancePage",
+      "action": "view"
+    }
+  },
+  "AttendaceRequest": {
+    "params": {
+      "controller": "AttendaceRequest",
+      "action": "view"
+    }
+  }
+}

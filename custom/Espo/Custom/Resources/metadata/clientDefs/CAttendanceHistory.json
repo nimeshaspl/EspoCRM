@@ -1,0 +1,15 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "attendance": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "parent": {
+            "layout": null
+        }
+    }
+}

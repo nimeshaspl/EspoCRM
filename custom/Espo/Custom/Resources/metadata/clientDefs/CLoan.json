@@ -1,0 +1,26 @@
+{
+    "controller": "controllers/record",
+    "views": {
+        "list": "custom:views/c-loan/list"
+    },
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "employee": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "transactionTimelines": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "payslips": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    },
+    "kanbanViewMode": false,
+    "color": null,
+    "iconClass": null
+}

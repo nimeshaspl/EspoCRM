@@ -1,0 +1,19 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "startTime"
+                },
+                {
+                    "name": "endTime"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

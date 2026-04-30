@@ -1,0 +1,15 @@
+{
+    "fields": {
+        "endDate": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "appliedFor",
+                        "value": "Multiple days"
+                    }
+                ]
+            }
+        }
+    }
+}

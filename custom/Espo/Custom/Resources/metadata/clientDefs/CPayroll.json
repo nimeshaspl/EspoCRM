@@ -1,0 +1,20 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "views": {
+        "list": "custom:views/c-payroll/list"
+    },
+    "iconClass": "fas fa-money-check-dollar",
+    "relationshipPanels": {
+        "employee": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "payrollIssues": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}
