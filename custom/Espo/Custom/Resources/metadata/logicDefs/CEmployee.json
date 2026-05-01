@@ -1,0 +1,277 @@
+{
+    "fields": {
+        "aAddress": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "aDHARId",
+                        "data": {
+                            "field": "aDHAR"
+                        }
+                    }
+                ]
+            }
+        },
+        "aENumber": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "aDHARId",
+                        "data": {
+                            "field": "aDHAR"
+                        }
+                    }
+                ]
+            }
+        },
+        "aName": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "aDHARId",
+                        "data": {
+                            "field": "aDHAR"
+                        }
+                    }
+                ]
+            }
+        },
+        "aNumber": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "aDHARId",
+                        "data": {
+                            "field": "aDHAR"
+                        }
+                    }
+                ]
+            }
+        },
+        "dLNumber": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "drivingLicenseId",
+                        "data": {
+                            "field": "drivingLicense"
+                        }
+                    }
+                ]
+            }
+        },
+        "dateOfBirthAsPerVoterID": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "voterIdCardId",
+                        "data": {
+                            "field": "voterIdCard"
+                        }
+                    }
+                ]
+            }
+        },
+        "dateOfExpiry": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "drivingLicenseId",
+                        "data": {
+                            "field": "drivingLicense"
+                        }
+                    }
+                ]
+            }
+        },
+        "dateOfIssue": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "drivingLicenseId",
+                        "data": {
+                            "field": "drivingLicense"
+                        }
+                    }
+                ]
+            }
+        },
+        "nameAsPerPaasport": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "passportId",
+                        "data": {
+                            "field": "passport"
+                        }
+                    }
+                ]
+            }
+        },
+        "fathersNameAsPerVoterID": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "voterIdCardId",
+                        "data": {
+                            "field": "voterIdCard"
+                        }
+                    }
+                ]
+            }
+        },
+        "mName": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "panCardId",
+                        "data": {
+                            "field": "panCard"
+                        }
+                    }
+                ]
+            }
+        },
+        "pDOB": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "panCardId",
+                        "data": {
+                            "field": "panCard"
+                        }
+                    }
+                ]
+            }
+        },
+        "pName": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "panCardId",
+                        "data": {
+                            "field": "panCard"
+                        }
+                    }
+                ]
+            }
+        },
+        "pNumber": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "passportId",
+                        "data": {
+                            "field": "passport"
+                        }
+                    }
+                ]
+            }
+        },
+        "panCardNumber": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "panCardId",
+                        "data": {
+                            "field": "panCard"
+                        }
+                    }
+                ]
+            }
+        },
+        "passportDOB": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "passportId",
+                        "data": {
+                            "field": "passport"
+                        }
+                    }
+                ]
+            }
+        },
+        "passportDateOfIssue": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "passportId",
+                        "data": {
+                            "field": "passport"
+                        }
+                    }
+                ]
+            }
+        },
+        "voterIDNumber": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "voterIdCardId",
+                        "data": {
+                            "field": "voterIdCard"
+                        }
+                    }
+                ]
+            }
+        },
+        "placeOfBirth": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "passportId",
+                        "data": {
+                            "field": "passport"
+                        }
+                    }
+                ]
+            }
+        },
+        "placeOfIssue": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "passportId",
+                        "data": {
+                            "field": "passport"
+                        }
+                    }
+                ]
+            }
+        },
+        "nameAsPerVoterID": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "voterIdCardId",
+                        "data": {
+                            "field": "voterIdCard"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

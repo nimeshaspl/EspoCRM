@@ -1,0 +1,3 @@
+{
+    "beforeSaveApiScript": "$fiscalYear = entity\\attribute('fiscalYear');\n\n$year = datetime\\year(datetime\\now());\n\nifThen(!$fiscalYear, entity\\setAttribute('fiscalYear', $year))"
+}

@@ -1,0 +1,7 @@
+{
+  "controller": "custom:controllers/holiday",
+  "views": {
+    "view": "custom:views/holiday/view"
+  },
+  "iconClass": "fas fa-user"
+}

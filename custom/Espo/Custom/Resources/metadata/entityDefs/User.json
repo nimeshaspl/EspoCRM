@@ -3,6 +3,82 @@
         "employeeTarget": {
             "type": "link"
         },
+        "cEmployee": {
+            "type": "link"
+        },
+        "cDoj": {
+            "notNull": false,
+            "type": "date",
+            "isCustom": true
+        },
+        "cBloodGroup": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "cMaritialStatus": {
+            "type": "enum",
+            "options": [
+                "Married",
+                "Unmarried"
+            ],
+            "style": {
+                "Married": null,
+                "Unmarried": null
+            },
+            "default": "Married",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "cDob": {
+            "notNull": false,
+            "type": "date",
+            "isCustom": true
+        },
+        "cApprovedBy": {
+            "type": "link"
+        },
+        "cUserParent": {
+            "type": "linkOne"
+        },
+        "cLocation": {
+            "type": "enum",
+            "options": [
+                "India",
+                "USA"
+            ],
+            "style": {
+                "India": null,
+                "USA": null
+            },
+            "default": "India",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "cShift": {
+            "type": "linkOne"
+        },
+        "cDepartment": {
+            "type": "linkOne"
+        },
+        "cDesignation": {
+            "type": "linkOne"
+        },
+        "cIsWorkFromHome": {
+            "notNull": true,
+            "type": "bool",
+            "audited": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "cIsIntern": {
+            "notNull": true,
+            "type": "bool",
+            "audited": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
         "timesheets": {
             "type": "linkMultiple",
             "layoutDetailDisabled": true,
@@ -83,6 +159,85 @@
         }
     },
     "links": {
+        "cEmployee": {
+            "type": "belongsTo",
+            "foreign": "user",
+            "entity": "CEmployee",
+            "isCustom": true
+        },
+        "cRetentions": {
+            "type": "hasMany",
+            "foreign": "user",
+            "entity": "CRetention",
+            "audited": false,
+            "isCustom": true
+        },
+        "cLeaves": {
+            "type": "hasMany",
+            "foreign": "user",
+            "entity": "CLeave",
+            "audited": false,
+            "isCustom": true
+        },
+        "cLeaveRequests": {
+            "type": "hasMany",
+            "foreign": "user",
+            "entity": "CLeaveRequest",
+            "audited": false,
+            "isCustom": true
+        },
+        "cApprovedBy": {
+            "type": "belongsTo",
+            "foreign": "users",
+            "entity": "CLeaveRequest",
+            "audited": false,
+            "isCustom": true
+        },
+        "cUserParent": {
+            "type": "hasOne",
+            "foreign": "cReportedTo",
+            "entity": "User",
+            "isCustom": true
+        },
+        "cHoliday": {
+            "type": "hasMany",
+            "foreign": "user",
+            "entity": "CHoliday",
+            "audited": false,
+            "isCustom": true
+        },
+        "cHolidaySelections": {
+            "type": "hasMany",
+            "foreign": "user",
+            "entity": "CHolidaySelection",
+            "audited": false,
+            "isCustom": true
+        },
+        "cShift": {
+            "type": "hasOne",
+            "foreign": "user",
+            "entity": "CShift",
+            "isCustom": true
+        },
+        "cDepartment": {
+            "type": "hasOne",
+            "foreign": "user",
+            "entity": "CDepartment",
+            "isCustom": true
+        },
+        "cDesignation": {
+            "type": "hasOne",
+            "foreign": "user",
+            "entity": "CDesignation",
+            "isCustom": true
+        },
+        "cLeaveBalances": {
+            "type": "hasMany",
+            "foreign": "user",
+            "entity": "CLeaveBalance",
+            "audited": false,
+            "isCustom": true
+        },
         "employeeTarget": {
             "type": "belongsTo",
             "foreign": "users",
@@ -119,5 +274,17 @@
             "audited": false,
             "isCustom": true
         }
-    }
+    },
+    "collection": {
+        "orderBy": "userName",
+        "order": "asc",
+        "textFilterFields": [
+            "name",
+            "userName",
+            "emailAddress"
+        ],
+        "fullTextSearch": false,
+        "countDisabled": false
+    },
+    "optimisticConcurrencyControl": false
 }

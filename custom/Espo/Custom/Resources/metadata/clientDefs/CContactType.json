@@ -1,0 +1,13 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "iconClass": "fas fa-file-contract",
+    "relationshipPanels": {
+        "employeeContact": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

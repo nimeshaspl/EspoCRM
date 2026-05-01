@@ -1,0 +1,4 @@
+{
+    "beforeSaveCustomScript": "cDesignation.departmentName = cDepartmentName",
+    "beforeSaveApiScript": "cDesignation.departmentName = cDepartmentName"
+}

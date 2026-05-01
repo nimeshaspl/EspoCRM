@@ -1,0 +1,38 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "menu": {
+        "detail": {
+            "buttons": [
+                "__APPEND__",
+                {
+                    "label": "Approve",
+                    "name": "approveButton",
+                    "style": "success",
+                    "handler": "custom:views/attendance-request/view",
+                    "initFunction": "initApprove",
+                    "actionFunction": "approve"
+                },
+                {
+                    "label": "Reject",
+                    "name": "rejectButton",
+                    "style": "danger",
+                    "handler": "custom:views/attendance-request/view",
+                    "initFunction": "initReject",
+                    "actionFunction": "reject"
+                }
+            ]
+        }
+    },
+    "relationshipPanels": {
+        "employee": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    },
+    "kanbanViewMode": false,
+    "color": null,
+    "iconClass": null
+}

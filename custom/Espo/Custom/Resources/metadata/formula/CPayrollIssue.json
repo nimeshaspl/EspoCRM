@@ -1,0 +1,3 @@
+{
+    "beforeSaveCustomScript": "// $reason = $absentDays . ' day(s) Absent';\n\n// if ($leaveDays > 0) {\n//     $reason .= ' and ' . $leaveDays . ' day(s) Leave';\n// }"
+}

@@ -5,14 +5,19 @@
                 {
                     "name": "userName"
                 },
-                false
+                {
+                    "name": "cIsIntern"
+                }
             ],
             [
                 {
-                    "name": "name"
+                    "name": "firstName"
                 },
                 {
-                    "name": "title"
+                    "name": "middleName"
+                },
+                {
+                    "name": "lastName"
                 }
             ],
             [
@@ -21,6 +26,22 @@
                 },
                 {
                     "name": "phoneNumber"
+                }
+            ],
+            [
+                {
+                    "name": "cDepartment"
+                },
+                {
+                    "name": "cDesignation"
+                }
+            ],
+            [
+                {
+                    "name": "cDob"
+                },
+                {
+                    "name": "cDoj"
                 }
             ],
             [
@@ -35,6 +56,22 @@
                 },
                 {
                     "name": "cAppraisalRelease"
+                }
+            ],
+            [
+                {
+                    "name": "managerMappings"
+                },
+                {
+                    "name": "cMaritialStatus"
+                }
+            ],
+            [
+                {
+                    "name": "cLocation"
+                },
+                {
+                    "name": "cShift"
                 }
             ]
         ],

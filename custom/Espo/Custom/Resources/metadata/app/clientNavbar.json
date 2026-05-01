@@ -1,0 +1,40 @@
+{
+  "menuItems": {
+    "profile": {
+      "order": 2,
+      "groupIndex": 1,
+      "link": "#Profile",
+      "labelTranslation": "Global.labels.Profile"
+    },
+    "my-desk": {
+      "order": 2,
+      "groupIndex": 1,
+      "link": "#MyDesk",
+      "labelTranslation": "Global.labels.MyDesk"
+    },
+    "leave": {
+      "order": 3,
+      "groupIndex": 1,
+      "link": "#Leave",
+      "labelTranslation": "Global.labels.Leave"
+    },
+    "holiday": {
+      "order": 4,
+      "groupIndex": 1,
+      "link": "#Holiday",
+      "labelTranslation": "Global.labels.Holiday"
+    },
+    "attendance-page": {
+      "order": 4,
+      "groupIndex": 1,
+      "link": "#AttendancePage",
+      "labelTranslation": "Global.labels.AttendancePage"
+    },
+    "attendance-request": {
+      "order": 4,
+      "groupIndex": 1,
+      "link": "#AttendanceRequest",
+      "labelTranslation": "Global.labels.AttendanceRequest"
+    }
+  }
+}

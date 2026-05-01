@@ -1,0 +1,14 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "startTime",
+        "width": 20
+    },
+    {
+        "name": "endTime",
+        "width": 20
+    }
+]

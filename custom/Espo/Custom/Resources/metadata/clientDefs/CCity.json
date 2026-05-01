@@ -1,0 +1,20 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "state": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeePastExperiences": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeeAddresses": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

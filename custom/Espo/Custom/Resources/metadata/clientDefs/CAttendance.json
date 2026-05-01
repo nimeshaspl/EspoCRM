@@ -1,0 +1,17 @@
+{
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "views": {
+        "list": "custom:views/c-attendance/list"
+    },
+    "relationshipPanels": {
+        "payslip": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    },
+    "kanbanViewMode": false,
+    "color": null,
+    "iconClass": "fas fa-user-clock"
+}

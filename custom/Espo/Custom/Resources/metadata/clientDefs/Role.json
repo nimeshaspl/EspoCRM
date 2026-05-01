@@ -1,0 +1,5 @@
+{
+    "dashboards": {
+        "employee": "custom:dashboard/employee-dashboard"
+    }
+}

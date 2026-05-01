@@ -1,0 +1,16 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "contactTypes": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employee": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

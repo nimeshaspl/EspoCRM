@@ -1,0 +1,134 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "pattern": "$noBadCharacters",
+            "options": []
+        },
+        "description": {
+            "type": "text"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "assignedUser": {
+            "type": "link",
+            "required": false,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "basicPay": {
+            "type": "currency",
+            "isCustom": true
+        },
+        "conveyanceAllowance": {
+            "type": "currency",
+            "isCustom": true
+        },
+        "pTGross": {
+            "type": "currency",
+            "isCustom": true
+        },
+        "balancingFigure": {
+            "type": "currency",
+            "isCustom": true
+        },
+        "specialAllowance": {
+            "type": "currency",
+            "isCustom": true
+        },
+        "medical": {
+            "type": "currency",
+            "isCustom": true
+        },
+        "hRAGross": {
+            "type": "currency",
+            "isCustom": true
+        },
+        "package": {
+            "type": "linkOne"
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "package": {
+            "type": "hasOne",
+            "foreign": "payPackage",
+            "entity": "CPackage",
+            "isCustom": true
+        },
+        "payslips": {
+            "type": "hasMany",
+            "foreign": "payPackage",
+            "entity": "CPayslip",
+            "audited": false,
+            "isCustom": true
+        }
+    },
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc"
+    },
+    "indexes": {
+        "name": {
+            "columns": [
+                "name",
+                "deleted"
+            ]
+        },
+        "assignedUser": {
+            "columns": [
+                "assignedUserId",
+                "deleted"
+            ]
+        },
+        "createdAt": {
+            "columns": [
+                "createdAt"
+            ]
+        },
+        "createdAtId": {
+            "unique": true,
+            "columns": [
+                "createdAt",
+                "id"
+            ]
+        }
+    }
+}

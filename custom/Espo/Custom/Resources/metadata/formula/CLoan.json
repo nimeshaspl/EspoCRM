@@ -1,0 +1,4 @@
+{
+    "beforeSaveCustomScript": "if (\r\n    loanAmount != null &&\r\n    interestRate != null\r\n) {\r\n    interest = loanAmount * interestRate / 100;\r\n}\r\n\r\n// Total repayable\r\ntotalRepayableAmount = (loanAmount ?? 0) + (interest ?? 0);\r\n\r\n// EMI calculation\r\nif (numberOfInstallments > 0) {\r\n    currentEMI = totalRepayableAmount / numberOfInstallments;\r\n}\r\n\r\n// Prevent reset\r\nif (amountRepaid == null) {\r\n    amountRepaid = 0;\r\n}\r\n\r\n// Pending amount\r\namountPending = totalRepayableAmount - amountRepaid;\r\n\r\n// Recovery end month\r\nif (\r\n    numberOfInstallments > 0 &&\r\n    recoveryStartMonth != null\r\n) {\r\n    recoveryEndMonth = datetime\\addMonths(\r\n        recoveryStartMonth,\r\n        numberOfInstallments - 1\r\n    );\r\n}",
+    "beforeSaveApiScript": null
+}

@@ -1,0 +1,133 @@
+{
+    "recordViews": {
+        "create": "custom:views/cemployee/record/create",
+        "detail": "custom:views/cemployee/record/detail"
+    },
+    "panelViews": {
+        "address": "custom:views/employee/record/panels/address"
+    },
+    "linkEntityList": [
+        "employeeBanks"
+    ],
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "menu": {
+        "list": {
+            "buttons": [
+                "__APPEND__",
+                {
+                    "label": "Hello",
+                    "name": "helloButton",
+                    "style": "success",
+                    "handler": "custom:hello-handler",
+                    "initFunction": "initShowHello",
+                    "actionFunction": "hello"
+                },
+                {
+                    "label": "🔍 Show Role",
+                    "name": "showRoleButton",
+                    "style": "info",
+                    "handler": "custom:hello-handler",
+                    "initFunction": "initShowRole",
+                    "actionFunction": "showRole"
+                }
+            ]
+        }
+    },
+    "relationshipPanels": {
+        "user": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeeDependents": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeePastExperiences": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "workRole": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeeBanks": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeeContacts": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeeDocumentses": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeeAddresses": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "department": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "aDHAR": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "drivingLicense": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "voterIdCard": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "panCard": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "packages": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "payslips": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "loans": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "payrolls": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "payrollIssues": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "retentions": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "leaves": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "leaveRequests": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "attendanceRequests": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "monthlyAttendanceSummaries": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

@@ -1,0 +1,3 @@
+{
+    "beforeSaveApiScript": "$type = entity\\attribute('leaveType');\n$startDate = entity\\attribute('startDate');\n$endDate = entity\\attribute('endDate');\n$reason = entity\\attribute('reason');\n$dayMode = entity\\attribute('dayMode');\n$fiscalYear = entity\\attribute('fiscalYear');\n$year = datetime\\year(datetime\\now());\n\nifThen(!$fiscalYear, entity\\setAttribute('fiscalYear', $year));\n\n\nifThenElse($type && $startDate && $endDate && $reason && $dayMode, \n    // CONSEQUENT\n    // log\\warning(\"Record created with all validations\");\n    \n    , \n    // ALTERNATIVE\n    recordService\\throwBadRequest(\"Please fill all fields.!\");\n);"
+}

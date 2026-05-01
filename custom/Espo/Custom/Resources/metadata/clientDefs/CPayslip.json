@@ -1,0 +1,27 @@
+{
+    "controller": "controllers/record",
+    "views": {
+        "list": "custom:views/c-payslip/list"
+    },
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "payPackage": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "attendances": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employee": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "loan": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

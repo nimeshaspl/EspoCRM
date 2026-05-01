@@ -1,0 +1,30 @@
+{
+    "fields": {
+        "city": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "stateId",
+                        "data": {
+                            "field": "state"
+                        }
+                    }
+                ]
+            }
+        },
+        "state": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "countryId",
+                        "data": {
+                            "field": "country"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
