@@ -193,12 +193,6 @@
             "audited": false,
             "isCustom": true
         },
-        "cUserParent": {
-            "type": "hasOne",
-            "foreign": "cReportedTo",
-            "entity": "User",
-            "isCustom": true
-        },
         "cHoliday": {
             "type": "hasMany",
             "foreign": "user",
