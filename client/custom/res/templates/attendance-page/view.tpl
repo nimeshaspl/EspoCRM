@@ -65,7 +65,7 @@
 <div class="wrapper">
     {{#if isAdmin}}
     <div class="btn-container">
-        
+
 
         <div class="panel panel-default" style="padding:10px;margin-bottom:15px;min-width: 320px;">
             <label><strong>Filter by Employee:</strong></label>
@@ -82,6 +82,9 @@
             <a class="btn btn-primary action" data-action="createAttendanceUpdate">
                 <span>Create Attendance</span>
             </a>
+            <button id="createEmployeeBtn" class="btn btn-primary">
+                Run Create Employees Service
+            </button>
         </div>
     </div>
     {{/if}}
@@ -101,7 +104,7 @@
             <a class="btn btn-danger action hidden" data-action="clockOut">
                 <span>Clock Out</span>
             </a>
-            
+
         </div>
     </div>
     {{/if}}

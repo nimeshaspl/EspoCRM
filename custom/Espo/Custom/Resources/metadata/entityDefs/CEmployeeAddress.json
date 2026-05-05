@@ -42,16 +42,21 @@
         "addressType": {
             "type": "enum",
             "options": [
-                "Permanent Address",
-                "Current Address"
+                "Permanent",
+                "Current"
             ],
             "style": {
-                "Permanent Address": null,
-                "Current Address": null
+                "Permanent": null,
+                "Current": null
             },
             "maxLength": 100,
             "isCustom": true,
-            "default": "Permanent Address"
+            "default": "Permanent",
+            "required": true,
+            "audited": true,
+            "readOnly": false,
+            "readOnlyAfterCreate": false,
+            "inlineEditDisabled": true
         },
         "address": {
             "type": "text",

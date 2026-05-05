@@ -1,0 +1,5 @@
+{
+  "scriptList": [
+    "client/custom/src/profile-completion-guard.js"
+  ]
+}

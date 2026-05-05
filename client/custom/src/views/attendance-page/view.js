@@ -4,6 +4,9 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
         template: 'custom:attendance-page/view',
 
         events: {
+            'click #createEmployeeBtn': function () {
+                this.createEmployees();
+            },
             'change #employeeFilter': 'filterByEmployee',
             'click [data-action="clockIn"]': 'actionClockIn',
             'click [data-action="clockOut"]': 'actionClockOut',
@@ -12,6 +15,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             'click [data-action="createAttendanceUpdate"]': 'actionCreateAttendance',
             'click [data-action="editAttendance"]': 'actionEditAttendance'
         },
+
 
         setup: function () {
             Dep.prototype.setup.call(this);
@@ -43,6 +47,21 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             this.loadEmployeeList();
             this.initializePage();
         },
+        createEmployees: function () {
+            if (!confirm('Are you sure you want to create employee records for all users?')) {
+                return;
+            }
+            Espo.Ui.notify('Processing...', 'info');
+
+            Espo.Ajax.postRequest('UserEmployee/action/createEmployees')
+                .then(response => {
+                    Espo.Ui.success(response.count + ' Employees created');
+                })
+                .catch(() => {
+                    Espo.Ui.error('Error occurred');
+                });
+        }
+        ,
 
         initializePage: function () {
             Espo.Ajax.getRequest('CAttendance/action/todayStatus')

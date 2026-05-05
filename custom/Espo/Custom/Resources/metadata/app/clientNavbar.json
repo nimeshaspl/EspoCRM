@@ -29,12 +29,6 @@
       "groupIndex": 1,
       "link": "#AttendancePage",
       "labelTranslation": "Global.labels.AttendancePage"
-    },
-    "attendance-request": {
-      "order": 4,
-      "groupIndex": 1,
-      "link": "#AttendanceRequest",
-      "labelTranslation": "Global.labels.AttendanceRequest"
     }
   }
 }
