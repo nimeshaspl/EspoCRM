@@ -1,0 +1,8 @@
+{
+    "options": {
+        "addressType": {
+            "Permanent": "Permanent",
+            "Current": "Current"
+        }
+    }
+}
