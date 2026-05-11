@@ -192,6 +192,10 @@ define('custom:views/holiday/view', ['view'], function (Dep) {
                         attribute: 'type',
                         type: 'equals',
                         value: 'regular' // Assuming 'regular' is the type for employees; adjust if different
+                    },
+                    {
+                        attribute: 'isActive',
+                        type: 'isTrue'
                     }
                 ]
             }).then(function (response) {

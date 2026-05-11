@@ -1,0 +1,22 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "balance",
+        "width": 16
+    },
+    {
+        "name": "fiscalYear",
+        "width": 16
+    },
+    {
+        "name": "reason",
+        "width": 16
+    },
+    {
+        "name": "assignedUser",
+        "width": 16
+    }
+]
