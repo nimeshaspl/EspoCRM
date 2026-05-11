@@ -6,7 +6,9 @@
             "pattern": "$noBadCharacters"
         },
         "description": {
-            "type": "text"
+            "type": "text",
+            "audited": true,
+            "inlineEditDisabled": true
         },
         "createdAt": {
             "type": "datetime",

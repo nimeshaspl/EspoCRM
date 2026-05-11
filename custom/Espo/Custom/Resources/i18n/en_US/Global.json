@@ -33,7 +33,9 @@
         "CWorkToBeBill": "Work to Be Bill",
         "CCRTracking": "CR Tracking",
         "CSalesPlanning": "Sales Planning",
-        "CSalesPlanningMonthly": "Sales Planning Monthly"
+        "CSalesPlanningMonthly": "Sales Planning Monthly",
+        "CAttendance": "Attendance",
+        "CAttendanceRequest": "Attendance Request"
     },
     "scopeNamesPlural": {
         "EmployeeTarget": "Employee Targets",
@@ -69,6 +71,8 @@
         "CWorkToBeBill": "Work to Be Bills",
         "CCRTracking": "CR Trackings",
         "CSalesPlanning": "Sales Plannings",
-        "CSalesPlanningMonthly": "Sales Planning Monthlies"
+        "CSalesPlanningMonthly": "Sales Planning Monthlies",
+        "CAttendance": "Attendance",
+        "CAttendanceRequest": "Attendance Request"
     }
 }

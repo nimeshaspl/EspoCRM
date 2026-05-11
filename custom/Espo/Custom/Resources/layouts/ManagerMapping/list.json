@@ -8,9 +8,6 @@
         "name": "approver"
     },
     {
-        "name": "employeeSalary"
-    },
-    {
         "name": "assignedUser"
     }
 ]
