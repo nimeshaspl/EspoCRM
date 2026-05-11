@@ -12,10 +12,8 @@
     function waitForEspo(callback) {
         if (isReady()) {
             callback();
-
             return;
         }
-
         window.setTimeout(function () {
             waitForEspo(callback);
         }, 200);
@@ -61,10 +59,20 @@
         }
 
         try {
-            return window.sessionStorage.getItem(DONE_ACK_STORAGE_PREFIX + userId) === '1';
+            return window.localStorage.getItem(DONE_ACK_STORAGE_PREFIX + userId) === '1';
         } catch (e) {
             return false;
         }
+    }
+
+    function markCompletionDoneAcknowledged(userId) {
+        if (!userId) {
+            return;
+        }
+
+        try {
+            window.localStorage.setItem(DONE_ACK_STORAGE_PREFIX + userId, '1');
+        } catch (e) {}
     }
 
     function clearCompletionDoneAcknowledged(userId) {
@@ -115,6 +123,7 @@
             }
 
             if (status.isComplete && !isCompletionDoneAcknowledged(status.userId) && !isProfileHash(hash)) {
+                markCompletionDoneAcknowledged(status.userId);
                 redirectToProfile();
 
                 return;
