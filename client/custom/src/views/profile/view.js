@@ -89,6 +89,20 @@
             var passportAttachmentId = this.extractAttachmentId(passport);
             var voterAttachmentId = this.extractAttachmentId(voterId);
 
+            // Detect PDF by filename stored in the record's attachmentsNames field.
+            var isAadhaarPdf = this.isRecordAttachmentPdf(aadhaar);
+            var isDrivingPdf = this.isRecordAttachmentPdf(drivingLicence);
+            var isPanPdf = this.isRecordAttachmentPdf(panCard);
+            var isPassportPdf = this.isRecordAttachmentPdf(passport);
+            var isVoterPdf = this.isRecordAttachmentPdf(voterId);
+
+            // PDFs must use entryPoint=attachment; images use entryPoint=image.
+            var aadhaarFullUrl = isAadhaarPdf ? this.getFileAttachmentUrl(aadhaarAttachmentId) : this.getAttachmentUrl(aadhaarAttachmentId);
+            var drivingFullUrl = isDrivingPdf ? this.getFileAttachmentUrl(drivingAttachmentId) : this.getAttachmentUrl(drivingAttachmentId);
+            var panFullUrl     = isPanPdf     ? this.getFileAttachmentUrl(panAttachmentId)     : this.getAttachmentUrl(panAttachmentId);
+            var passportFullUrl = isPassportPdf ? this.getFileAttachmentUrl(passportAttachmentId) : this.getAttachmentUrl(passportAttachmentId);
+            var voterFullUrl   = isVoterPdf   ? this.getFileAttachmentUrl(voterAttachmentId)   : this.getAttachmentUrl(voterAttachmentId);
+
             return {
                 // Header
                 userName: name,
@@ -169,17 +183,32 @@
                 otherDocumentRecords: otherDocumentRecords,
                 hasOtherDocumentRecords: otherDocumentRecords.length > 0,
 
-                // Document attachment previews
-                aadhaarAttachmentThumbUrl: this.getAttachmentUrl(aadhaarAttachmentId, 'small'),
-                aadhaarAttachmentFullUrl: this.getAttachmentUrl(aadhaarAttachmentId),
-                drivingAttachmentThumbUrl: this.getAttachmentUrl(drivingAttachmentId, 'small'),
-                drivingAttachmentFullUrl: this.getAttachmentUrl(drivingAttachmentId),
-                panAttachmentThumbUrl: this.getAttachmentUrl(panAttachmentId, 'small'),
-                panAttachmentFullUrl: this.getAttachmentUrl(panAttachmentId),
-                passportAttachmentThumbUrl: this.getAttachmentUrl(passportAttachmentId, 'small'),
-                passportAttachmentFullUrl: this.getAttachmentUrl(passportAttachmentId),
-                voterAttachmentThumbUrl: this.getAttachmentUrl(voterAttachmentId, 'small'),
-                voterAttachmentFullUrl: this.getAttachmentUrl(voterAttachmentId)
+                // Document attachment previews.
+                // For PDFs the thumb URL is intentionally left empty so the template
+                // shows the PDF icon branch; only FullUrl is needed.
+                aadhaarAttachmentThumbUrl: isAadhaarPdf ? '' : this.getAttachmentUrl(aadhaarAttachmentId, 'small'),
+                aadhaarAttachmentFullUrl: aadhaarFullUrl,
+                drivingAttachmentThumbUrl: isDrivingPdf ? '' : this.getAttachmentUrl(drivingAttachmentId, 'small'),
+                drivingAttachmentFullUrl: drivingFullUrl,
+                panAttachmentThumbUrl: isPanPdf ? '' : this.getAttachmentUrl(panAttachmentId, 'small'),
+                panAttachmentFullUrl: panFullUrl,
+                passportAttachmentThumbUrl: isPassportPdf ? '' : this.getAttachmentUrl(passportAttachmentId, 'small'),
+                passportAttachmentFullUrl: passportFullUrl,
+                voterAttachmentThumbUrl: isVoterPdf ? '' : this.getAttachmentUrl(voterAttachmentId, 'small'),
+                voterAttachmentFullUrl: voterFullUrl,
+
+                // Presence flags so the template knows to show the icon block for PDFs.
+                hasAadhaarAttachment: !!aadhaarAttachmentId,
+                hasDrivingAttachment: !!drivingAttachmentId,
+                hasPanAttachment: !!panAttachmentId,
+                hasPassportAttachment: !!passportAttachmentId,
+                hasVoterAttachment: !!voterAttachmentId,
+
+                isAadhaarPdf: isAadhaarPdf,
+                isDrivingPdf: isDrivingPdf,
+                isPanPdf: isPanPdf,
+                isPassportPdf: isPassportPdf,
+                isVoterPdf: isVoterPdf
             };
         },
 
@@ -1134,6 +1163,40 @@
             return null;
         },
 
+        // Extract the original filename of the attachment from the record.
+        // EspoCRM stores names in attachmentsNames as {id: filename} for link-multiple fields.
+        extractAttachmentName: function (record) {
+            if (!record) return '';
+            var id = this.extractAttachmentId(record);
+            if (!id) return '';
+
+            if (record.attachmentsNames && typeof record.attachmentsNames === 'object') {
+                return record.attachmentsNames[id] || '';
+            }
+            if (record.attachmentNames && typeof record.attachmentNames === 'object') {
+                return record.attachmentNames[id] || '';
+            }
+            if (typeof record.attachmentsName === 'string') return record.attachmentsName;
+            if (typeof record.attachmentName === 'string') return record.attachmentName;
+            if (record.attachment && record.attachment.name) return record.attachment.name;
+
+            return '';
+        },
+
+        // Returns true if the attachment in the record is a PDF file.
+        isRecordAttachmentPdf: function (record) {
+            if (!record) return false;
+            var fname = this.extractAttachmentName(record);
+            return fname.toLowerCase().slice(-4) === '.pdf';
+        },
+
+        // URL for viewing/downloading any attachment type (works for both images and PDFs).
+        getFileAttachmentUrl: function (attachmentId) {
+            if (!attachmentId) return '';
+            return '?entryPoint=download&id=' + attachmentId;
+        },
+
+        // URL for image thumbnails only (does NOT work for PDFs — returns 403).
         getAttachmentUrl: function (attachmentId, size) {
             if (!attachmentId) return '';
 
@@ -1145,26 +1208,35 @@
             return url;
         },
 
-        setDocAttachmentPreview: function (docType, attachmentId) {
+        setDocAttachmentPreview: function (docType, attachmentId, isPdf) {
             var $box = this.$el.find('[data-doc-attachment="' + docType + '"]');
             if (!$box.length) return;
 
             if (!attachmentId) {
                 $box.html(
                     '<div class="pf-doc-attachment-empty">' +
-                        '<i class="fa fa-image"></i>' +
+                        '<i class="fa fa-file"></i>' +
                     '</div>'
                 );
 
                 return;
             }
 
-            var thumbUrl = this.getAttachmentUrl(attachmentId, 'small');
-            var fullUrl = this.getAttachmentUrl(attachmentId);
+            // For PDFs use entryPoint=attachment; for images use entryPoint=image.
+            var fullUrl = isPdf ? this.getFileAttachmentUrl(attachmentId) : this.getAttachmentUrl(attachmentId);
 
-            $box.html(
-                '<img src="' + thumbUrl + '" class="pf-doc-attachment-thumb" data-full-url="' + fullUrl + '" alt="Document Attachment">'
-            );
+            if (isPdf) {
+                $box.html(
+                    '<div class="pf-doc-attachment-thumb pdf-thumb" data-full-url="' + fullUrl + '" data-is-pdf="true" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.8rem;">' +
+                        '<i class="fa fa-file-pdf-o"></i>' +
+                    '</div>'
+                );
+            } else {
+                var thumbUrl = this.getAttachmentUrl(attachmentId, 'small');
+                $box.html(
+                    '<img src="' + thumbUrl + '" class="pf-doc-attachment-thumb" data-full-url="' + fullUrl + '" alt="Document Attachment">'
+                );
+            }
         },
 
         actionPreviewDocAttachment: function (e) {
@@ -1173,15 +1245,25 @@
             var fullUrl = e.currentTarget.getAttribute('data-full-url') || e.currentTarget.getAttribute('src');
             if (!fullUrl) return;
 
-            this.simpleModal(
-                'Attachment Preview',
-                '<div style="padding:16px;text-align:center;">' +
+            // Rely on the data-is-pdf flag set in the template/setDocAttachmentPreview.
+            var isPdf = e.currentTarget.getAttribute('data-is-pdf') === 'true';
+
+            var contentHtml = '';
+            if (isPdf) {
+                contentHtml = '<div style="padding:16px;">' +
+                    '<iframe src="' + fullUrl + '" style="width:100%;height:70vh;border:1px solid #e2e8f0;border-radius:8px;"></iframe>' +
+                '</div>';
+            } else {
+                contentHtml = '<div style="padding:16px;text-align:center;">' +
                     '<img src="' + fullUrl + '" alt="Attachment" style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;">' +
-                    '<div style="margin-top:12px;">' +
-                        '<a href="' + fullUrl + '" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:6px;background:#1f4a7a;color:#fff;text-decoration:none;font-size:13px;">Open in New Tab</a>' +
-                    '</div>' +
-                '</div>'
-            );
+                '</div>';
+            }
+
+            contentHtml += '<div style="padding:0 16px 16px;text-align:center;">' +
+                '<a href="' + fullUrl + '" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:6px;background:#1f4a7a;color:#fff;text-decoration:none;font-size:13px;">Open in New Tab</a>' +
+            '</div>';
+
+            this.simpleModal('Attachment Preview', contentHtml);
         },
 
         uploadDocumentAttachmentImage: function (file, relatedType) {
@@ -1193,13 +1275,14 @@
                     return;
                 }
 
-                if (!file.type || file.type.indexOf('image/') !== 0) {
-                    reject('Please select an image file only.');
+                var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+                if (!file.type || allowedTypes.indexOf(file.type) === -1) {
+                    reject('Please select an image (JPG, PNG, GIF) or PDF file.');
                     return;
                 }
 
-                if (file.size > 5 * 1024 * 1024) {
-                    reject('Image must be under 5 MB.');
+                if (file.size > 10 * 1024 * 1024) {
+                    reject('File must be under 10 MB.');
                     return;
                 }
 
@@ -1209,10 +1292,10 @@
                     var dataUri = evt.target.result;
                     var ext = (file.name && file.name.indexOf('.') > -1)
                         ? file.name.split('.').pop().toLowerCase()
-                        : 'png';
+                        : (file.type === 'application/pdf' ? 'pdf' : 'png');
 
                     Espo.Ajax.postRequest('Attachment', {
-                        name: 'document-' + Date.now() + '.' + ext,
+                        name: file.name || ('document-' + Date.now() + '.' + ext),
                         type: file.type,
                         size: file.size,
                         relatedType: relatedType || 'CEmployee',
@@ -1226,7 +1309,7 @@
 
                         resolve(attachment.id);
                     }).catch(function () {
-                        reject('Failed to upload attachment image.');
+                        reject('Failed to upload attachment.');
                     });
                 };
 
@@ -1339,13 +1422,24 @@
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                             ${fieldHtml}
                             <div style="grid-column:1/-1;">
-                                <label style="${lbl}">Attachment (Image only)</label>
+                                <label style="${lbl}">Attachment (Image or PDF)</label>
                                 <div id="doc-attachment-preview-wrap" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                                     ${currentAttachmentId
-                                        ? `<img id="doc-attachment-preview" src="${this.getAttachmentUrl(currentAttachmentId, 'small')}" alt="Attachment" style="width:78px;height:78px;object-fit:cover;border-radius:8px;border:1px solid #d0dae7;cursor:pointer;" data-full-url="${this.getAttachmentUrl(currentAttachmentId)}">`
-                                        : '<div id="doc-attachment-empty" style="width:78px;height:78px;border-radius:8px;border:1px dashed #b9c7d9;display:flex;align-items:center;justify-content:center;color:#7d8ea4;"><i class="fa fa-image"></i></div>'
+                                        ? (function() {
+                                            var existingIsPdf = self.isRecordAttachmentPdf(record);
+                                            var fullUrl = existingIsPdf
+                                                ? self.getFileAttachmentUrl(currentAttachmentId)
+                                                : self.getAttachmentUrl(currentAttachmentId);
+                                            if (existingIsPdf) {
+                                                return `<div id="doc-attachment-preview" class="pdf-thumb" data-full-url="${fullUrl}" data-is-pdf="true" style="width:78px;height:78px;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.5rem;">` +
+                                                    '<i class="fa fa-file-pdf-o"></i>' +
+                                                '</div>';
+                                            }
+                                            return `<img id="doc-attachment-preview" src="${self.getAttachmentUrl(currentAttachmentId, 'small')}" alt="Attachment" style="width:78px;height:78px;object-fit:cover;border-radius:8px;border:1px solid #d0dae7;cursor:pointer;" data-full-url="${fullUrl}">`;
+                                          })()
+                                        : '<div id="doc-attachment-empty" style="width:78px;height:78px;border-radius:8px;border:1px dashed #b9c7d9;display:flex;align-items:center;justify-content:center;color:#7d8ea4;"><i class="fa fa-file"></i></div>'
                                     }
-                                    <input type="file" id="doc-attachment-file" accept="image/*" style="${s};max-width:260px;">
+                                    <input type="file" id="doc-attachment-file" accept="image/*,application/pdf" style="${s};max-width:260px;">
                                     ${currentAttachmentId ? '<button type="button" id="doc-remove-attachment" style="padding:7px 12px;border:1px solid #ced4da;background:#fff;border-radius:6px;color:#6b7280;cursor:pointer;">Remove</button>' : ''}
                                 </div>
                             </div>
@@ -1370,20 +1464,33 @@
                 var fullUrl = this.getAttribute('data-full-url') || this.getAttribute('src');
                 if (!fullUrl) return;
 
-                self.simpleModal(
-                    'Attachment Preview',
-                    '<div style="padding:16px;text-align:center;">' +
+                var isPdf = this.getAttribute('data-is-pdf') === 'true';
+
+                var contentHtml = '';
+                if (isPdf) {
+                    contentHtml = '<div style="padding:16px;">' +
+                        '<iframe src="' + fullUrl + '" style="width:100%;height:70vh;border:1px solid #e2e8f0;border-radius:8px;"></iframe>' +
+                    '</div>';
+                } else {
+                    contentHtml = '<div style="padding:16px;text-align:center;">' +
                         '<img src="' + fullUrl + '" alt="Attachment" style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;">' +
-                    '</div>'
-                );
+                    '</div>';
+                }
+
+                contentHtml += '<div style="padding:0 16px 16px;text-align:center;">' +
+                    '<a href="' + fullUrl + '" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:6px;background:#1f4a7a;color:#fff;text-decoration:none;font-size:13px;">Open in New Tab</a>' +
+                '</div>';
+
+                self.simpleModal('Attachment Preview', contentHtml);
             });
 
             $modal.on('change', '#doc-attachment-file', function (event) {
                 var file = event.currentTarget.files && event.currentTarget.files[0];
                 if (!file) return;
 
-                if (!file.type || file.type.indexOf('image/') !== 0) {
-                    $modal.find('#doc-form-error').text('Please select an image file only.').show();
+                var allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+                if (!file.type || allowedTypes.indexOf(file.type) === -1) {
+                    $modal.find('#doc-form-error').text('Please select an image or PDF file.').show();
                     event.currentTarget.value = '';
                     return;
                 }
@@ -1391,21 +1498,29 @@
                 var reader = new FileReader();
                 reader.onload = function (evt) {
                     var src = evt.target.result;
-                    var $existingImg = $modal.find('#doc-attachment-preview');
+                    var isPdf = file.type === 'application/pdf';
+                    var $previewContainer = $modal.find('#doc-attachment-preview-wrap');
+                    
+                    $modal.find('#doc-attachment-preview').remove();
+                    $modal.find('#doc-attachment-empty').remove();
 
-                    if ($existingImg.length) {
-                        $existingImg.attr('src', src).attr('data-full-url', src);
+                    if (isPdf) {
+                        $('<div id="doc-attachment-preview" class="pdf-thumb" style="width:78px;height:78px;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.5rem;">' +
+                            '<i class="fa fa-file-pdf-o"></i>' +
+                        '</div>')
+                            .attr('data-full-url', src)
+                            .attr('data-is-pdf', 'true')
+                            .prependTo($previewContainer);
                     } else {
-                        $modal.find('#doc-attachment-empty').remove();
                         $('<img id="doc-attachment-preview" alt="Attachment" style="width:78px;height:78px;object-fit:cover;border-radius:8px;border:1px solid #d0dae7;cursor:pointer;">')
                             .attr('src', src)
                             .attr('data-full-url', src)
-                            .prependTo($modal.find('#doc-attachment-preview-wrap'));
+                            .prependTo($previewContainer);
                     }
 
                     if (!$modal.find('#doc-remove-attachment').length) {
                         $('<button type="button" id="doc-remove-attachment" style="padding:7px 12px;border:1px solid #ced4da;background:#fff;border-radius:6px;color:#6b7280;cursor:pointer;">Remove</button>')
-                            .appendTo($modal.find('#doc-attachment-preview-wrap'));
+                            .appendTo($previewContainer);
                     }
 
                     removeCurrentAttachment = false;
@@ -1421,7 +1536,7 @@
                 $modal.find('#doc-attachment-preview').remove();
 
                 if (!$modal.find('#doc-attachment-empty').length) {
-                    $('<div id="doc-attachment-empty" style="width:78px;height:78px;border-radius:8px;border:1px dashed #b9c7d9;display:flex;align-items:center;justify-content:center;color:#7d8ea4;"><i class="fa fa-image"></i></div>')
+                    $('<div id="doc-attachment-empty" style="width:78px;height:78px;border-radius:8px;border:1px dashed #b9c7d9;display:flex;align-items:center;justify-content:center;color:#7d8ea4;"><i class="fa fa-file"></i></div>')
                         .prependTo($modal.find('#doc-attachment-preview-wrap'));
                 }
 
@@ -1466,6 +1581,11 @@
                     ? attachmentInput.files[0]
                     : null;
 
+                // Track whether the final attachment will be a PDF.
+                var newFileIsPdf = selectedAttachmentFile
+                    ? selectedAttachmentFile.type === 'application/pdf'
+                    : (!removeCurrentAttachment && self.isRecordAttachmentPdf(self[config.recordProp] || {}));
+
                 var attachmentPromise = Promise.resolve(currentAttachmentId);
 
                 if (selectedAttachmentFile) {
@@ -1503,7 +1623,7 @@
                     currentAttachmentId = resolvedAttachmentId || null;
 
                     if (config.docType) {
-                        self.setDocAttachmentPreview(config.docType, currentAttachmentId);
+                        self.setDocAttachmentPreview(config.docType, currentAttachmentId, currentAttachmentId ? newFileIsPdf : false);
                     }
 
                     if (typeof config.onSaved === 'function') {
@@ -1533,8 +1653,8 @@
                 successMessage: 'Aadhaar details saved successfully!',
                 fields: [
                     { id: 'aadhaar-name', key: 'name', label: 'Name as per Aadhaar', required: true, type: 'text' },
-                    { id: 'aadhaar-number', key: 'adharNumber', label: 'Aadhaar Number', required: true, type: 'text' },
-                    { id: 'aadhaar-enrollment', key: 'adharEnrollementNumber', label: 'Aadhaar Enrollment Number', required: false, type: 'text' },
+                    { id: 'aadhaar-number', key: 'adharNumber', label: 'Aadhaar Number', required: true, type: 'text', pattern: '^\d{12}$', errorMessage: 'Aadhaar Number must be 12 digits.' },
+                    { id: 'aadhaar-enrollment', key: 'adharEnrollementNumber', label: 'Aadhaar Enrollment Number', required: false, type: 'text', pattern: '^\d{24}$', errorMessage: 'Aadhaar Enrollment Number must be 24 digits.' },
                     { id: 'aadhaar-address', key: 'addressAsPerAadhar', label: 'Address as per Aadhaar', required: false, type: 'textarea', fullWidth: true }
                 ],
                 onSaved: function (doc) {
@@ -1554,7 +1674,7 @@
                 docType: 'driving',
                 successMessage: 'Driving licence details saved successfully!',
                 fields: [
-                    { id: 'dl-number', key: 'drivingLicenseNumber', label: 'Driving Licence Number', required: true, type: 'text' },
+                    { id: 'dl-number', key: 'drivingLicenseNumber', label: 'Driving Licence Number', required: true, type: 'text', pattern: '^[a-zA-Z0-9]{15,16}$', errorMessage: 'Driving Licence Number must be 15-16 alphanumeric characters.' },
                     { id: 'dl-issue-date', key: 'dateOfIssue', label: 'Date of Issue', required: false, type: 'date' },
                     { id: 'dl-expiry-date', key: 'expiryDate', label: 'Expiry Date', required: false, type: 'date' }
                 ],
@@ -1574,7 +1694,7 @@
                 successMessage: 'PAN card details saved successfully!',
                 fields: [
                     { id: 'pan-name', key: 'nameAsPerPanCard', label: 'Name as per PAN', required: true, type: 'text' },
-                    { id: 'pan-number', key: 'panCardNumber', label: 'PAN Number', required: true, type: 'text' },
+                    { id: 'pan-number', key: 'panCardNumber', label: 'PAN Number', required: true, type: 'text', pattern: '^[a-zA-Z0-9]{10}$', errorMessage: 'PAN Number must be 10 alphanumeric characters.' },
                     { id: 'pan-middle-name', key: 'middleNameAsPerPANCard', label: 'Middle Name as per PAN', required: false, type: 'text' },
                     { id: 'pan-dob', key: 'dateOfBirthAsPerPanCard', label: 'Date of Birth as per PAN', required: false, type: 'date' }
                 ],
@@ -2173,17 +2293,6 @@
             var contactTypes = this.contactTypeOptions || [];
             var selectedIds = contactData.contactTypesIds || [];
             var selectedTypeId = selectedIds.length ? selectedIds[0] : '';
-
-            if (!selectedTypeId && contactData.name) {
-                var matchedType = contactTypes.find(function (item) {
-                    return String(item.name || '').toLowerCase() === String(contactData.name || '').toLowerCase();
-                });
-
-                if (matchedType) {
-                    selectedTypeId = matchedType.id;
-                }
-            }
-
             var optionHtml = contactTypes.map(function (item) {
                 var selected = item.id === selectedTypeId ? ' selected' : '';
 
@@ -2194,7 +2303,7 @@
             var tag = contactData.contactTag || '';
             var formHtml = '<div style="padding:28px 34px;background:#fff;">' +
                 '<form id="contactEditForm" novalidate>' +
-                '<div style="max-width:100%;">' +
+                '<div style="max-width:430px;">' +
                 '<div style="margin-bottom:20px;">' +
                 '<label style="display:block;font-size:14px;font-weight:600;color:#2d8ae3;margin-bottom:8px;">Contact Type</label>' +
                 '<select id="contact-type" style="width:100%;height:38px;padding:8px 12px;border:1px solid #d7dde5;border-radius:3px;font-size:14px;color:#333;box-sizing:border-box;background:#fff;">' +
@@ -2262,12 +2371,10 @@
                     no: noValue,
                     description: noValue,
                     contactTag: contactTag,
-                    contactTypesIds: selectedTypeId ? [selectedTypeId] : [],
                     employeeId: self.employeeRecord.id,
                     employeeName: self.employeeRecord.name || self.userData.name || (selectedType ? selectedType.name : ''),
                     assignedUserId: self.userData.id
                 };
-                console.log('Contact payload:', payload);
                 var request = isEdit
                     ? Espo.Ajax.putRequest('CEmployeeContact/' + contactData.id, payload)
                     : Espo.Ajax.postRequest('CEmployeeContact', payload);
@@ -2275,16 +2382,26 @@
 
                 $saveBtn.prop('disabled', true).text(isEdit ? 'Updating...' : 'Saving...');
 
-                request.then(function () {
-                    return self.loadContactTypeOptions().then(function (response) {
-                        self.contactTypeOptions = response.list || [];
-                    }).then(function () {
-                        self.rememberActiveTabs();
+                request.then(function (savedContact) {
+                    var savedId = (savedContact && savedContact.id) || contactData.id;
+                    var savedName = payload.name;
 
-                        return self.refreshContactRecords({ preserveTab: false }).then(function () {
-                            self.showAvatarToast(isEdit ? 'Contact updated successfully!' : 'Contact added successfully!', 'success');
-                            modal.closeModal();
-                            self.handleProfileCompletionUpdate();
+                    return self.syncContactTypeLink(
+                        savedId,
+                        savedName,
+                        selectedTypeId,
+                        selectedIds.length ? selectedIds[0] : null
+                    ).then(function () {
+                        return self.loadContactTypeOptions().then(function (response) {
+                            self.contactTypeOptions = response.list || [];
+                        }).then(function () {
+                            self.rememberActiveTabs();
+
+                            return self.refreshContactRecords({ preserveTab: false }).then(function () {
+                                self.showAvatarToast(isEdit ? 'Contact updated successfully!' : 'Contact added successfully!', 'success');
+                                modal.closeModal();
+                                self.handleProfileCompletionUpdate();
+                            });
                         });
                     });
                 }).catch(function (err) {
@@ -2337,7 +2454,9 @@
 
             self.rememberActiveTabs();
 
-            Espo.Ajax.deleteRequest('CEmployeeContact/' + contactId).then(function () {
+            self.unlinkContactTypeLinks(contact).then(function () {
+                return Espo.Ajax.deleteRequest('CEmployeeContact/' + contactId);
+            }).then(function () {
                 return self.loadContactTypeOptions().then(function (response) {
                     self.contactTypeOptions = response.list || [];
                 }).then(function () {
@@ -2400,15 +2519,13 @@
                 modal.closeModal();
             });
 
-            $modal.find('#dependentEditForm').on('submit', function (e) {
-                e.preventDefault();
-
-                var relationId = $modal.find('#dependent-relation').val();
-                var relation = relationOptions.find(function (item) {
-                    return item.id === relationId;
+            $modal.on('change', '#dependent-relation', function (event) {
+                var selectedRelationId = event.currentTarget.value;
+                var selectedRelation = relationOptions.find(function (item) {
+                    return item.id === selectedRelationId;
                 }) || null;
-                var firstName = $modal.find('#dependent-name').val().trim();
-                var lastName = $modal.find('#dependent-lastName').val().trim();
+                var dependentName = $modal.find('#dependent-name').val().trim();
+                var dependentLastName = $modal.find('#dependent-lastName').val().trim();
                 var emergencyContactNumber = $modal.find('#dependent-emergencyContactNumber').val().trim();
                 var error = '';
 
@@ -2417,10 +2534,10 @@
 
                 if (!self.employeeRecord || !self.employeeRecord.id) {
                     error = 'Employee record not found. Please contact admin.';
-                } else if (!relationId) {
+                } else if (!selectedRelationId) {
                     error = 'Dependent relation is required.';
                     $modal.find('#dependent-relation').css('border-color', 'red').focus();
-                } else if (!firstName) {
+                } else if (!dependentName) {
                     error = 'First Name is required.';
                     $modal.find('#dependent-name').css('border-color', 'red').focus();
                 } else if (!emergencyContactNumber) {
@@ -2434,13 +2551,13 @@
                 }
 
                 var payload = {
-                    name: firstName,
-                    lastName: lastName,
+                    name: dependentName,
+                    lastName: dependentLastName,
                     emergencyContactNumber: emergencyContactNumber,
-                    dependantRelationId: relationId,
-                    dependantRelationName: relation ? relation.name : '',
+                    dependantRelationId: selectedRelationId,
+                    dependantRelationName: selectedRelation ? selectedRelation.name : '',
                     employeeId: self.employeeRecord.id,
-                    employeeName: self.employeeRecord.name || self.userData.name || firstName,
+                    employeeName: self.employeeRecord.name || self.userData.name || dependentName,
                     assignedUserId: self.userData.id,
                     assignedUserName: self.userData.name || ''
                 };
@@ -2753,7 +2870,7 @@
                     });
                 }).catch(function (err) {
                     console.error('Experience save error:', err);
-                    $modal.find('#experience-form-error').text('Failed to save past experience. Please try again.').show();
+                    $modal.find('#experience-form-error').text(typeof err === 'string' ? err : 'Failed to save past experience. Please try again.').show();
                 }).finally(function () {
                     $saveBtn.prop('disabled', false).text(isEdit ? 'Update' : 'Save');
                 });
@@ -3145,7 +3262,7 @@
 
         isCompletionDoneAcknowledged: function () {
             try {
-                return window.sessionStorage.getItem(this.getProfileCompletionDoneStorageKey()) === '1';
+                return window.localStorage.getItem(this.getProfileCompletionDoneStorageKey()) === '1';
             } catch (e) {
                 return !!this.profileCompletionDoneAck;
             }
@@ -3155,7 +3272,7 @@
             this.profileCompletionDoneAck = true;
 
             try {
-                window.sessionStorage.setItem(this.getProfileCompletionDoneStorageKey(), '1');
+                window.localStorage.setItem(this.getProfileCompletionDoneStorageKey(), '1');
             } catch (e) {}
         },
 
@@ -3163,7 +3280,7 @@
             this.profileCompletionDoneAck = false;
 
             try {
-                window.sessionStorage.removeItem(this.getProfileCompletionDoneStorageKey());
+                window.localStorage.removeItem(this.getProfileCompletionDoneStorageKey());
             } catch (e) {}
         },
 

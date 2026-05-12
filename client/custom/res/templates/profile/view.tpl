@@ -18,6 +18,8 @@
         background: var(--as-bg);
         min-height: 100vh;
         padding: 0 0 32px;
+        position: relative;
+        z-index: 1;
     }
 
     .profile-cover {
@@ -25,6 +27,7 @@
         height: 140px;
         border-radius: 0 0 24px 24px;
         position: relative;
+        pointer-events: none;
     }
 
     .profile-card {
@@ -1378,18 +1381,18 @@
                             <div class="pf-info-grid">
                                 <div class="pf-info-item"><span class="pf-label">Bank Name</span><span class="pf-value"
                                         id="pf-val-bankName">{{userBankName}}</span></div>
-                            <div class="pf-info-item"><span class="pf-label">Branch Name</span><span class="pf-value"
-                                id="pf-val-branchName">{{userBranchName}}</span></div>
+                                <div class="pf-info-item"><span class="pf-label">Branch Name</span><span class="pf-value"
+                                    id="pf-val-branchName">{{userBranchName}}</span></div>
                                 <div class="pf-info-item"><span class="pf-label">Account Holder Name</span><span
-                                        class="pf-value" id="pf-val-accountHolderName">{{userAccountHolderName}}</span></div>
+                                    class="pf-value" id="pf-val-accountHolderName">{{userAccountHolderName}}</span></div>
                                 <div class="pf-info-item"><span class="pf-label">Account Number</span><span
-                                        class="pf-value" id="pf-val-accountNumber">{{userAccountNumber}}</span></div>
-                            <div class="pf-info-item"><span class="pf-label">Account Type</span><span class="pf-value"
-                                id="pf-val-accountType">{{userAccountType}}</span></div>
+                                    class="pf-value" id="pf-val-accountNumber">{{userAccountNumber}}</span></div>
+                                <div class="pf-info-item"><span class="pf-label">Account Type</span><span class="pf-value"
+                                    id="pf-val-accountType">{{userAccountType}}</span></div>
                                 <div class="pf-info-item"><span class="pf-label">IFSC Code</span><span class="pf-value"
-                                        id="pf-val-ifscCode">{{userIfscCode}}</span></div>
-                            <div class="pf-info-item"><span class="pf-label">Phone No.</span><span class="pf-value"
-                                id="pf-val-bankPhoneNo">{{userBankPhoneNo}}</span></div>
+                                    id="pf-val-ifscCode">{{userIfscCode}}</span></div>
+                                <div class="pf-info-item"><span class="pf-label">Phone No.</span><span class="pf-value"
+                                    id="pf-val-bankPhoneNo">{{userBankPhoneNo}}</span></div>
                             </div>
                         </div>
                     </div>
@@ -1414,7 +1417,9 @@
                         <div class="pf-card-header">
                             <i class="fa fa-address-card"></i>
                             <h5>Aadhaar</h5>
-                            <button class="pf-edit-btn" data-action="editAadhaar"><i class="fa fa-pencil"></i>
+                            {{!--
+                                <button class="pf-edit-btn" data-action="editAadhaar"><i class="fa fa-plus"></i>
+                                    ---}}
                             </button>
                         </div>
                         <div class="pf-card-body">
@@ -1434,12 +1439,16 @@
                                 <div class="pf-doc-attachment-col">
                                     <div class="pf-label" style="margin-bottom:8px;">Attachments</div>
                                     <div class="pf-doc-attachment-box" data-doc-attachment="aadhaar">
-                                        {{#if aadhaarAttachmentThumbUrl}}
-                                        <img src="{{aadhaarAttachmentThumbUrl}}" class="pf-doc-attachment-thumb"
-                                            data-full-url="{{aadhaarAttachmentFullUrl}}" alt="Aadhaar Attachment">
+                                        {{#if isAadhaarPdf}}
+                                            <div class="pf-doc-attachment-thumb pdf-thumb" data-full-url="{{aadhaarAttachmentFullUrl}}" data-is-pdf="true" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.8rem;">
+                                                <i class="fa fa-file-pdf-o"></i>
+                                            </div>
+                                        {{else}}{{#if aadhaarAttachmentThumbUrl}}
+                                            <img src="{{aadhaarAttachmentThumbUrl}}" class="pf-doc-attachment-thumb"
+                                                data-full-url="{{aadhaarAttachmentFullUrl}}" alt="Aadhaar Attachment">
                                         {{else}}
-                                        <div class="pf-doc-attachment-empty"><i class="fa fa-image"></i></div>
-                                        {{/if}}
+                                        <div class="pf-doc-attachment-empty"><i class="fa fa-file"></i></div>
+                                        {{/if}}{{/if}}
                                     </div>
                                 </div>
                             </div>
@@ -1450,7 +1459,11 @@
                         <div class="pf-card-header">
                             <i class="fa fa-id-card"></i>
                             <h5>Driving Licence</h5>
+                            {{#ifEqual userDlNumber '--'}}
+                            <button class="pf-edit-btn" data-action="editDrivingLicence"><i class="fa fa-plus"></i> </button>
+                            {{else}}
                             <button class="pf-edit-btn" data-action="editDrivingLicence"><i class="fa fa-pencil"></i> </button>
+                            {{/ifEqual}}
                         </div>
                         <div class="pf-card-body">
                             <div class="pf-doc-row">
@@ -1463,12 +1476,16 @@
                                 <div class="pf-doc-attachment-col">
                                     <div class="pf-label" style="margin-bottom:8px;">Attachments</div>
                                     <div class="pf-doc-attachment-box" data-doc-attachment="driving">
-                                        {{#if drivingAttachmentThumbUrl}}
-                                        <img src="{{drivingAttachmentThumbUrl}}" class="pf-doc-attachment-thumb"
-                                            data-full-url="{{drivingAttachmentFullUrl}}" alt="Driving Licence Attachment">
+                                        {{#if isDrivingPdf}}
+                                            <div class="pf-doc-attachment-thumb pdf-thumb" data-full-url="{{drivingAttachmentFullUrl}}" data-is-pdf="true" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.8rem;">
+                                                <i class="fa fa-file-pdf-o"></i>
+                                            </div>
+                                        {{else}}{{#if drivingAttachmentThumbUrl}}
+                                            <img src="{{drivingAttachmentThumbUrl}}" class="pf-doc-attachment-thumb"
+                                                data-full-url="{{drivingAttachmentFullUrl}}" alt="Driving Licence Attachment">
                                         {{else}}
-                                        <div class="pf-doc-attachment-empty"><i class="fa fa-image"></i></div>
-                                        {{/if}}
+                                        <div class="pf-doc-attachment-empty"><i class="fa fa-file"></i></div>
+                                        {{/if}}{{/if}}
                                     </div>
                                 </div>
                             </div>
@@ -1479,7 +1496,9 @@
                         <div class="pf-card-header">
                             <i class="fa fa-credit-card"></i>
                             <h5>PAN Card</h5>
-                            <button class="pf-edit-btn" data-action="editPanCard"><i class="fa fa-pencil"></i> </button>
+                            {{#ifEqual userPanNumber '--'}}
+                            <button class="pf-edit-btn" data-action="editPanCard"><i class="fa fa-plus"></i> </button>
+                            {{/ifEqual}}
                         </div>
                         <div class="pf-card-body">
                             <div class="pf-doc-row">
@@ -1492,23 +1511,29 @@
                                 <div class="pf-doc-attachment-col">
                                     <div class="pf-label" style="margin-bottom:8px;">Attachments</div>
                                     <div class="pf-doc-attachment-box" data-doc-attachment="pan">
-                                        {{#if panAttachmentThumbUrl}}
-                                        <img src="{{panAttachmentThumbUrl}}" class="pf-doc-attachment-thumb"
-                                            data-full-url="{{panAttachmentFullUrl}}" alt="PAN Attachment">
+                                        {{#if isPanPdf}}
+                                            <div class="pf-doc-attachment-thumb pdf-thumb" data-full-url="{{panAttachmentFullUrl}}" data-is-pdf="true" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.8rem;">
+                                                <i class="fa fa-file-pdf-o"></i>
+                                            </div>
+                                        {{else}}{{#if panAttachmentThumbUrl}}
+                                            <img src="{{panAttachmentThumbUrl}}" class="pf-doc-attachment-thumb"
+                                                data-full-url="{{panAttachmentFullUrl}}" alt="PAN Attachment">
                                         {{else}}
-                                        <div class="pf-doc-attachment-empty"><i class="fa fa-image"></i></div>
-                                        {{/if}}
+                                        <div class="pf-doc-attachment-empty"><i class="fa fa-file"></i></div>
+                                        {{/if}}{{/if}}
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    {{!--<div class="pf-card">
+                    {{!--
+                    <div class="pf-card">
                         <div class="pf-card-header">
                             <i class="fa fa-globe"></i>
                             <h5>Passport</h5>
-                            <button class="pf-edit-btn" data-action="editPassport"><i class="fa fa-pencil"></i></button>
+                            {{#ifEqual userPassportNumber '--'}}
+                                <button class="pf-edit-btn" data-action="editPassport"><i class="fa fa-plus"></i></button>
+                            {{/ifEqual}}
                         </div>
                         <div class="pf-card-body">
                             <div class="pf-doc-row">
@@ -1521,24 +1546,32 @@
                                 <div class="pf-doc-attachment-col">
                                     <div class="pf-label" style="margin-bottom:8px;">Attachments</div>
                                     <div class="pf-doc-attachment-box" data-doc-attachment="passport">
-                                        {{#if passportAttachmentThumbUrl}}
-                                        <img src="{{passportAttachmentThumbUrl}}" class="pf-doc-attachment-thumb"
-                                            data-full-url="{{passportAttachmentFullUrl}}" alt="Passport Attachment">
+                                        {{#if isPassportPdf}}
+                                            <div class="pf-doc-attachment-thumb pdf-thumb" data-full-url="{{passportAttachmentFullUrl}}" data-is-pdf="true" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.8rem;">
+                                                <i class="fa fa-file-pdf-o"></i>
+                                            </div>
+                                        {{else}}{{#if passportAttachmentThumbUrl}}
+                                            <img src="{{passportAttachmentThumbUrl}}" class="pf-doc-attachment-thumb"
+                                                data-full-url="{{passportAttachmentFullUrl}}" alt="Passport Attachment">
                                         {{else}}
-                                        <div class="pf-doc-attachment-empty"><i class="fa fa-image"></i></div>
-                                        {{/if}}
+                                        <div class="pf-doc-attachment-empty"><i class="fa fa-file"></i></div>
+                                        {{/if}}{{/if}}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>--}}
+                    </div>
+                    --}}
+                    
 
                     <div class="pf-card">
                         <div class="pf-card-header">
                             <i class="fa fa-check-square"></i>
                             <h5>Voter ID</h5>
-                            <button class="pf-edit-btn" data-action="editVoterId"><i class="fa fa-pencil"></i>
-                            </button>
+                            {{#ifEqual userVoterIdNumber '--'}}
+                                <button class="pf-edit-btn" data-action="editVoterId"><i class="fa fa-plus"></i>
+                                </button>
+                            {{/ifEqual}}
                         </div>
                         <div class="pf-card-body">
                             <div class="pf-doc-row">
@@ -1549,17 +1582,21 @@
                                 <div class="pf-doc-attachment-col">
                                     <div class="pf-label" style="margin-bottom:8px;">Attachments</div>
                                     <div class="pf-doc-attachment-box" data-doc-attachment="voter">
-                                        {{#if voterAttachmentThumbUrl}}
-                                        <img src="{{voterAttachmentThumbUrl}}" class="pf-doc-attachment-thumb"
-                                            data-full-url="{{voterAttachmentFullUrl}}" alt="Voter ID Attachment">
+                                        {{#if isVoterPdf}}
+                                            <div class="pf-doc-attachment-thumb pdf-thumb" data-full-url="{{voterAttachmentFullUrl}}" data-is-pdf="true" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.8rem;">
+                                                <i class="fa fa-file-pdf-o"></i>
+                                            </div>
+                                        {{else}}{{#if voterAttachmentThumbUrl}}
+                                            <img src="{{voterAttachmentThumbUrl}}" class="pf-doc-attachment-thumb"
+                                                data-full-url="{{voterAttachmentFullUrl}}" alt="Voter ID Attachment">
                                         {{else}}
-                                        <div class="pf-doc-attachment-empty"><i class="fa fa-image"></i></div>
-                                        {{/if}}
+                                        <div class="pf-doc-attachment-empty"><i class="fa fa-file"></i></div>
+                                        {{/if}}{{/if}}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div> 
+                    </div>
                 </div>
 
                 <div class="profile-sub-panel" id="sub-doc-other">
