@@ -12,8 +12,10 @@
     function waitForEspo(callback) {
         if (isReady()) {
             callback();
+
             return;
         }
+
         window.setTimeout(function () {
             waitForEspo(callback);
         }, 200);
@@ -81,7 +83,7 @@
         }
 
         try {
-            window.sessionStorage.removeItem(DONE_ACK_STORAGE_PREFIX + userId);
+            window.localStorage.removeItem(DONE_ACK_STORAGE_PREFIX + userId);
         } catch (e) {}
     }
 
@@ -105,30 +107,18 @@
 
             var hash = window.location.hash || '';
 
-            if (!isDefaultRouteHandled(status.userId) && !isProfileHash(hash)) {
-                markDefaultRouteHandled(status.userId);
-                redirectToProfile();
-
+            // Profile is complete — never force redirect, let user navigate freely.
+            if (status.isComplete) {
                 return;
             }
 
+            // No hash at all — send to profile so they fill it in.
             if (!hash || hash === '#') {
                 redirectToProfile();
-
                 return;
             }
 
-            if (status.shouldForceProfile) {
-                clearCompletionDoneAcknowledged(status.userId);
-            }
-
-            if (status.isComplete && !isCompletionDoneAcknowledged(status.userId) && !isProfileHash(hash)) {
-                markCompletionDoneAcknowledged(status.userId);
-                redirectToProfile();
-
-                return;
-            }
-
+            // Profile incomplete — keep user on the profile page.
             if (status.shouldForceProfile && !isProfileHash(hash)) {
                 redirectToProfile();
             }
