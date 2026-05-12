@@ -38,7 +38,9 @@
         "isActive": {
             "notNull": true,
             "type": "bool",
-            "isCustom": true
+            "isCustom": true,
+            "default": true,
+            "audited": true
         },
         "employee": {
             "type": "link"

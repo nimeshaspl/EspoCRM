@@ -1,17 +1,7 @@
 {
     "fields": {
         "cDesignation": {
-            "visible": {
-                "conditionGroup": [
-                    {
-                        "type": "isNotEmpty",
-                        "attribute": "cDepartmentId",
-                        "data": {
-                            "field": "cDepartment"
-                        }
-                    }
-                ]
-            }
+            "visible": null
         }
     }
 }

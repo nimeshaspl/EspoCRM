@@ -1,0 +1,20 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                false
+            ],
+            [
+                false,
+                {
+                    "name": "country"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

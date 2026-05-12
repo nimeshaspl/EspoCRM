@@ -52,15 +52,12 @@
             "maxLength": 100,
             "isCustom": true,
             "default": "Permanent",
-<<<<<<< Updated upstream
             "required": true,
             "audited": true,
             "readOnly": false,
             "readOnlyAfterCreate": false,
             "inlineEditDisabled": true
-=======
-            "required": true
->>>>>>> Stashed changes
+
         },
         "address": {
             "type": "text",

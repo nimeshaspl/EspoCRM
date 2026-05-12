@@ -40,6 +40,13 @@
         },
         "user": {
             "type": "link"
+        },
+        "isActive": {
+            "notNull": true,
+            "type": "bool",
+            "default": true,
+            "audited": true,
+            "isCustom": true
         }
     },
     "links": {
