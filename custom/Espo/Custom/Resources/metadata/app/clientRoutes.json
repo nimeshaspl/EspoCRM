@@ -34,11 +34,5 @@
       "controller": "AttendaceRequest",
       "action": "view"
     }
-  },
-  "OtherProfileOverview": {
-    "params": {
-      "controller": "OtherProfileOverview",
-      "action": "view"
-    }
   }
 }

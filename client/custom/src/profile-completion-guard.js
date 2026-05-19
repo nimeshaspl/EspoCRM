@@ -105,22 +105,16 @@
                 return;
             }
 
-            var userId = status.userId; // Assuming `userId` is part of the status response.
             var hash = window.location.hash || '';
 
             // Profile is complete — never force redirect, let user navigate freely.
             if (status.isComplete) {
-                // Check if completion acknowledgment is already stored.
-                if (!isCompletionDoneAcknowledged(userId)) {
-                    markCompletionDoneAcknowledged(userId);
-                }
                 return;
             }
 
             // No hash at all — send to profile so they fill it in.
             if (!hash || hash === '#') {
                 redirectToProfile();
-
                 return;
             }
 

@@ -29,12 +29,6 @@
       "groupIndex": 1,
       "link": "#AttendancePage",
       "labelTranslation": "Global.labels.AttendancePage"
-    },
-    "other-profile-overview": {
-      "order": 5,
-      "groupIndex": 1,
-      "link": "#OtherProfileOverview",
-      "labelTranslation": "Global.labels.OtherProfileOverview"
     }
   }
 }

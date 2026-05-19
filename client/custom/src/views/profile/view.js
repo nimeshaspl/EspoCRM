@@ -99,9 +99,9 @@
             // PDFs must use entryPoint=attachment; images use entryPoint=image.
             var aadhaarFullUrl = isAadhaarPdf ? this.getFileAttachmentUrl(aadhaarAttachmentId) : this.getAttachmentUrl(aadhaarAttachmentId);
             var drivingFullUrl = isDrivingPdf ? this.getFileAttachmentUrl(drivingAttachmentId) : this.getAttachmentUrl(drivingAttachmentId);
-            var panFullUrl = isPanPdf ? this.getFileAttachmentUrl(panAttachmentId) : this.getAttachmentUrl(panAttachmentId);
+            var panFullUrl     = isPanPdf     ? this.getFileAttachmentUrl(panAttachmentId)     : this.getAttachmentUrl(panAttachmentId);
             var passportFullUrl = isPassportPdf ? this.getFileAttachmentUrl(passportAttachmentId) : this.getAttachmentUrl(passportAttachmentId);
-            var voterFullUrl = isVoterPdf ? this.getFileAttachmentUrl(voterAttachmentId) : this.getAttachmentUrl(voterAttachmentId);
+            var voterFullUrl   = isVoterPdf   ? this.getFileAttachmentUrl(voterAttachmentId)   : this.getAttachmentUrl(voterAttachmentId);
 
             return {
                 // Header
@@ -544,7 +544,7 @@
             var ln = user.lastName || '';
 
             var bloodGroupOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
-                .map(function (o) { return '<option value="' + o + '" ' + (bg === o ? 'selected' : '') + '>' + o + '</option>'; })
+                .map(function(o) { return '<option value="' + o + '" ' + (bg === o ? 'selected' : '') + '>' + o + '</option>'; })
                 .join('');
 
             var formHtml = '<div style="padding:20px;">' +
@@ -753,7 +753,7 @@
 
             function loadStates(countryId, selectedStateId) {
                 var $state = $modal.find('#addr-state');
-                var $city = $modal.find('#addr-city');
+                var $city  = $modal.find('#addr-city');
                 $state.empty().append('<option value="">-- Loading... --</option>').prop('disabled', true);
                 $city.empty().append('<option value="">-- Select State first --</option>').prop('disabled', true);
 
@@ -834,21 +834,21 @@
             $modal.find('#addressEditForm').on('submit', function (e) {
                 e.preventDefault();
 
-                var street = $modal.find('#addr-street').val().trim();
+                var street    = $modal.find('#addr-street').val().trim();
                 var countryId = $modal.find('#addr-country').val();
-                var stateId = $modal.find('#addr-state').val();
-                var cityId = $modal.find('#addr-city').val();
-                var pincode = $modal.find('#addr-pincode').val().trim();
+                var stateId   = $modal.find('#addr-state').val();
+                var cityId    = $modal.find('#addr-city').val();
+                var pincode   = $modal.find('#addr-pincode').val().trim();
 
                 // Reset validation borders
                 $modal.find('#addr-street, #addr-country, #addr-state, #addr-city').css('border-color', '#ced4da');
                 $modal.find('#addr-form-error').hide();
 
                 var valid = true;
-                if (!street) { $modal.find('#addr-street').css('border-color', 'red'); valid = false; }
-                if (!countryId) { $modal.find('#addr-country').css('border-color', 'red'); valid = false; }
-                if (!stateId) { $modal.find('#addr-state').css('border-color', 'red'); valid = false; }
-                if (!cityId) { $modal.find('#addr-city').css('border-color', 'red'); valid = false; }
+                if (!street)    { $modal.find('#addr-street').css('border-color', 'red');   valid = false; }
+                if (!countryId) { $modal.find('#addr-country').css('border-color', 'red');  valid = false; }
+                if (!stateId)   { $modal.find('#addr-state').css('border-color', 'red');    valid = false; }
+                if (!cityId)    { $modal.find('#addr-city').css('border-color', 'red');     valid = false; }
 
                 if (!valid) {
                     $modal.find('#addr-form-error').text('Please fill in all required fields.').show();
@@ -866,22 +866,22 @@
                 $saveTxt.text('Saving...');
 
                 var countryName = $modal.find('#addr-country option:selected').text();
-                var stateName = $modal.find('#addr-state option:selected').text();
-                var cityName = $modal.find('#addr-city option:selected').text();
+                var stateName   = $modal.find('#addr-state option:selected').text();
+                var cityName    = $modal.find('#addr-city option:selected').text();
 
                 var upsertTargetId = null;
 
                 resolveAddressTypeKeyPromise.then(function () {
                     // Build payload after enum-key resolution and stamp ownership to logged-in user.
                     var payload = {
-                        name: street,
-                        addressType: resolvedAddressTypeKey,
-                        employeeId: self.employeeRecord.id,
+                        name:           street,
+                        addressType:    resolvedAddressTypeKey,
+                        employeeId:     self.employeeRecord.id,
                         assignedUserId: userId,
-                        countryId: countryId,
-                        stateId: stateId,
-                        cityId: cityId,
-                        pincode: pincode
+                        countryId:      countryId,
+                        stateId:        stateId,
+                        cityId:         cityId,
+                        pincode:        pincode
                     };
 
                     return Espo.Ajax.getRequest('CEmployeeAddress', {
@@ -907,18 +907,18 @@
                     var savedId = (savedRecord && savedRecord.id) ? savedRecord.id : upsertTargetId;
 
                     var updatedAddr = {
-                        id: savedId,
-                        name: street,
+                        id:          savedId,
+                        name:        street,
                         addressType: resolvedAddressTypeKey,
-                        employeeId: self.employeeRecord.id,
+                        employeeId:  self.employeeRecord.id,
                         assignedUserId: userId,
-                        countryId: countryId,
-                        stateId: stateId,
-                        cityId: cityId,
-                        pincode: pincode,
+                        countryId:   countryId,
+                        stateId:     stateId,
+                        cityId:      cityId,
+                        pincode:     pincode,
                         countryName: countryName,
-                        stateName: stateName,
-                        cityName: cityName
+                        stateName:   stateName,
+                        cityName:    cityName
                     };
 
                     if (addressType === 'Permanent') {
@@ -974,51 +974,51 @@
             var selectedAccountType = existingBank.accountType || 'Saving';
             var formHtml = '<div style="padding:20px;">' +
                 '<form id="bankEditForm" novalidate>' +
-                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
-                '<div>' +
-                '<label style="' + lbl + '">Bank Name <span style="color:red">*</span></label>' +
-                '<input type="text" id="bank-bankName" value="' + (existingBank.bankName || existingBank.banksName || '') + '" style="' + s + '" />' +
-                '</div>' +
-                '<div>' +
-                '<label style="' + lbl + '">Branch Name <span style="color:red">*</span></label>' +
-                '<input type="text" id="bank-branchName" value="' + (existingBank.branchName || '') + '" style="' + s + '" />' +
-                '</div>' +
-                '<div>' +
-                '<label style="' + lbl + '">Account Holder Name <span style="color:red">*</span></label>' +
-                '<input type="text" id="bank-holderName" value="' + (existingBank.bankHolderName || '') + '" style="' + s + '" />' +
-                '</div>' +
-                '<div>' +
-                '<label style="' + lbl + '">Account Number <span style="color:red">*</span></label>' +
-                '<input type="text" id="bank-accountNo" value="' + (existingBank.accountNO || '') + '" style="' + s + '" />' +
-                '</div>' +
-                '<div>' +
-                '<label style="' + lbl + '">Account Type <span style="color:red">*</span></label>' +
-                '<select id="bank-accountType" style="' + s + '">' +
-                '<option value="">-- Select --</option>' +
-                '<option value="Saving" ' + (selectedAccountType === 'Saving' ? 'selected' : '') + '>Saving</option>' +
-                '<option value="Current" ' + (selectedAccountType === 'Current' ? 'selected' : '') + '>Current</option>' +
-                '</select>' +
-                '</div>' +
-                '<div>' +
-                '<label style="' + lbl + '">IFSC Code <span style="color:red">*</span></label>' +
-                '<input type="text" id="bank-ifsc" value="' + (existingBank.iFSCCode || '') + '" style="' + s + '" />' +
-                '</div>' +
-                '<div>' +
-                '<label style="' + lbl + '">Phone No. <span style="color:red">*</span></label>' +
-                '<input type="text" id="bank-phoneNo" value="' + (existingBank.phoneNo || '') + '" style="' + s + '" />' +
-                '</div>' +
-                '<div>' +
-                '<label style="' + lbl + '">Email Address</label>' +
-                '<input type="text" id="bank-email" value="' + (existingBank.emailAddress || '') + '" style="' + s + '" />' +
-                '</div>' +
-                '</div>' +
-                '<div id="bank-form-error" style="color:red;font-size:13px;margin-top:12px;display:none;"></div>' +
-                '<div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px;">' +
-                '<button type="button" id="bankCancelBtn" style="padding:8px 20px;border:1px solid #ced4da;background:#fff;border-radius:4px;cursor:pointer;font-size:14px;">Cancel</button>' +
-                '<button type="submit" id="bankSaveBtn" style="padding:8px 20px;background:#1f4a7a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;"><span id="bankSaveBtnText">Save</span></button>' +
-                '</div>' +
+                    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">' +
+                        '<div>' +
+                            '<label style="' + lbl + '">Bank Name <span style="color:red">*</span></label>' +
+                            '<input type="text" id="bank-bankName" value="' + (existingBank.bankName || existingBank.banksName || '') + '" style="' + s + '" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="' + lbl + '">Branch Name <span style="color:red">*</span></label>' +
+                            '<input type="text" id="bank-branchName" value="' + (existingBank.branchName || '') + '" style="' + s + '" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="' + lbl + '">Account Holder Name <span style="color:red">*</span></label>' +
+                            '<input type="text" id="bank-holderName" value="' + (existingBank.bankHolderName || '') + '" style="' + s + '" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="' + lbl + '">Account Number <span style="color:red">*</span></label>' +
+                            '<input type="text" id="bank-accountNo" value="' + (existingBank.accountNO || '') + '" style="' + s + '" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="' + lbl + '">Account Type <span style="color:red">*</span></label>' +
+                            '<select id="bank-accountType" style="' + s + '">' +
+                                '<option value="">-- Select --</option>' +
+                                '<option value="Saving" ' + (selectedAccountType === 'Saving' ? 'selected' : '') + '>Saving</option>' +
+                                '<option value="Current" ' + (selectedAccountType === 'Current' ? 'selected' : '') + '>Current</option>' +
+                            '</select>' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="' + lbl + '">IFSC Code <span style="color:red">*</span></label>' +
+                            '<input type="text" id="bank-ifsc" value="' + (existingBank.iFSCCode || '') + '" style="' + s + '" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="' + lbl + '">Phone No. <span style="color:red">*</span></label>' +
+                            '<input type="text" id="bank-phoneNo" value="' + (existingBank.phoneNo || '') + '" style="' + s + '" />' +
+                        '</div>' +
+                        '<div>' +
+                            '<label style="' + lbl + '">Email Address</label>' +
+                            '<input type="text" id="bank-email" value="' + (existingBank.emailAddress || '') + '" style="' + s + '" />' +
+                        '</div>' +
+                    '</div>' +
+                    '<div id="bank-form-error" style="color:red;font-size:13px;margin-top:12px;display:none;"></div>' +
+                    '<div style="margin-top:20px;display:flex;justify-content:flex-end;gap:10px;">' +
+                        '<button type="button" id="bankCancelBtn" style="padding:8px 20px;border:1px solid #ced4da;background:#fff;border-radius:4px;cursor:pointer;font-size:14px;">Cancel</button>' +
+                        '<button type="submit" id="bankSaveBtn" style="padding:8px 20px;background:#1f4a7a;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;"><span id="bankSaveBtnText">Save</span></button>' +
+                    '</div>' +
                 '</form>' +
-                '</div>';
+            '</div>';
 
             var modal = self.simpleModal('Edit Salary Deposit Bank A/c', formHtml);
             var $modal = $('#' + modal.modalId);
@@ -1215,7 +1215,7 @@
             if (!attachmentId) {
                 $box.html(
                     '<div class="pf-doc-attachment-empty">' +
-                    '<i class="fa fa-file"></i>' +
+                        '<i class="fa fa-file"></i>' +
                     '</div>'
                 );
 
@@ -1228,7 +1228,7 @@
             if (isPdf) {
                 $box.html(
                     '<div class="pf-doc-attachment-thumb pdf-thumb" data-full-url="' + fullUrl + '" data-is-pdf="true" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.8rem;">' +
-                    '<i class="fa fa-file-pdf-o"></i>' +
+                        '<i class="fa fa-file-pdf-o"></i>' +
                     '</div>'
                 );
             } else {
@@ -1252,16 +1252,16 @@
             if (isPdf) {
                 contentHtml = '<div style="padding:16px;">' +
                     '<iframe src="' + fullUrl + '" style="width:100%;height:70vh;border:1px solid #e2e8f0;border-radius:8px;"></iframe>' +
-                    '</div>';
+                '</div>';
             } else {
                 contentHtml = '<div style="padding:16px;text-align:center;">' +
                     '<img src="' + fullUrl + '" alt="Attachment" style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;">' +
-                    '</div>';
+                '</div>';
             }
 
             contentHtml += '<div style="padding:0 16px 16px;text-align:center;">' +
                 '<a href="' + fullUrl + '" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:6px;background:#1f4a7a;color:#fff;text-decoration:none;font-size:13px;">Open in New Tab</a>' +
-                '</div>';
+            '</div>';
 
             this.simpleModal('Attachment Preview', contentHtml);
         },
@@ -1425,20 +1425,20 @@
                                 <label style="${lbl}">Attachment (Image or PDF)</label>
                                 <div id="doc-attachment-preview-wrap" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                                     ${currentAttachmentId
-                    ? (function () {
-                        var existingIsPdf = self.isRecordAttachmentPdf(record);
-                        var fullUrl = existingIsPdf
-                            ? self.getFileAttachmentUrl(currentAttachmentId)
-                            : self.getAttachmentUrl(currentAttachmentId);
-                        if (existingIsPdf) {
-                            return `<div id="doc-attachment-preview" class="pdf-thumb" data-full-url="${fullUrl}" data-is-pdf="true" style="width:78px;height:78px;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.5rem;">` +
-                                '<i class="fa fa-file-pdf-o"></i>' +
-                                '</div>';
-                        }
-                        return `<img id="doc-attachment-preview" src="${self.getAttachmentUrl(currentAttachmentId, 'small')}" alt="Attachment" style="width:78px;height:78px;object-fit:cover;border-radius:8px;border:1px solid #d0dae7;cursor:pointer;" data-full-url="${fullUrl}">`;
-                    })()
-                    : '<div id="doc-attachment-empty" style="width:78px;height:78px;border-radius:8px;border:1px dashed #b9c7d9;display:flex;align-items:center;justify-content:center;color:#7d8ea4;"><i class="fa fa-file"></i></div>'
-                }
+                                        ? (function() {
+                                            var existingIsPdf = self.isRecordAttachmentPdf(record);
+                                            var fullUrl = existingIsPdf
+                                                ? self.getFileAttachmentUrl(currentAttachmentId)
+                                                : self.getAttachmentUrl(currentAttachmentId);
+                                            if (existingIsPdf) {
+                                                return `<div id="doc-attachment-preview" class="pdf-thumb" data-full-url="${fullUrl}" data-is-pdf="true" style="width:78px;height:78px;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.5rem;">` +
+                                                    '<i class="fa fa-file-pdf-o"></i>' +
+                                                '</div>';
+                                            }
+                                            return `<img id="doc-attachment-preview" src="${self.getAttachmentUrl(currentAttachmentId, 'small')}" alt="Attachment" style="width:78px;height:78px;object-fit:cover;border-radius:8px;border:1px solid #d0dae7;cursor:pointer;" data-full-url="${fullUrl}">`;
+                                          })()
+                                        : '<div id="doc-attachment-empty" style="width:78px;height:78px;border-radius:8px;border:1px dashed #b9c7d9;display:flex;align-items:center;justify-content:center;color:#7d8ea4;"><i class="fa fa-file"></i></div>'
+                                    }
                                     <input type="file" id="doc-attachment-file" accept="image/*,application/pdf" style="${s};max-width:260px;">
                                     ${currentAttachmentId ? '<button type="button" id="doc-remove-attachment" style="padding:7px 12px;border:1px solid #ced4da;background:#fff;border-radius:6px;color:#6b7280;cursor:pointer;">Remove</button>' : ''}
                                 </div>
@@ -1470,16 +1470,16 @@
                 if (isPdf) {
                     contentHtml = '<div style="padding:16px;">' +
                         '<iframe src="' + fullUrl + '" style="width:100%;height:70vh;border:1px solid #e2e8f0;border-radius:8px;"></iframe>' +
-                        '</div>';
+                    '</div>';
                 } else {
                     contentHtml = '<div style="padding:16px;text-align:center;">' +
                         '<img src="' + fullUrl + '" alt="Attachment" style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:8px;border:1px solid #e2e8f0;">' +
-                        '</div>';
+                    '</div>';
                 }
 
                 contentHtml += '<div style="padding:0 16px 16px;text-align:center;">' +
                     '<a href="' + fullUrl + '" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:6px;background:#1f4a7a;color:#fff;text-decoration:none;font-size:13px;">Open in New Tab</a>' +
-                    '</div>';
+                '</div>';
 
                 self.simpleModal('Attachment Preview', contentHtml);
             });
@@ -1500,14 +1500,14 @@
                     var src = evt.target.result;
                     var isPdf = file.type === 'application/pdf';
                     var $previewContainer = $modal.find('#doc-attachment-preview-wrap');
-
+                    
                     $modal.find('#doc-attachment-preview').remove();
                     $modal.find('#doc-attachment-empty').remove();
 
                     if (isPdf) {
                         $('<div id="doc-attachment-preview" class="pdf-thumb" style="width:78px;height:78px;display:flex;align-items:center;justify-content:center;background:#fef2f2;color:#dc2626;cursor:pointer;font-size:1.5rem;">' +
                             '<i class="fa fa-file-pdf-o"></i>' +
-                            '</div>')
+                        '</div>')
                             .attr('data-full-url', src)
                             .attr('data-is-pdf', 'true')
                             .prependTo($previewContainer);
@@ -1600,39 +1600,39 @@
                     payload.attachmentsId = resolvedAttachmentId || null;
 
                     return Espo.Ajax.getRequest(config.entityType, {
-                        where: [{ type: 'equals', attribute: 'employeeId', value: self.employeeRecord.id }],
-                        maxSize: 1,
-                        orderBy: 'modifiedAt',
-                        order: 'desc'
+                    where: [{ type: 'equals', attribute: 'employeeId', value: self.employeeRecord.id }],
+                    maxSize: 1,
+                    orderBy: 'modifiedAt',
+                    order: 'desc'
                     }).then(function (res) {
-                        var list = (res && res.list) ? res.list : [];
-                        var existing = list[0] || self[config.recordProp] || null;
-                        upsertRecordId = existing && existing.id ? existing.id : null;
+                    var list = (res && res.list) ? res.list : [];
+                    var existing = list[0] || self[config.recordProp] || null;
+                    upsertRecordId = existing && existing.id ? existing.id : null;
 
-                        if (upsertRecordId) {
-                            return Espo.Ajax.putRequest(`${config.entityType}/${upsertRecordId}`, payload);
-                        }
+                    if (upsertRecordId) {
+                        return Espo.Ajax.putRequest(`${config.entityType}/${upsertRecordId}`, payload);
+                    }
 
-                        return Espo.Ajax.postRequest(config.entityType, payload);
+                    return Espo.Ajax.postRequest(config.entityType, payload);
                     }).then(function (savedRecord) {
-                        self[config.recordProp] = Object.assign({}, self[config.recordProp] || {}, payload, {
-                            id: (savedRecord && savedRecord.id) ? savedRecord.id : upsertRecordId,
-                            attachmentsId: resolvedAttachmentId || null
-                        });
+                    self[config.recordProp] = Object.assign({}, self[config.recordProp] || {}, payload, {
+                        id: (savedRecord && savedRecord.id) ? savedRecord.id : upsertRecordId,
+                        attachmentsId: resolvedAttachmentId || null
+                    });
 
-                        currentAttachmentId = resolvedAttachmentId || null;
+                    currentAttachmentId = resolvedAttachmentId || null;
 
-                        if (config.docType) {
-                            self.setDocAttachmentPreview(config.docType, currentAttachmentId, currentAttachmentId ? newFileIsPdf : false);
-                        }
+                    if (config.docType) {
+                        self.setDocAttachmentPreview(config.docType, currentAttachmentId, currentAttachmentId ? newFileIsPdf : false);
+                    }
 
-                        if (typeof config.onSaved === 'function') {
-                            config.onSaved(self[config.recordProp]);
-                        }
+                    if (typeof config.onSaved === 'function') {
+                        config.onSaved(self[config.recordProp]);
+                    }
 
-                        modal.closeModal();
-                        self.showAvatarToast(config.successMessage, 'success');
-                        self.handleProfileCompletionUpdate();
+                    modal.closeModal();
+                    self.showAvatarToast(config.successMessage, 'success');
+                    self.handleProfileCompletionUpdate();
                     });
                 }).catch(function (err) {
                     console.error(`${config.entityType} save error:`, err);
@@ -2337,14 +2337,7 @@
                 modal.closeModal();
             });
 
-            $modal.on('change', '#contact-type', function (event) {
-                var selectedTypeId = event.currentTarget.value;
-                var selectedType = contactTypes.find(function (item) {
-                    return item.id === selectedTypeId;
-                }) || null;
-            });
-
-            $modal.find('#contactSaveBtn').on('click', function (e) {
+            $modal.find('#contactEditForm').on('submit', function (e) {
                 e.preventDefault();
 
                 var selectedTypeId = $modal.find('#contact-type').val();
@@ -2413,8 +2406,9 @@
                     });
                 }).catch(function (err) {
                     console.error('Contact save error:', err);
-                    $saveBtn.prop('disabled', false).text(isEdit ? 'UPDATE' : 'SAVE');
                     $modal.find('#contact-form-error').text('Failed to save contact. Please try again.').show();
+                }).finally(function () {
+                    $saveBtn.prop('disabled', false).text(isEdit ? 'Update' : 'Save');
                 });
             });
         },
@@ -2521,12 +2515,6 @@
             var modal = self.simpleModal(isEdit ? 'Edit Dependent' : 'Add Dependent', formHtml);
             var $modal = $('#' + modal.modalId);
 
-            // ✅ FIX: Pre-set the selected-relation-id data attribute on modal open
-            // so validation passes even if user doesn't change the dropdown
-            if (selectedRelationId) {
-                $modal.find('#dependent-relation').data('selected-relation-id', selectedRelationId);
-            }
-
             $modal.find('#dependentCancelBtn').on('click', function () {
                 modal.closeModal();
             });
@@ -2536,33 +2524,14 @@
                 var selectedRelation = relationOptions.find(function (item) {
                     return item.id === selectedRelationId;
                 }) || null;
-
-                // Reset validation styles and error messages
-                $modal.find('#dependent-relation, #dependent-name, #dependent-emergencyContactNumber').css('border-color', '#d7dde5');
-                $modal.find('#dependent-form-error').hide();
-
-                // Update dependent relation in the form but do not trigger validation or auto-save
-                if (selectedRelationId) {
-                    $modal.find('#dependent-relation').data('selected-relation-id', selectedRelationId);
-                }
-            });
-
-            $modal.find('#dependentSaveBtn').on('click', function (e) {
-                e.preventDefault();
-
                 var dependentName = $modal.find('#dependent-name').val().trim();
                 var dependentLastName = $modal.find('#dependent-lastName').val().trim();
                 var emergencyContactNumber = $modal.find('#dependent-emergencyContactNumber').val().trim();
-                var selectedRelationId = $modal.find('#dependent-relation').data('selected-relation-id');
-                var selectedRelation = relationOptions.find(function (item) {
-                    return item.id === selectedRelationId;
-                }) || null;
                 var error = '';
 
-                // Reset validation styles
                 $modal.find('#dependent-relation, #dependent-name, #dependent-emergencyContactNumber').css('border-color', '#d7dde5');
+                $modal.find('#dependent-form-error').hide();
 
-                // Validation logic
                 if (!self.employeeRecord || !self.employeeRecord.id) {
                     error = 'Employee record not found. Please contact admin.';
                 } else if (!selectedRelationId) {
@@ -2592,7 +2561,6 @@
                     assignedUserId: self.userData.id,
                     assignedUserName: self.userData.name || ''
                 };
-
                 var request = isEdit
                     ? Espo.Ajax.putRequest('CEmployeeDependent/' + dependentData.id, payload)
                     : Espo.Ajax.postRequest('CEmployeeDependent', payload);
@@ -2640,26 +2608,9 @@
                 return;
             }
 
-            // Save the original state of the dependent
-            var originalDependent = JSON.stringify(dependent);
-
             this.loadDependantRelationOptions().then(function (response) {
                 self.dependantRelationOptions = response.list || [];
                 self.openDependentModal(dependent);
-
-                // Listen for the save event
-                self.listenToOnce(self, 'after:save', function () {
-                    // Compare the updated dependent with the original
-                    var updatedDependent = JSON.stringify(dependent);
-
-                    if (originalDependent === updatedDependent) {
-                        self.showAvatarToast('No changes were made to the dependent.', 'info');
-                        return;
-                    }
-
-                    // Refresh the dependent records if changes were made
-                    self.refreshDependentRecords();
-                });
             });
         },
 
@@ -3300,13 +3251,15 @@
                 return !!this.profileCompletionIntroShown;
             }
         },
+
         markCompletionIntroShown: function () {
             this.profileCompletionIntroShown = true;
 
             try {
                 window.sessionStorage.setItem(this.getProfileCompletionIntroStorageKey(), '1');
-            } catch (e) { }
+            } catch (e) {}
         },
+
         isCompletionDoneAcknowledged: function () {
             try {
                 return window.localStorage.getItem(this.getProfileCompletionDoneStorageKey()) === '1';
@@ -3320,7 +3273,7 @@
 
             try {
                 window.localStorage.setItem(this.getProfileCompletionDoneStorageKey(), '1');
-            } catch (e) { }
+            } catch (e) {}
         },
 
         clearCompletionDoneAcknowledged: function () {
@@ -3328,7 +3281,7 @@
 
             try {
                 window.localStorage.removeItem(this.getProfileCompletionDoneStorageKey());
-            } catch (e) { }
+            } catch (e) {}
         },
 
         closeProfileCompletionModal: function () {
@@ -3349,19 +3302,19 @@
 
             var html = '' +
                 '<div style="padding:26px 30px;background:linear-gradient(180deg,#f8fbff 0%,#ffffff 72%);color:#334155;">' +
-                '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">' +
-                '<span style="width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#0d2b4e;color:#fff;font-size:14px;">i</span>' +
-                '<span style="font-size:16px;font-weight:700;color:#0f172a;">Mandatory Profile Completion</span>' +
-                '</div>' +
-                '<div style="font-size:15px;line-height:1.7;margin-bottom:16px;">' +
-                'Your profile must be completed before you can continue to other pages.' +
-                '</div>' +
-                '<div style="font-size:14px;line-height:1.8;margin-bottom:22px;">' +
-                'Mandatory sections: Bio Data, Address, Contact, Dependant, and Aadhaar document. Please complete them one by one in this order.' +
-                '</div>' +
-                '<div style="display:flex;justify-content:flex-end;">' +
-                '<button type="button" id="profile-completion-intro-btn" style="padding:10px 20px;background:#0f4b81;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;">Continue</button>' +
-                '</div>' +
+                    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">' +
+                        '<span style="width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#0d2b4e;color:#fff;font-size:14px;">i</span>' +
+                        '<span style="font-size:16px;font-weight:700;color:#0f172a;">Mandatory Profile Completion</span>' +
+                    '</div>' +
+                    '<div style="font-size:15px;line-height:1.7;margin-bottom:16px;">' +
+                        'Your profile must be completed before you can continue to other pages.' +
+                    '</div>' +
+                    '<div style="font-size:14px;line-height:1.8;margin-bottom:22px;">' +
+                        'Mandatory sections: Bio Data, Address, Contact, Dependant, and Aadhaar document. Please complete them one by one in this order.' +
+                    '</div>' +
+                    '<div style="display:flex;justify-content:flex-end;">' +
+                        '<button type="button" id="profile-completion-intro-btn" style="padding:10px 20px;background:#0f4b81;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;">Continue</button>' +
+                    '</div>' +
                 '</div>';
 
             this.profileCompletionModal = this.simpleModal('Complete Your Profile', html, {
@@ -3395,11 +3348,11 @@
 
             var html = '' +
                 '<div style="padding:26px 30px;background:linear-gradient(180deg,#f8fbff 0%,#ffffff 72%);color:#334155;">' +
-                '<div style="font-size:15px;font-weight:600;color:#0f172a;margin-bottom:10px;">' + this.escapeHtml(step.title || 'Profile Update') + '</div>' +
-                '<div style="font-size:14px;line-height:1.7;margin-bottom:22px;">' + this.escapeHtml(step.message || 'Please complete this section.') + '</div>' +
-                '<div style="display:flex;justify-content:flex-end;">' +
-                '<button type="button" id="profile-completion-step-btn" style="padding:10px 20px;background:#0f4b81;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;">Fill Now</button>' +
-                '</div>' +
+                    '<div style="font-size:15px;font-weight:600;color:#0f172a;margin-bottom:10px;">' + this.escapeHtml(step.title || 'Profile Update') + '</div>' +
+                    '<div style="font-size:14px;line-height:1.7;margin-bottom:22px;">' + this.escapeHtml(step.message || 'Please complete this section.') + '</div>' +
+                    '<div style="display:flex;justify-content:flex-end;">' +
+                        '<button type="button" id="profile-completion-step-btn" style="padding:10px 20px;background:#0f4b81;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;">Fill Now</button>' +
+                    '</div>' +
                 '</div>';
 
             this.profileCompletionModal = this.simpleModal('Profile Completion Required', html, {
@@ -3430,16 +3383,16 @@
 
             var html = '' +
                 '<div style="padding:28px 30px;background:linear-gradient(180deg,#f7fcfb 0%,#ffffff 72%);color:#334155;">' +
-                '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">' +
-                '<span style="width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#0f7d4a;color:#fff;font-size:16px;">&#10003;</span>' +
-                '<span style="font-size:17px;font-weight:700;color:#0f172a;">Profile Completed</span>' +
-                '</div>' +
-                '<div style="font-size:14px;line-height:1.8;margin-bottom:22px;">' +
-                'Great job. Your mandatory profile details are now complete. Click Done to continue using other pages.' +
-                '</div>' +
-                '<div style="display:flex;justify-content:flex-end;">' +
-                '<button type="button" id="profile-completion-done-btn" style="padding:10px 22px;background:#0f7d4a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;">Done</button>' +
-                '</div>' +
+                    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">' +
+                        '<span style="width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#0f7d4a;color:#fff;font-size:16px;">&#10003;</span>' +
+                        '<span style="font-size:17px;font-weight:700;color:#0f172a;">Profile Completed</span>' +
+                    '</div>' +
+                    '<div style="font-size:14px;line-height:1.8;margin-bottom:22px;">' +
+                        'Great job. Your mandatory profile details are now complete. Click Done to continue using other pages.' +
+                    '</div>' +
+                    '<div style="display:flex;justify-content:flex-end;">' +
+                        '<button type="button" id="profile-completion-done-btn" style="padding:10px 22px;background:#0f7d4a;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;">Done</button>' +
+                    '</div>' +
                 '</div>';
 
             this.profileCompletionModal = this.simpleModal('Completion Confirmed', html, {
@@ -3523,7 +3476,7 @@
             options = options || {};
 
             var backdropId = 'helloBackdrop-' + Date.now();
-            var modalId = 'helloModal-' + Date.now();
+            var modalId    = 'helloModal-' + Date.now();
             var isClosed = false;
             var self = this;
 
