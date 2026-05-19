@@ -1,4 +1,13 @@
 {
+    "labels": {
+        "Profile": "Profile",
+        "MyDesk": "My Desk",
+        "Leave": "Leave",
+        "Holiday": "Holiday",
+        "AttendancePage": "Attendance",
+        "AttendanceRequest": "Attendance Request",
+        "OtherProfileOverview": "Other Profile Overview"
+    },
     "scopeNames": {
         "EmployeeTarget": "Employee Target",
         "EventData": "Event Data",
@@ -35,7 +44,8 @@
         "CSalesPlanning": "Sales Planning",
         "CSalesPlanningMonthly": "Sales Planning Monthly",
         "CAttendance": "Attendance",
-        "CAttendanceRequest": "Attendance Request"
+        "CAttendanceRequest": "Attendance Request",
+        "CNotice": "Notice"
     },
     "scopeNamesPlural": {
         "EmployeeTarget": "Employee Targets",
@@ -73,6 +83,7 @@
         "CSalesPlanning": "Sales Plannings",
         "CSalesPlanningMonthly": "Sales Planning Monthlies",
         "CAttendance": "Attendance",
-        "CAttendanceRequest": "Attendance Request"
+        "CAttendanceRequest": "Attendance Request",
+        "CNotice": "Notices"
     }
 }
