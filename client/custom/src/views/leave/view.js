@@ -14,6 +14,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
 
         data: function () {
             console.log('isEmployee:', this.isEmployee);
+            console.log('isIntern:', this.getUser().get('cIsIntern'));
             return {
                 title: 'Leave',
                 userName: this.getUser().get('name') || '',
@@ -355,6 +356,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             var self = this;
             return Espo.Ajax.getRequest('CAttendance/action/userRoles')
                 .then(function (response) {
+                    // console.log('User Roles:', response);
                     self.isHR = response.roles.some(function (role) { return role.name === 'HR'; });
                     return response.roles || [];
                 })
@@ -726,11 +728,12 @@ define('custom:views/leave/view', ['view'], function (Dep) {
         },
 
         loadUnpaidLeaves: function (userId) {
+            var self = this;  // ← add self reference
             var currentUserId = this.getUser().get('id');
 
             var where = [
                 { type: 'equals', attribute: 'status', value: 'Approved' },
-                { type: 'equals', attribute: 'leaveType', value: 'Unpaid' }
+                { type: 'equals', attribute: 'leaveType', value: 'Unpaid' },
             ];
 
             if (this.getUser().isAdmin() || this.isHR) {
@@ -741,19 +744,20 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                 }
                 where.push({ type: 'equals', attribute: 'userId', value: userId });
             } else {
-                where.push({ type: 'equals', attribute: 'assignedUserId', value: currentUserId });
+                // ✅ FIX: was filtering by assignedUserId, should be userId
+                where.push({ type: 'equals', attribute: 'userId', value: userId || currentUserId });
             }
 
             Espo.Ajax.getRequest('CLeaveRequest', {
                 where: this.appendFiscalYearWhere(where),
                 maxSize: 200
-            }).then((response) => {
+            }).then(function (response) {
                 var list = response.list || [];
                 var total = 0;
 
-                list.forEach((leave) => {
+                list.forEach(function (leave) {
                     if (leave.days) {
-                        total += parseFloat(leave.days) || 0;
+                        total += parseFloat(leave.days) || 0;  // ✅ FIX: was parseInt, use parseFloat (matches selectedEmployeeUnpaid)
                     } else if (leave.startDate && leave.endDate) {
                         var start = moment(leave.startDate);
                         var end = moment(leave.endDate);
@@ -761,12 +765,13 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     }
                 });
 
-                this.totalUnpaidLeaves = total;
-                this.reRender();
-            }).catch((err) => {
+                self.totalUnpaidLeaves = total;  
+                console.log('Total Unpaid Leaves:', total);
+                self.reRender();                 
+            }).catch(function (err) {           
                 console.error('Error fetching unpaid leaves:', err);
-                this.totalUnpaidLeaves = 0;
-                this.reRender();
+                self.totalUnpaidLeaves = 0;
+                self.reRender();
             });
         },
 
@@ -784,7 +789,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label for="leaveAmount" style="display: block; margin-bottom: 5px; font-weight: 500;">Enter leave amount to credit:</label>
-                        <input type="number" inputmode="decimal" id="leaveAmount" name="leaveAmount" min="0" max="100" step="any" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <input type="number" inputmode="decimal" id="leaveAmount" name="leaveAmount" min="0" step="any" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label for="leaveReason" style="display: block; margin-bottom: 5px; font-weight: 500;">Reason for crediting leave:</label>
@@ -891,7 +896,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label for="leaveAmount" style="display: block; margin-bottom: 5px; font-weight: 500;">Enter leave amount to debit:</label>
-                        <input type="number" inputmode="decimal" id="leaveAmount" name="leaveAmount" min="0" max="100" step="any" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                        <input type="number" inputmode="decimal" id="leaveAmount" name="leaveAmount" min="0" step="any" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label for="leaveReason" style="display: block; margin-bottom: 5px; font-weight: 500;">Reason for debiting leave:</label>
@@ -977,12 +982,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
 
             var self = this;
             const today = new Date();
-
-            // Min date → Jan 1 of current year
-            const min = new Date(today.getFullYear(), 0, 1);
-
-            // Max date → Last day of next month
-            const max = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+            const min = new Date(today.getFullYear(), today.getMonth(), 1);
 
             function formatDate(d) {
                 return d.getFullYear() + '-' +
@@ -991,18 +991,17 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             }
 
             const minDate = formatDate(min);
-            const maxDate = formatDate(max);
-
-            var htmlContent = `
+            var htmlContent = '';
+            if (this.getUser().get('cIsIntern')) {
+                htmlContent = `
             <div class="form-box" style="padding:20px;">
                 <div class="form-row mb-3">
                     <label class="form-label">Leave Type <span class="text-danger">*</span></label>
                     <select id="leaveType" class="form-select" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                        <option value="">Select Leave Type</option>
-                        <option value="Paid">Paid</option>
                         <option value="Unpaid">Unpaid</option>
                     </select>
                 </div>
+
                 <div class="form-row mb-3">
                     <label class="form-label">Apply Leave for <span class="text-danger">*</span></label>
                     <div class="form-check">
@@ -1014,20 +1013,23 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                         <label class="form-check-label">Multiple Days</label>
                     </div>
                 </div>
+
                 <div class="form-row mb-3" id="singleDateRow">
                     <label class="form-label">Leave Date <span class="text-danger">*</span></label>
-                    <input type="date" id="singleDate" class="form-control" min="${minDate}" max="${maxDate}" required>
+                    <input type="date" id="singleDate" class="form-control" min="${minDate}">
                 </div>
+
                 <div class="form-row mb-3" id="multipleDateRow" style="display:none; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <label class="form-label">From Date <span class="text-danger">*</span></label>
-                        <input type="date" id="fromDate" class="form-control" min="${minDate}" max="${maxDate}" required>
+                        <input type="date" id="fromDate" class="form-control" min="${minDate}">
                     </div>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <label class="form-label">To Date <span class="text-danger">*</span></label>
-                        <input type="date" id="toDate" class="form-control" min="${minDate}" max="${maxDate}" required>
+                        <input type="date" id="toDate" class="form-control" min="${minDate}">
                     </div>
                 </div>
+
                 <div class="form-row mb-3">
                     <label class="form-label">Leave Duration <span class="text-danger">*</span></label>
                     <div class="form-check">
@@ -1043,16 +1045,83 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                         <label class="form-check-label">2nd Half</label>
                     </div>
                 </div>
+
                 <div class="form-row mb-3">
                     <label class="form-label">Reason <span class="text-danger">*</span></label>
-                    <textarea id="reason" class="form-control" required></textarea>
+                    <textarea id="reason" class="form-control"></textarea>
                 </div>
+
                 <div class="text-center">
                     <button id="submitLeaveBtn" class="btn btn-primary">Apply Leave</button>
                 </div>
             </div>
             `;
+            } else {
+                htmlContent = `
+            <div class="form-box" style="padding:20px;">
+                <div class="form-row mb-3">
+                    <label class="form-label">Leave Type <span class="text-danger">*</span></label>
+                    <select id="leaveType" class="form-select" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                        <option value="Paid">Paid</option>
+                        <option value="Unpaid">Unpaid</option>
+                    </select>
+                </div>
 
+                <div class="form-row mb-3">
+                    <label class="form-label">Apply Leave for <span class="text-danger">*</span></label>
+                    <div class="form-check">
+                        <input type="radio" id="single" name="leaveMode" value="single" class="form-check-input" checked>
+                        <label class="form-check-label">Single Day</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" id="multiple" name="leaveMode" value="multiple" class="form-check-input">
+                        <label class="form-check-label">Multiple Days</label>
+                    </div>
+                </div>
+
+                <div class="form-row mb-3" id="singleDateRow">
+                    <label class="form-label">Leave Date <span class="text-danger">*</span></label>
+                    <input type="date" id="singleDate" class="form-control" min="${minDate}">
+                </div>
+
+                <div class="form-row mb-3" id="multipleDateRow" style="display:none; justify-content:space-between;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <label class="form-label">From Date <span class="text-danger">*</span></label>
+                        <input type="date" id="fromDate" class="form-control" min="${minDate}">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <label class="form-label">To Date <span class="text-danger">*</span></label>
+                        <input type="date" id="toDate" class="form-control" min="${minDate}">
+                    </div>
+                </div>
+
+                <div class="form-row mb-3">
+                    <label class="form-label">Leave Duration <span class="text-danger">*</span></label>
+                    <div class="form-check">
+                        <input type="radio" name="duration" value="Full" class="form-check-input" checked>
+                        <label class="form-check-label">Full Day</label>
+                    </div>
+                    <div class="form-check" id="firstHalfOpt">
+                        <input type="radio" name="duration" value="First Half" class="form-check-input">
+                        <label class="form-check-label">1st Half</label>
+                    </div>
+                    <div class="form-check" id="secondHalfOpt">
+                        <input type="radio" name="duration" value="Second Half" class="form-check-input">
+                        <label class="form-check-label">2nd Half</label>
+                    </div>
+                </div>
+
+                <div class="form-row mb-3">
+                    <label class="form-label">Reason <span class="text-danger">*</span></label>
+                    <textarea id="reason" class="form-control"></textarea>
+                </div>
+
+                <div class="text-center">
+                    <button id="submitLeaveBtn" class="btn btn-primary">Apply Leave</button>
+                </div>
+            </div>
+            `;
+            }
             var modalObj = this.simpleModal("Apply Leave", htmlContent);
 
             setTimeout(function () {
@@ -1126,6 +1195,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     if (!reason.value.trim()) { reason.focus(); markInvalid(reason); return false; }
                     return true;
                 }
+
                 // ── Sandwich Rule helper ──
                 // Corporate sandwich rule: taking Paid leave on Friday AND Monday means
                 // the Saturday & Sunday in between are also counted as leave days.
@@ -1478,12 +1548,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             this.loadEmployeeList();
 
             const today = new Date();
-
-            // Min date → Jan 1 of current year
-            const min = new Date(today.getFullYear(), 0, 1);
-
-            // Max date → Last day of next month
-            const max = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+            const min = new Date(today.getFullYear(), today.getMonth(), 1);
 
             function formatDate(d) {
                 return d.getFullYear() + '-' +
@@ -1492,7 +1557,6 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             }
 
             const minDate = formatDate(min);
-            const maxDate = formatDate(max);
 
             var htmlContent = `
             <div class="form-box" style="padding:20px;">
@@ -1527,17 +1591,17 @@ define('custom:views/leave/view', ['view'], function (Dep) {
 
                 <div class="form-row mb-3" id="singleDateRow">
                     <label class="form-label">Leave Date <span class="text-danger">*</span></label>
-                    <input type="date" id="singleDate" class="form-control" min="${minDate}" max="${maxDate}" required>
+                    <input type="date" id="singleDate" class="form-control" min="${minDate}">
                 </div>
 
                 <div class="form-row mb-3" id="multipleDateRow" style="display:none; justify-content:space-between;">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <label class="form-label">From <span class="text-danger">*</span></label>
-                        <input type="date" id="fromDate" class="form-control" min="${minDate}" max="${maxDate}" required>
+                        <input type="date" id="fromDate" class="form-control" min="${minDate}">
                     </div>
                     <div style="display:flex; align-items:center; gap:8px;">
                         <label class="form-label">To <span class="text-danger">*</span></label>
-                        <input type="date" id="toDate" class="form-control" min="${minDate}" max="${maxDate}" required>
+                        <input type="date" id="toDate" class="form-control" min="${minDate}">
                     </div>
                 </div>
 
@@ -1559,7 +1623,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
 
                 <div class="form-row mb-3">
                     <label class="form-label">Reason <span class="text-danger">*</span></label>
-                    <textarea id="reason" class="form-control" required></textarea>
+                    <textarea id="reason" class="form-control"></textarea>
                 </div>
 
                 <div class="text-center">
@@ -2038,7 +2102,6 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                 }
             });
         },
-
         actionRejectRequest: function (e) {
             e.preventDefault();
 
