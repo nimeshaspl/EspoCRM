@@ -1,0 +1,7 @@
+{
+  "controller": "custom:controllers/c-runpayroll",
+  "views": {
+    "view": "custom:views/c-runpayroll/view"
+  },
+  "iconClass": "fas fa-user"
+}

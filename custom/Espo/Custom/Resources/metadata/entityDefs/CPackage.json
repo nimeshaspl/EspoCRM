@@ -41,15 +41,79 @@
             "type": "date",
             "isCustom": true
         },
-        "payPackage": {
-            "type": "link"
-        },
         "employee": {
-            "type": "link"
+            "type": "link",
+            "required": true,
+            "audited": true
         },
-        "updatedOn": {
-            "notNull": false,
-            "type": "date",
+        "amountCTC": {
+            "type": "currency",
+            "audited": true,
+            "inlineEditDisabled": true,
+            "tooltip": true,
+            "isCustom": true,
+            "required": true
+        },
+        "basicPay": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true
+        },
+        "conveyanceAllowance": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true
+        },
+        "pTGross": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true
+        },
+        "balancingFigure": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true
+        },
+        "specialAllowance": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true
+        },
+        "medical": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true
+        },
+        "hRAGross": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true
+        },
+        "payPackage": {
+            "type": "link",
+            "required": true,
+            "audited": true
+        },
+        "grossSalary": {
+            "type": "currency",
+            "required": false,
+            "audited": true,
+            "readOnly": true,
+            "inlineEditDisabled": true,
             "isCustom": true
         }
     },
@@ -72,23 +136,29 @@
             "relationName": "entityTeam",
             "layoutRelationshipsDisabled": true
         },
-        "payPackage": {
-            "type": "belongsTo",
-            "foreign": "package",
-            "entity": "CPayPackage",
-            "isCustom": true
-        },
         "employee": {
             "type": "belongsTo",
             "foreign": "packages",
             "entity": "CEmployee",
             "audited": false,
             "isCustom": true
+        },
+        "payPackage": {
+            "type": "belongsTo",
+            "foreign": "packages",
+            "entity": "CPayPackage",
+            "audited": false,
+            "isCustom": true
         }
     },
     "collection": {
         "orderBy": "createdAt",
-        "order": "desc"
+        "order": "desc",
+        "textFilterFields": [
+            "name"
+        ],
+        "fullTextSearch": false,
+        "countDisabled": false
     },
     "indexes": {
         "name": {
@@ -115,5 +185,6 @@
                 "id"
             ]
         }
-    }
+    },
+    "optimisticConcurrencyControl": false
 }

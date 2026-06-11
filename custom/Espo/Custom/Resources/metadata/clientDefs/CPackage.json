@@ -8,11 +8,11 @@
     },
     "iconClass": "fas fa-boxes-packing",
     "relationshipPanels": {
-        "payPackage": {
+        "employee": {
             "layout": null,
             "selectPrimaryFilterName": null
         },
-        "employee": {
+        "payPackage": {
             "layout": null,
             "selectPrimaryFilterName": null
         }

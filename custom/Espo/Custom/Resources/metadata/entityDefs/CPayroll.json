@@ -67,6 +67,9 @@
         "pTGross": {
             "type": "currency",
             "isCustom": true
+        },
+        "payPackage": {
+            "type": "link"
         }
     },
     "links": {
@@ -101,11 +104,23 @@
             "entity": "CPayrollIssue",
             "audited": false,
             "isCustom": true
+        },
+        "payPackage": {
+            "type": "belongsTo",
+            "foreign": "payrolls",
+            "entity": "CPayPackage",
+            "audited": false,
+            "isCustom": true
         }
     },
     "collection": {
         "orderBy": "createdAt",
-        "order": "desc"
+        "order": "desc",
+        "textFilterFields": [
+            "name"
+        ],
+        "fullTextSearch": false,
+        "countDisabled": false
     },
     "indexes": {
         "name": {
@@ -133,5 +148,6 @@
             ]
         }
     },
-    "serviceClassName": "Espo\\Custom\\Services\\CPayroll"
+    "serviceClassName": "Espo\\Custom\\Services\\CPayroll",
+    "optimisticConcurrencyControl": false
 }

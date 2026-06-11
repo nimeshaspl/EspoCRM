@@ -1,0 +1,11 @@
+{
+    "labels": {
+        "Create CPayroll": "Create Payroll"
+    },
+    "fields": {
+        "payPackage": "Pay Package"
+    },
+    "links": {
+        "payPackage": "Pay Package"
+    }
+}

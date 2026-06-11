@@ -432,7 +432,9 @@
 <div class="desk-root">
     <div class="desk-header">
         <span class="desk-header-title">My Desk</span>
-        <span class="desk-header-sub">Thursday, 14 May 2026</span>
+        {{#if isAdmin}}
+        <button class="card-head-action export-data-master-btn" data-action="exportDataMaster">Export Data Master</button>
+        {{/if}}
     </div>
 
     <div class="desk-body">
@@ -470,7 +472,9 @@
                             </div>
                             <div class="desk-avatar-row">
                                 {{#each notClockInUsers}}
-                                <div class="desk-avatar" title="{{name}}"><img src="{{avatar}}" alt="{{name}}"></div>
+                                    {{#if isWorkFromHome}}
+                                        <div class="desk-avatar" title="{{name}}"><img src="{{avatar}}" alt="{{name}}"></div>
+                                    {{/if}}
                                 {{/each}}
                                 {{^each notClockInUsers}}<span class="desk-avatar-empty">None</span>{{/each}}
                             </div>

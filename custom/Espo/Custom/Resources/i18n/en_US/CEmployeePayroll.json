@@ -1,0 +1,52 @@
+{
+    "fields": {
+        "employee": "Employee",
+        "payrollDetailses": "Payroll Detailses",
+        "presentDays": "Present Days",
+        "workingDays": "Working Days",
+        "leaveDays": "Leave Days",
+        "grossSalary": "Gross Salary",
+        "grossSalaryCurrency": "Gross Salary (Currency)",
+        "grossSalaryConverted": "Gross Salary (Converted)",
+        "loanDeduction": "Loan Deduction",
+        "loanDeductionCurrency": "Loan Deduction (Currency)",
+        "loanDeductionConverted": "Loan Deduction (Converted)",
+        "advanceDeduction": "Advance Deduction",
+        "advanceDeductionCurrency": "Advance Deduction (Currency)",
+        "advanceDeductionConverted": "Advance Deduction (Converted)",
+        "pFAmount": "PF amount",
+        "pFAmountCurrency": "PF amount (Currency)",
+        "pFAmountConverted": "PF amount (Converted)",
+        "esicAmount": "ESIC Amount",
+        "esicAmountCurrency": "ESIC Amount (Currency)",
+        "esicAmountConverted": "ESIC Amount (Converted)",
+        "professionalTax": "Professional Tax",
+        "professionalTaxCurrency": "Professional Tax (Currency)",
+        "professionalTaxConverted": "Professional Tax (Converted)",
+        "tdsAmount": "TDS Amount",
+        "tdsAmountCurrency": "TDS Amount (Currency)",
+        "tdsAmountConverted": "TDS Amount (Converted)",
+        "totalDeductions": "Total Deductions",
+        "totalDeductionsCurrency": "Total Deductions (Currency)",
+        "totalDeductionsConverted": "Total Deductions (Converted)",
+        "netSalary": "Net Salary",
+        "netSalaryCurrency": "Net Salary (Currency)",
+        "netSalaryConverted": "Net Salary (Converted)",
+        "paymentStatus": "Payment Status",
+        "paymentDate": "Payment Date"
+    },
+    "links": {
+        "employee": "Employee",
+        "payrollDetailses": "Payroll Detailses"
+    },
+    "labels": {
+        "Create CEmployeePayroll": "Create EmployeePayroll"
+    },
+    "options": {
+        "paymentStatus": {
+            "Pending": "Pending",
+            "Processed": "Processed",
+            "Paid": "Paid"
+        }
+    }
+}

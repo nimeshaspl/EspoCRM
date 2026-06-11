@@ -35,6 +35,12 @@
       "groupIndex": 1,
       "link": "#OtherProfileOverview",
       "labelTranslation": "Global.labels.OtherProfileOverview"
+    },
+    "c-runpayroll": {
+      "order": 6,
+      "groupIndex": 1,
+      "link": "#CRunPayroll",
+      "labelTranslation": "Global.labels.RunPayroll"
     }
   }
 }

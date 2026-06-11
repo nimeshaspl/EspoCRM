@@ -1,0 +1,13 @@
+{
+    "labels": {
+        "Create CPayPackage": "Create PayPackage"
+    },
+    "fields": {
+        "isPFEnable": "Is PF Enable ?",
+        "isESICEnable": "Is ESIC Enable ?",
+        "payrolls": "Payrolls"
+    },
+    "links": {
+        "payrolls": "Payrolls"
+    }
+}
