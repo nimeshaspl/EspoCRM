@@ -1,0 +1,67 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "employee"
+                },
+                {
+                    "name": "payPackage"
+                }
+            ],
+            [
+                {
+                    "name": "effectiveFrom"
+                },
+                {
+                    "name": "amountCTC"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "grossSalary"
+                },
+                {
+                    "name": "basicPay"
+                }
+            ],
+            [
+                {
+                    "name": "conveyanceAllowance"
+                },
+                {
+                    "name": "medical"
+                }
+            ],
+            [
+                {
+                    "name": "hRAGross"
+                },
+                {
+                    "name": "specialAllowance"
+                }
+            ],
+            [
+                {
+                    "name": "pTGross"
+                },
+                {
+                    "name": "balancingFigure"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Monthly Calculation"
+    }
+]

@@ -60,6 +60,138 @@
         height: 50px;
         width: 300px;
     }
+
+    /* ── PAGINATION ── */
+    .lm-pagination-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+        padding: 8px 14px;
+        background: #f7f9fc;
+        border: 1px solid rgba(0, 0, 0, .08);
+        border-radius: 8px 8px 0 0;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    /* When pagination is ABOVE the table, remove bottom radius so it flows into the table */
+    .lm-pagination-bar+.lm-table-wrap {
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        margin-bottom: 22px;
+    }
+
+    .lm-pagination-left,
+    .lm-pagination-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .lm-pagination-label {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .lm-pagination-select {
+        height: 28px;
+        padding: 0 8px;
+        border: 1px solid #e2e8f0;
+        border-radius: 5px;
+        background: #fff;
+        color: #1a2233;
+        font-size: 12.5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: border-color .15s;
+        min-width: 64px;
+    }
+
+    .lm-pagination-select:focus {
+        outline: none;
+        border-color: #2f5ea7;
+        box-shadow: 0 0 0 2px rgba(47, 94, 167, .12);
+    }
+
+    .lm-pagination-info {
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 500;
+        background: #eef2f7;
+        padding: 3px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+
+    .lm-page-count {
+        font-size: 12px;
+        color: #475569;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .lm-page-btn {
+        width: 28px;
+        height: 28px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #2f5ea7;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all .15s ease;
+        flex-shrink: 0;
+    }
+
+    .lm-page-btn:hover:not([disabled]) {
+        background: #2f5ea7;
+        color: #fff;
+        border-color: #2f5ea7;
+        box-shadow: 0 1px 4px rgba(47, 94, 167, .25);
+    }
+
+    .lm-page-btn:active:not([disabled]) {
+        transform: scale(.93);
+    }
+
+    .lm-page-btn[disabled] {
+        opacity: .35;
+        cursor: not-allowed;
+        color: #94a3b8;
+        background: #f8fafc;
+        border-color: #e2e8f0;
+    }
+
+    /* ── SUB HEADING above pagination — tighten spacing ── */
+    .lm-sub-heading {
+        margin: 0 0 8px;
+    }
+
+    @media (max-width: 640px) {
+        .lm-pagination-bar {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .lm-pagination-right {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
 </style>
 
 <div class="wrapper">
@@ -138,6 +270,42 @@
             </div>
         </div>
     </div>
+
+    <div class="lm-pagination-bar">
+        <div class="lm-pagination-left">
+            <label class="lm-pagination-label">Rows per page</label>
+            <select class="lm-pagination-select action" data-action="changePageSize" data-key="attendanceList">
+                {{#each attendancePager.sizeOptions}}
+                <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                {{/each}}
+            </select>
+        </div>
+
+        <div class="lm-pagination-right">
+            <span class="lm-pagination-info">
+                {{#if attendancePager.total}}
+                {{attendancePager.start}}–{{attendancePager.end}} of {{attendancePager.total}}
+                {{else}}
+                0–0 of 0
+                {{/if}}
+            </span>
+
+            <button class="lm-page-btn action" data-action="prevPage" data-key="attendanceList" {{#unless
+                attendancePager.hasPrev}}disabled{{/unless}}>
+                ‹
+            </button>
+
+            <span class="lm-page-count">
+                Page {{attendancePager.page}} / {{attendancePager.totalPages}}
+            </span>
+
+            <button class="lm-page-btn action" data-action="nextPage" data-key="attendanceList" {{#unless
+                attendancePager.hasNext}}disabled{{/unless}}>
+                ›
+            </button>
+        </div>
+    </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -168,13 +336,11 @@
                 {{#if ../isAdmin}}
                 <td>
                     {{#if this.isToday}}
-                    <!-- Disabled state for today's record -->
                     <a role="button" tabindex="-1" class="btn btn-default btn-xs-wide disabled"
-                        style="pointer-events: none; opacity: 0.5;" title="Cannot edit today's attendance">
+                        style="pointer-events:none; opacity:0.5;" title="Cannot edit today's attendance">
                         <i class="fa fa-edit" style="font-size:24px"></i>
                     </a>
                     {{else}}
-                    <!-- Normal edit button -->
                     <a role="button" tabindex="0" class="btn btn-danger btn-xs-wide action" data-action="editAttendance"
                         data-id="{{id}}">
                         <i class="fa fa-edit" style="font-size:24px"></i>
@@ -184,6 +350,14 @@
                 {{/if}}
             </tr>
             {{/each}}
+            {{^attendanceList}}
+            <tr>
+                <td colspan="{{#if isAdmin}}7{{else}}5{{/if}}"
+                    style="text-align:center; color:#94a3b8; padding:28px; font-style:italic;">
+                    No attendance records found
+                </td>
+            </tr>
+            {{/attendanceList}}
         </tbody>
     </table>
 

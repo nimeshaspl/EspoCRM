@@ -1,0 +1,34 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "specialAllowance",
+        "width": 16
+    },
+    {
+        "name": "basicPay",
+        "width": 16
+    },
+    {
+        "name": "balancingFigure",
+        "width": 16
+    },
+    {
+        "name": "conveyanceAllowance",
+        "width": 16
+    },
+    {
+        "name": "hRAGross",
+        "width": 16
+    },
+    {
+        "name": "medical",
+        "width": 16
+    },
+    {
+        "name": "pTGross",
+        "width": 16
+    }
+]

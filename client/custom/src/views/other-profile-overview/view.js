@@ -10,8 +10,8 @@ define('custom:views/other-profile-overview/view', ['view'], function (Dep) {
             },
             data : function () {
                 return {
-                   
-                    title: "Other Profile Overview",
+                    title: "Payroll Data Overview",
+                    isAdmin: this.getUser().isAdmin() 
                 };
             }
     });

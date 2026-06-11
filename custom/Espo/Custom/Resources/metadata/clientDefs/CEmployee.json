@@ -1,11 +1,5 @@
 {
-    "recordViews": {
-        "create": "custom:views/cemployee/record/create",
-        "detail": "custom:views/cemployee/record/detail"
-    },
-    "panelViews": {
-        "address": "custom:views/employee/record/panels/address"
-    },
+    
     "linkEntityList": [
         "employeeBanks"
     ],
@@ -126,6 +120,10 @@
             "selectPrimaryFilterName": null
         },
         "monthlyAttendanceSummaries": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "employeePayrolls": {
             "layout": null,
             "selectPrimaryFilterName": null
         }

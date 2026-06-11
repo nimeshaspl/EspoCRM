@@ -6,12 +6,11 @@
     "boolFilterList": [
         "onlyMy"
     ],
+    "kanbanViewMode": false,
+    "color": null,
+    "iconClass": null,
     "relationshipPanels": {
-        "package": {
-            "layout": null,
-            "selectPrimaryFilterName": null
-        },
-        "payslips": {
+        "packages": {
             "layout": null,
             "selectPrimaryFilterName": null
         }

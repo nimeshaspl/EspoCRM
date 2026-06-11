@@ -1,4 +1,4 @@
 {
-    "beforeSaveCustomScript": "cDesignation.departmentName = cDepartmentName",
+    "beforeSaveCustomScript": "cDesignation.departmentName = cDepartmentName;\n\n$employeeId = entity\\attribute('cEmployeeId');\n\nrecord\\update('CEmployee', $employeeId, \n    'isActive', entity\\attribute('isActive'), \n    'isIntern', entity\\attribute('cIsIntern'),\n    'name', string\\concatenate(entity\\attribute('firstName'),' ', entity\\attribute('middleName'),' ', entity\\attribute('lastName'))\n);",
     "beforeSaveApiScript": "cDesignation.departmentName = cDepartmentName"
 }

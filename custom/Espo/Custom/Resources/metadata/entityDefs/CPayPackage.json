@@ -36,36 +36,71 @@
             "type": "linkMultiple",
             "view": "views/fields/teams"
         },
-        "basicPay": {
-            "type": "currency",
-            "isCustom": true
-        },
         "conveyanceAllowance": {
-            "type": "currency",
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "inlineEditDisabled": true,
             "isCustom": true
         },
         "pTGross": {
-            "type": "currency",
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "inlineEditDisabled": true,
             "isCustom": true
         },
         "balancingFigure": {
-            "type": "currency",
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "inlineEditDisabled": true,
             "isCustom": true
         },
         "specialAllowance": {
-            "type": "currency",
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "inlineEditDisabled": true,
             "isCustom": true
         },
         "medical": {
-            "type": "currency",
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "inlineEditDisabled": true,
             "isCustom": true
         },
         "hRAGross": {
-            "type": "currency",
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "inlineEditDisabled": true,
             "isCustom": true
         },
-        "package": {
-            "type": "linkOne"
+        "isPFEnable": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        },
+        "isESICEnable": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        },
+        "tDS": {
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "basicPay": {
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
         }
     },
     "links": {
@@ -87,23 +122,22 @@
             "relationName": "entityTeam",
             "layoutRelationshipsDisabled": true
         },
-        "package": {
-            "type": "hasOne",
-            "foreign": "payPackage",
-            "entity": "CPackage",
-            "isCustom": true
-        },
-        "payslips": {
+        "packages": {
             "type": "hasMany",
             "foreign": "payPackage",
-            "entity": "CPayslip",
+            "entity": "CPackage",
             "audited": false,
             "isCustom": true
         }
     },
     "collection": {
         "orderBy": "createdAt",
-        "order": "desc"
+        "order": "desc",
+        "textFilterFields": [
+            "name"
+        ],
+        "fullTextSearch": false,
+        "countDisabled": false
     },
     "indexes": {
         "name": {
@@ -130,5 +164,6 @@
                 "id"
             ]
         }
-    }
+    },
+    "optimisticConcurrencyControl": false
 }

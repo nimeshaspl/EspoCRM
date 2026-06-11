@@ -1,0 +1,23 @@
+{
+    "fields": {
+        "type": "Type",
+        "amount": "Amount",
+        "amountCurrency": "Amount (Currency)",
+        "amountConverted": "Amount (Converted)",
+        "employeePayroll": "Employee Payroll",
+        "name": "Component Name",
+        "description": "Remarks"
+    },
+    "labels": {
+        "Create CPayrollDetails": "Create Payroll Detail"
+    },
+    "options": {
+        "type": {
+            "Earning": "Earning",
+            "Deduction": "Deduction"
+        }
+    },
+    "links": {
+        "employeePayroll": "Employee Payroll"
+    }
+}

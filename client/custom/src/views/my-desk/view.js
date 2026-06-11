@@ -7,12 +7,14 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
         events: {
 
             'click [data-action="addNotice"]': 'actionAddNotice',
+            'click [data-action="exportDataMaster"]': 'actionExportDataMaster'
         },
 
         setup: function () {
 
             const today = new Date().toISOString().split('T')[0];
             this.fetchLatestNotice();
+            console.log('Today\'s date:', today);
 
             this.notClockInUsers = [];
             this.clockedInUsers = [];
@@ -50,6 +52,30 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                 onLeaveUsers: this.onLeaveUsers,
                 onOptionalHolidayUsers: this.onOptionalHolidayUsers
             };
+        },
+        actionExportDataMaster: function () {
+            Espo.Ui.notify('Preparing export, please wait...', 'warning');
+
+            const siteUrl = (this.getConfig().get('siteUrl') || '').replace(/\/$/, '');
+            const exportUrl = siteUrl + '/api/v1/ExportDataMaster/export';
+
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+
+            iframe.onload = () => {
+                Espo.Ui.notify(false);
+                Espo.Ui.success('Export started. Check your downloads.');
+                setTimeout(() => iframe.remove(), 1000);
+            };
+
+            iframe.onerror = () => {
+                Espo.Ui.notify(false);
+                Espo.Ui.error('Export failed. Please try again.');
+                iframe.remove();
+            };
+
+            document.body.appendChild(iframe);
+            iframe.src = exportUrl;
         },
         // =====================================================
         // NOTICEBOARD
@@ -398,13 +424,15 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                     Espo.Ajax.getRequest('CAttendance/action/employeeList')
                         .then(function (response) {
                             var allEmployees = response.list || [];
+                            console.log('Fetched all employees for notClockInUsers:', allEmployees);
                             self.notClockInUsers = allEmployees.map(function (user) {
                                 return {
                                     id: user.id,
                                     name: user.name,
                                     avatar: user.avatarId
                                         ? '?entryPoint=image&id=' + user.avatarId
-                                        : 'client/img/avatar.png'
+                                        : 'client/img/avatar.png',
+                                    isWorkFromHome: user.cIsWorkFromHome || false
                                 };
                             });
                             self.render();
@@ -479,7 +507,8 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                                         name: user.name,
                                         avatar: user.avatarId
                                             ? '?entryPoint=image&id=' + user.avatarId
-                                            : 'client/img/avatar.png'
+                                            : 'client/img/avatar.png',
+                                        isWorkFromHome: user.cIsWorkFromHome || false
                                     };
                                 });
 
@@ -585,7 +614,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                             avatar: user.avatarId
                                 ? '?entryPoint=image&id=' + user.avatarId
                                 : 'client/img/avatar.png',
-                            dayMode: userDayModeMap[user.id] || null  // 👈 now available per user
+                            dayMode: userDayModeMap[user.id] || null,  // 👈 now available per user
                         };
                     });
 

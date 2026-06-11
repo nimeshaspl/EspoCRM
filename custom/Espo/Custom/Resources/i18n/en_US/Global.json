@@ -6,7 +6,8 @@
         "Holiday": "Holiday",
         "AttendancePage": "Attendance",
         "AttendanceRequest": "Attendance Request",
-        "OtherProfileOverview": "Other Profile Overview"
+        "OtherProfileOverview": "Payroll",
+        "RunPayroll": "Run Payroll"
     },
     "scopeNames": {
         "EmployeeTarget": "Employee Target",
@@ -45,7 +46,17 @@
         "CSalesPlanningMonthly": "Sales Planning Monthly",
         "CAttendance": "Attendance",
         "CAttendanceRequest": "Attendance Request",
-        "CNotice": "Notice"
+        "CNotice": "Notice",
+        "CPayPackage": "PayPackage",
+        "CPayrollDetails": "Payroll Detail",
+        "CPayroll": "Payroll",
+        "CEmployeePayroll": "EmployeePayroll",
+        "CPayslip": "Payslip",
+        "CPackage": "Package",
+        "CLeaveRequest": "LeaveRequest",
+        "CLeaveBalance": "LeaveBalance",
+        "CLeave": "Leave",
+        "CLoan": "Loan"
     },
     "scopeNamesPlural": {
         "EmployeeTarget": "Employee Targets",
@@ -84,6 +95,15 @@
         "CSalesPlanningMonthly": "Sales Planning Monthlies",
         "CAttendance": "Attendance",
         "CAttendanceRequest": "Attendance Request",
-        "CNotice": "Notices"
+        "CNotice": "Notices",
+        "CPayPackage": "PayPackage",
+        "CPayrollDetails": "Payroll Details",
+        "CPayroll": "Payroll",
+        "CEmployeePayroll": "EmployeePayrolls",
+        "CPayslip": "Payslip",
+        "CPackage": "Package",
+        "CLeaveRequest": "LeaveRequest",
+        "CLeaveBalance": "LeaveBalance",
+        "CLeave": "Leave"
     }
 }

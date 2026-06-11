@@ -13,7 +13,11 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             'click [data-action="clockInRequest"]': 'actionClockInRequest',
             'click [data-action="attendanceUpdate"]': 'actionAttendanceUpdate',
             'click [data-action="createAttendanceUpdate"]': 'actionCreateAttendance',
-            'click [data-action="editAttendance"]': 'actionEditAttendance'
+            'click [data-action="editAttendance"]': 'actionEditAttendance',
+
+            'click [data-action="prevPage"]': 'actionPrevPage',
+            'click [data-action="nextPage"]': 'actionNextPage',
+            'change [data-action="changePageSize"]': 'actionChangePageSize',
         },
 
 
@@ -31,6 +35,9 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             this.clockStatus = 'not_started';
 
             this.isRenderedOnce = false;
+            this.pagination = {
+                attendanceList: { page: 1, pageSize: 10 }
+            };
 
             this.summaryData = {
                 presentDays: 0,
@@ -47,10 +54,81 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             this.loadEmployeeList();
             this.initializePage();
         },
-        createEmployees: function () {
-            if (!confirm('Are you sure you want to create employee records for all users?')) {
-                return;
+        getPaginationOptions: function (selectedSize) {
+            return [
+                { value: 5, label: '5', selected: String(selectedSize) === '5' },
+                { value: 10, label: '10', selected: String(selectedSize) === '10' },
+                { value: 15, label: '15', selected: String(selectedSize) === '15' },
+                { value: 20, label: '20', selected: String(selectedSize) === '20' },
+                { value: 'all', label: 'All', selected: String(selectedSize).toLowerCase() === 'all' }
+            ];
+        },
+
+        getPagedData: function (list, key) {
+            list = list || [];
+
+            if (!this.pagination[key]) {
+                this.pagination[key] = { page: 1, pageSize: 10 };
             }
+
+            var pager = this.pagination[key];
+            var total = list.length;
+            var isAll = String(pager.pageSize).toLowerCase() === 'all';
+            var totalPages = isAll ? 1 : Math.max(1, Math.ceil(total / pager.pageSize));
+            var page = Math.min(pager.page, totalPages);
+            if (page < 1) page = 1;
+            this.pagination[key].page = page;
+
+            var start = isAll ? 0 : (page - 1) * pager.pageSize;
+            var end = isAll ? total : start + pager.pageSize;
+
+            return {
+                list: list.slice(start, end),
+                page: page,
+                pageSize: pager.pageSize,
+                total: total,
+                totalPages: totalPages,
+                hasPrev: !isAll && page > 1,
+                hasNext: !isAll && page < totalPages,
+                start: total ? start + 1 : 0,
+                end: total ? Math.min(end, total) : 0,
+                isAll: isAll,
+                sizeOptions: this.getPaginationOptions(pager.pageSize)
+            };
+        },
+
+        changePage: function (key, direction) {
+            if (!this.pagination[key]) return;
+            var pager = this.pagination[key];
+            if (String(pager.pageSize).toLowerCase() === 'all') return;
+            pager.page = Math.max(1, pager.page + direction);
+            this.reRender();
+        },
+
+        changePageSize: function (key, value) {
+            if (!this.pagination[key]) return;
+            this.pagination[key].pageSize = value === 'all' ? 'all' : parseInt(value, 10);
+            this.pagination[key].page = 1;
+            this.reRender();
+        },
+        actionPrevPage: function (e) {
+            e.preventDefault();
+            var key = $(e.currentTarget).data('key');
+            this.changePage(key, -1);
+        },
+
+        actionNextPage: function (e) {
+            e.preventDefault();
+            var key = $(e.currentTarget).data('key');
+            this.changePage(key, 1);
+        },
+
+        actionChangePageSize: function (e) {
+            var key = $(e.currentTarget).data('key');
+            var value = $(e.currentTarget).val();
+            this.changePageSize(key, value);
+        },
+        createEmployees: function () {
             Espo.Ui.notify('Processing...', 'info');
 
             Espo.Ajax.postRequest('UserEmployee/action/createEmployees')
@@ -66,6 +144,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
         initializePage: function () {
             Espo.Ajax.getRequest('CAttendance/action/todayStatus')
                 .then(function (response) {
+                    console.log('Today Status Response:', response);
                     this.isEmployee = response.isEmployee || false;
                     this.employeeId = response.employeeId || null;
 
@@ -110,6 +189,8 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
         },
 
         data: function () {
+            var attendancePager = this.getPagedData(this.attendanceList, 'attendanceList');
+
             var processedList = this.employeeList.map(function (emp) {
                 return {
                     id: emp.id,
@@ -117,17 +198,15 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
                     selected: emp.id === this.selectedEmployeeId
                 };
             }.bind(this));
-            console.log("this.isadmin:", this.getUser().isAdmin());
-            console.log("this.isHR:", this.isHR);
 
             return {
                 userName: this.getUser().get('name') || '',
-                attendanceList: this.attendanceList || [],
+                attendanceList: attendancePager.list,      // ← paged slice
+                attendancePager: attendancePager,           // ← pager metadata
                 isAdmin: this.getUser().isAdmin() || this.isHR,
                 isEmployee: this.isEmployee,
                 employeeList: processedList,
                 selectedEmployeeId: this.selectedEmployeeId,
-                // ✅ Attendance Summary
                 presentDays: this.summaryData.presentDays,
                 absentDays: this.summaryData.absentDays,
                 leaveDays: this.summaryData.leaveDays,
@@ -138,6 +217,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
                 avgOt: this.summaryData.avgOt
             };
         },
+
         getUserRoles: function () {
             var self = this;
             return Espo.Ajax.getRequest('CAttendance/action/userRoles')
@@ -281,6 +361,10 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
 
         filterByEmployee: function (e) {
             this.selectedEmployeeId = e.currentTarget.value;
+            // Reset to page 1 when filter changes
+            if (this.pagination && this.pagination.attendanceList) {
+                this.pagination.attendanceList.page = 1;
+            }
             this.loadSummary().then(function () {
                 this.loadAttendance();
             }.bind(this));
@@ -339,7 +423,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             // console.log(this.getUser().attributes);
             console.log("Is Work From Home:", isWFH);
             if (!isWFH) {
-                Espo.Ui.notify('You can\'t clock in/out manually because it\'s  only for work from home employees', 1000);
+                Espo.Ui.info('You can\'t clock in/out manually because it\'s  only for work from home employees', 1000);
                 return;
             }
 
@@ -412,7 +496,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             // console.log(this.getUser().attributes);
             console.log("Is Work From Home:", isWFH);
             if (!isWFH) {
-                Espo.Ui.notify('You can\'t clock in/out manually because it\'s  only for work from home employees', 1000);
+                Espo.Ui.info('You can\'t clock in/out manually because it\'s  only for work from home employees', 1000);
                 return;
             }
             if (this.clockStatus !== 'clocked_in') {

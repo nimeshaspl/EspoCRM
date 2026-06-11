@@ -1,0 +1,8 @@
+{
+    "fields": {
+        "employeePayrolls": "Employee Payrolls"
+    },
+    "links": {
+        "employeePayrolls": "Employee Payrolls"
+    }
+}

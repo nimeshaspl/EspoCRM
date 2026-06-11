@@ -454,6 +454,13 @@
             "entity": "CMonthlyAttendanceSummary",
             "audited": false,
             "isCustom": true
+        },
+        "employeePayrolls": {
+            "type": "hasMany",
+            "foreign": "employee",
+            "entity": "CEmployeePayroll",
+            "audited": false,
+            "isCustom": true
         }
     },
     "collection": {

@@ -50,7 +50,9 @@
     }
 
     /* ── RESET & BASE ── */
-    .lm-page * { box-sizing: border-box; }
+    .lm-page * {
+        box-sizing: border-box;
+    }
 
     .lm-page {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -130,28 +132,60 @@
         white-space: nowrap;
         line-height: 1.4;
     }
-    .lm-btn:hover { opacity: .85; text-decoration: none; }
-    .lm-btn:active { transform: scale(.97); }
-    .lm-btn-primary  { background: #2f5ea7; color: #fff !important; }
-    .lm-btn-success  { background: #16a34a; color: #fff !important; }
-    .lm-btn-danger   { background: #dc2626; color: #fff !important; }
-    .lm-btn-warning  { background: #d97706; color: #fff !important; }
-    .lm-btn-outline  { background: #fff; color: #2f5ea7 !important; border: 1.5px solid #2f5ea7; }
-    .lm-btn-sm { padding: 4px 10px; font-size: 12px; }
+
+    .lm-btn:hover {
+        opacity: .85;
+        text-decoration: none;
+    }
+
+    .lm-btn:active {
+        transform: scale(.97);
+    }
+
+    .lm-btn-primary {
+        background: #2f5ea7;
+        color: #fff !important;
+    }
+
+    .lm-btn-success {
+        background: #16a34a;
+        color: #fff !important;
+    }
+
+    .lm-btn-danger {
+        background: #dc2626;
+        color: #fff !important;
+    }
+
+    .lm-btn-warning {
+        background: #d97706;
+        color: #fff !important;
+    }
+
+    .lm-btn-outline {
+        background: #fff;
+        color: #2f5ea7 !important;
+        border: 1.5px solid #2f5ea7;
+    }
+
+    .lm-btn-sm {
+        padding: 4px 10px;
+        font-size: 12px;
+    }
 
     /* ── SECTION CARD ── */
     .lm-section {
         background: #ffffff;
-        border: 1px solid rgba(0,0,0,.09);
+        border: 1px solid rgba(0, 0, 0, .09);
         border-radius: 10px;
-        box-shadow: 0 1px 4px rgba(0,0,0,.06);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
         margin-bottom: 20px;
         overflow: hidden;
     }
 
     .lm-section-header {
         padding: 13px 20px;
-        border-bottom: 1px solid rgba(0,0,0,.08);
+        border-bottom: 1px solid rgba(0, 0, 0, .08);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -177,10 +211,18 @@
         display: inline-block;
         flex-shrink: 0;
     }
-    .lm-dot-blue  { background: #2f5ea7; }
-    .lm-dot-green { background: #16a34a; }
 
-    .lm-section-body { padding: 20px; }
+    .lm-dot-blue {
+        background: #2f5ea7;
+    }
+
+    .lm-dot-green {
+        background: #16a34a;
+    }
+
+    .lm-section-body {
+        padding: 20px;
+    }
 
     /* ── STAT CARDS ── */
     .lm-stat-grid {
@@ -192,7 +234,7 @@
 
     .lm-stat-card {
         background: #f7f9fc;
-        border: 1px solid rgba(0,0,0,.08);
+        border: 1px solid rgba(0, 0, 0, .08);
         border-radius: 8px;
         padding: 16px 18px;
         text-align: center;
@@ -219,8 +261,13 @@
         color: #94a3b8;
     }
 
-    .lm-stat-paid   .lm-stat-value { color: #16a34a; }
-    .lm-stat-unpaid .lm-stat-value { color: #dc2626; }
+    .lm-stat-paid .lm-stat-value {
+        color: #16a34a;
+    }
+
+    .lm-stat-unpaid .lm-stat-value {
+        color: #dc2626;
+    }
 
     /* ── SUB HEADING ── */
     .lm-sub-heading {
@@ -236,11 +283,13 @@
     .lm-table-wrap {
         overflow-x: auto;
         border-radius: 8px;
-        border: 1px solid rgba(0,0,0,.08);
+        border: 1px solid rgba(0, 0, 0, .08);
         margin-bottom: 22px;
     }
 
-    .lm-table-wrap:last-child { margin-bottom: 0; }
+    .lm-table-wrap:last-child {
+        margin-bottom: 0;
+    }
 
     .lm-table {
         width: 100%;
@@ -257,21 +306,25 @@
         text-transform: uppercase;
         letter-spacing: .45px;
         padding: 10px 12px;
-        border-bottom: 1px solid rgba(0,0,0,.08);
+        border-bottom: 1px solid rgba(0, 0, 0, .08);
         text-align: left;
         white-space: nowrap;
     }
 
-    .lm-table tbody tr:hover { background: #f8fafc; }
+    .lm-table tbody tr:hover {
+        background: #f8fafc;
+    }
 
     .lm-table td {
         padding: 9px 12px;
-        border-bottom: 1px solid rgba(0,0,0,.06);
+        border-bottom: 1px solid rgba(0, 0, 0, .06);
         color: #1a2233;
         vertical-align: middle;
     }
 
-    .lm-table tbody tr:last-child td { border-bottom: none; }
+    .lm-table tbody tr:last-child td {
+        border-bottom: none;
+    }
 
     .lm-table .lm-no-data td {
         text-align: center;
@@ -290,11 +343,14 @@
         overflow-y: auto;
         display: block;
     }
+
     .lm-td-wrap::-webkit-scrollbar {
         display: none;
     }
 
-    .lm-td-bold { font-weight: 600; }
+    .lm-td-bold {
+        font-weight: 600;
+    }
 
     /* ── BADGES ── */
     .lm-badge {
@@ -306,12 +362,35 @@
         white-space: nowrap;
     }
 
-    .lm-badge-pending   { background: #fef3c7; color: #92400e; }
-    .lm-badge-approved  { background: #dcfce7; color: #166534; }
-    .lm-badge-rejected  { background: #fee2e2; color: #991b1b; }
-    .lm-badge-cancelled { background: #f1f5f9; color: #475569; }
-    .lm-badge-paid      { background: #dbeafe; color: #1e40af; }
-    .lm-badge-unpaid    { background: #fce7f3; color: #9d174d; }
+    .lm-badge-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .lm-badge-approved {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .lm-badge-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .lm-badge-cancelled {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .lm-badge-paid {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .lm-badge-unpaid {
+        background: #fce7f3;
+        color: #9d174d;
+    }
 
     /* ── FILTER ROW ── */
     .lm-filter-row {
@@ -350,7 +429,7 @@
     /* ── DIVIDER ── */
     .lm-divider {
         height: 1px;
-        background: rgba(0,0,0,.07);
+        background: rgba(0, 0, 0, .07);
         margin: 22px 0;
     }
 
@@ -363,7 +442,7 @@
         gap: 14px;
         padding: 14px 20px;
         background: linear-gradient(90deg, #eef4ff 0%, #f0fdf4 100%);
-        border-bottom: 1px solid rgba(0,0,0,.08);
+        border-bottom: 1px solid rgba(0, 0, 0, .08);
     }
 
     .lm-emp-balance-label {
@@ -404,12 +483,17 @@
         min-width: 120px;
         padding: 10px 18px;
         border-radius: 8px;
-        border: 1px solid rgba(0,0,0,.08);
+        border: 1px solid rgba(0, 0, 0, .08);
         text-align: center;
     }
 
-    .lm-emp-bal-paid   { background: #f0fdf4; }
-    .lm-emp-bal-unpaid { background: #fff1f2; }
+    .lm-emp-bal-paid {
+        background: #f0fdf4;
+    }
+
+    .lm-emp-bal-unpaid {
+        background: #fff1f2;
+    }
 
     .lm-emp-bal-top {
         font-size: 11px;
@@ -427,8 +511,13 @@
         margin-bottom: 2px;
     }
 
-    .lm-emp-bal-paid   .lm-emp-bal-value { color: #16a34a; }
-    .lm-emp-bal-unpaid .lm-emp-bal-value { color: #dc2626; }
+    .lm-emp-bal-paid .lm-emp-bal-value {
+        color: #16a34a;
+    }
+
+    .lm-emp-bal-unpaid .lm-emp-bal-value {
+        color: #dc2626;
+    }
 
     .lm-emp-bal-unit {
         font-size: 11px;
@@ -437,16 +526,158 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 640px) {
-        .lm-page-header { flex-direction: column; align-items: flex-start; }
-        .lm-stat-grid { grid-template-columns: 1fr 1fr; }
-        .lm-section-header { flex-direction: column; align-items: flex-start; }
+        .lm-page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .lm-stat-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .lm-section-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
+
+    /* Previous - Next CSS*/
+    /* ── PAGINATION ── */
+.lm-pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    padding: 8px 14px;
+    background: #f7f9fc;
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 8px 8px 0 0;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+/* When pagination is ABOVE the table, remove bottom radius so it flows into the table */
+.lm-pagination-bar + .lm-table-wrap {
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    margin-bottom: 22px;
+}
+
+.lm-pagination-left,
+.lm-pagination-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.lm-pagination-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.lm-pagination-select {
+    height: 28px;
+    padding: 0 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    background: #fff;
+    color: #1a2233;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color .15s;
+    min-width: 64px;
+}
+
+.lm-pagination-select:focus {
+    outline: none;
+    border-color: #2f5ea7;
+    box-shadow: 0 0 0 2px rgba(47,94,167,.12);
+}
+
+.lm-pagination-info {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+    background: #eef2f7;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.lm-page-count {
+    font-size: 12px;
+    color: #475569;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.lm-page-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #2f5ea7;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s ease;
+    flex-shrink: 0;
+}
+
+.lm-page-btn:hover:not([disabled]) {
+    background: #2f5ea7;
+    color: #fff;
+    border-color: #2f5ea7;
+    box-shadow: 0 1px 4px rgba(47,94,167,.25);
+}
+
+.lm-page-btn:active:not([disabled]) {
+    transform: scale(.93);
+}
+
+.lm-page-btn[disabled] {
+    opacity: .35;
+    cursor: not-allowed;
+    color: #94a3b8;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+/* ── SUB HEADING above pagination — tighten spacing ── */
+.lm-sub-heading {
+    margin: 0 0 8px;
+}
+
+@media (max-width: 640px) {
+    .lm-pagination-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .lm-pagination-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
 </style>
 
 <div class="lm-page">
 
     {{!-- ══════════════════════════════════════════
-         PAGE HEADER
+    PAGE HEADER
     ══════════════════════════════════════════ --}}
     <div class="lm-page-header">
         <h1>Leave Management</h1>
@@ -477,11 +708,12 @@
             {{/if}}
         </div>
     </div>
-    <p class="lm-subtitle">Welcome, <strong>{{userName}}</strong>. View your leave balance and manage team leave requests below.</p>
+    <p class="lm-subtitle">Welcome, <strong>{{userName}}</strong>. View your leave balance and manage team leave
+        requests below.</p>
 
 
     {{!-- ══════════════════════════════════════════
-         MY LEAVE OVERVIEW (always visible for login user)
+    MY LEAVE OVERVIEW (always visible for login user)
     ══════════════════════════════════════════ --}}
     <div class="lm-section">
         <div class="lm-section-header">
@@ -509,6 +741,41 @@
 
             {{!-- My Pending Requests --}}
             <p class="lm-sub-heading">My Pending Requests</p>
+            <div class="lm-pagination-bar">
+                <div class="lm-pagination-left">
+                    <label class="lm-pagination-label">Rows per page</label>
+                    <select class="lm-pagination-select action" data-action="changePageSize"
+                        data-key="pendingLeaveList">
+                        {{#each pendingLeavePager.sizeOptions}}
+                        <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+
+                <div class="lm-pagination-right">
+                    <span class="lm-pagination-info">
+                        {{#if pendingLeavePager.total}}
+                        {{pendingLeavePager.start}}-{{pendingLeavePager.end}} of {{pendingLeavePager.total}}
+                        {{else}}
+                        0-0 of 0
+                        {{/if}}
+                    </span>
+
+                    <button class="lm-page-btn action" data-action="prevPage" data-key="pendingLeaveList" {{#unless
+                        pendingLeavePager.hasPrev}}disabled{{/unless}}>
+                        ‹
+                    </button>
+
+                    <span class="lm-page-count">
+                        Page {{pendingLeavePager.page}} / {{pendingLeavePager.totalPages}}
+                    </span>
+
+                    <button class="lm-page-btn action" data-action="nextPage" data-key="pendingLeaveList" {{#unless
+                        pendingLeavePager.hasNext}}disabled{{/unless}}>
+                        ›
+                    </button>
+                </div>
+            </div>
             <div class="lm-table-wrap">
                 <table class="lm-table">
                     <thead>
@@ -526,7 +793,8 @@
                         {{#each pendingLeaveList}}
                         <tr>
                             <td>
-                                <span class="lm-badge {{#ifEqual leaveType 'Paid'}}lm-badge-paid{{else}}lm-badge-unpaid{{/ifEqual}}">
+                                <span
+                                    class="lm-badge {{#ifEqual leaveType 'Paid'}}lm-badge-paid{{else}}lm-badge-unpaid{{/ifEqual}}">
                                     {{leaveType}}
                                 </span>
                             </td>
@@ -546,7 +814,9 @@
                         </tr>
                         {{/each}}
                         {{^pendingLeaveList}}
-                        <tr class="lm-no-data"><td colspan="8">No pending requests</td></tr>
+                        <tr class="lm-no-data">
+                            <td colspan="8">No pending requests</td>
+                        </tr>
                         {{/pendingLeaveList}}
                     </tbody>
                 </table>
@@ -554,6 +824,41 @@
 
             {{!-- My Leave History --}}
             <p class="lm-sub-heading">My Leave History</p>
+            <div class="lm-pagination-bar">
+                <div class="lm-pagination-left">
+                    <label class="lm-pagination-label">Rows per page</label>
+                    <select class="lm-pagination-select action" data-action="changePageSize"
+                        data-key="myLeaveHistoryList">
+                        {{#each myHistoryPager.sizeOptions}}
+                        <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+
+                <div class="lm-pagination-right">
+                    <span class="lm-pagination-info">
+                        {{#if myHistoryPager.total}}
+                        {{myHistoryPager.start}}-{{myHistoryPager.end}} of {{myHistoryPager.total}}
+                        {{else}}
+                        0-0 of 0
+                        {{/if}}
+                    </span>
+
+                    <button class="lm-page-btn action" data-action="prevPage" data-key="myLeaveHistoryList" {{#unless
+                        myHistoryPager.hasPrev}}disabled{{/unless}}>
+                        ‹
+                    </button>
+
+                    <span class="lm-page-count">
+                        Page {{myHistoryPager.page}} / {{myHistoryPager.totalPages}}
+                    </span>
+
+                    <button class="lm-page-btn action" data-action="nextPage" data-key="myLeaveHistoryList" {{#unless
+                        myHistoryPager.hasNext}}disabled{{/unless}}>
+                        ›
+                    </button>
+                </div>
+            </div>
             <div class="lm-table-wrap">
                 <table class="lm-table">
                     <thead>
@@ -572,7 +877,8 @@
                         {{#ifNotEqual status 'Pending'}}
                         <tr>
                             <td>
-                                <span class="lm-badge {{#ifEqual leaveType 'Paid'}}lm-badge-paid{{else}}lm-badge-unpaid{{/ifEqual}}">
+                                <span
+                                    class="lm-badge {{#ifEqual leaveType 'Paid'}}lm-badge-paid{{else}}lm-badge-unpaid{{/ifEqual}}">
                                     {{leaveType}}
                                 </span>
                             </td>
@@ -593,18 +899,21 @@
                         {{/ifNotEqual}}
                         {{/each}}
                         {{^myLeaveHistoryList}}
-                        <tr class="lm-no-data"><td colspan="7">No leave history found</td></tr>
+                        <tr class="lm-no-data">
+                            <td colspan="7">No leave history found</td>
+                        </tr>
                         {{/myLeaveHistoryList}}
                     </tbody>
                 </table>
             </div>
+
 
         </div>
     </div>
 
 
     {{!-- ══════════════════════════════════════════
-         Subordinates LEAVE (employee filter + all records)
+    Subordinates LEAVE (employee filter + all records)
     ══════════════════════════════════════════ --}}
     <div class="lm-section">
         <div class="lm-section-header">
@@ -651,6 +960,41 @@
 
             {{!-- Pending Approvals --}}
             <p class="lm-sub-heading">Pending Approvals</p>
+            <div class="lm-pagination-bar">
+                <div class="lm-pagination-left">
+                    <label class="lm-pagination-label">Rows per page</label>
+                    <select class="lm-pagination-select action" data-action="changePageSize"
+                        data-key="pendingAllLeaveList">
+                        {{#each pendingAllPager.sizeOptions}}
+                        <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+
+                <div class="lm-pagination-right">
+                    <span class="lm-pagination-info">
+                        {{#if pendingAllPager.total}}
+                        {{pendingAllPager.start}}-{{pendingAllPager.end}} of {{pendingAllPager.total}}
+                        {{else}}
+                        0-0 of 0
+                        {{/if}}
+                    </span>
+
+                    <button class="lm-page-btn action" data-action="prevPage" data-key="pendingAllLeaveList" {{#unless
+                        pendingAllPager.hasPrev}}disabled{{/unless}}>
+                        ‹
+                    </button>
+
+                    <span class="lm-page-count">
+                        Page {{pendingAllPager.page}} / {{pendingAllPager.totalPages}}
+                    </span>
+
+                    <button class="lm-page-btn action" data-action="nextPage" data-key="pendingAllLeaveList" {{#unless
+                        pendingAllPager.hasNext}}disabled{{/unless}}>
+                        ›
+                    </button>
+                </div>
+            </div>
             <div class="lm-table-wrap">
                 <table class="lm-table">
                     <thead>
@@ -671,7 +1015,8 @@
                         <tr>
                             <td class="lm-td-bold">{{userName}}</td>
                             <td>
-                                <span class="lm-badge {{#ifEqual leaveType 'Paid'}}lm-badge-paid{{else}}lm-badge-unpaid{{/ifEqual}}">
+                                <span
+                                    class="lm-badge {{#ifEqual leaveType 'Paid'}}lm-badge-paid{{else}}lm-badge-unpaid{{/ifEqual}}">
                                     {{leaveType}}
                                 </span>
                             </td>
@@ -682,12 +1027,12 @@
                             <td class="lm-td-wrap" title="{{reason}}">{{reason}}</td>
                             <td>
                                 <div class="lm-action-cell">
-                                    <button class="lm-btn lm-btn-sm lm-btn-success action"
-                                        data-action="approveRequest" data-id="{{id}}">
+                                    <button class="lm-btn lm-btn-sm lm-btn-success action" data-action="approveRequest"
+                                        data-id="{{id}}">
                                         Approve
                                     </button>
-                                    <button class="lm-btn lm-btn-sm lm-btn-danger action"
-                                        data-action="rejectRequest" data-id="{{id}}">
+                                    <button class="lm-btn lm-btn-sm lm-btn-danger action" data-action="rejectRequest"
+                                        data-id="{{id}}">
                                         Reject
                                     </button>
                                 </div>
@@ -696,14 +1041,52 @@
                         {{/ifNotEqual}}
                         {{/each}}
                         {{^pendingAllLeaveList}}
-                        <tr class="lm-no-data"><td colspan="9">No pending approvals</td></tr>
+                        <tr class="lm-no-data">
+                            <td colspan="9">No pending approvals</td>
+                        </tr>
                         {{/pendingAllLeaveList}}
                     </tbody>
                 </table>
             </div>
 
+
+
             {{!-- All Leave Records --}}
             <p class="lm-sub-heading">All Leave Records</p>
+            <div class="lm-pagination-bar">
+                <div class="lm-pagination-left">
+                    <label class="lm-pagination-label">Rows per page</label>
+                    <select class="lm-pagination-select action" data-action="changePageSize" data-key="allLeaveList">
+                        {{#each allLeavePager.sizeOptions}}
+                        <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+
+                <div class="lm-pagination-right">
+                    <span class="lm-pagination-info">
+                        {{#if allLeavePager.total}}
+                        {{allLeavePager.start}}-{{allLeavePager.end}} of {{allLeavePager.total}}
+                        {{else}}
+                        0-0 of 0
+                        {{/if}}
+                    </span>
+
+                    <button class="lm-page-btn action" data-action="prevPage" data-key="allLeaveList" {{#unless
+                        allLeavePager.hasPrev}}disabled{{/unless}}>
+                        ‹
+                    </button>
+
+                    <span class="lm-page-count">
+                        Page {{allLeavePager.page}} / {{allLeavePager.totalPages}}
+                    </span>
+
+                    <button class="lm-page-btn action" data-action="nextPage" data-key="allLeaveList" {{#unless
+                        allLeavePager.hasNext}}disabled{{/unless}}>
+                        ›
+                    </button>
+                </div>
+            </div>
             <div class="lm-table-wrap">
                 <table class="lm-table">
                     <thead>
@@ -728,7 +1111,8 @@
                         <tr>
                             <td class="lm-td-bold">{{userName}}</td>
                             <td>
-                                <span class="lm-badge {{#ifEqual leaveType 'Paid'}}lm-badge-paid{{else}}lm-badge-unpaid{{/ifEqual}}">
+                                <span
+                                    class="lm-badge {{#ifEqual leaveType 'Paid'}}lm-badge-paid{{else}}lm-badge-unpaid{{/ifEqual}}">
                                     {{leaveType}}
                                 </span>
                             </td>
@@ -749,8 +1133,8 @@
                             {{#if ../isAdmin}}
                             <td>
                                 <div class="lm-action-cell">
-                                    <button class="lm-btn lm-btn-sm lm-btn-warning action"
-                                        data-action="revokeRequest" data-id="{{id}}">
+                                    <button class="lm-btn lm-btn-sm lm-btn-warning action" data-action="revokeRequest"
+                                        data-id="{{id}}">
                                         Revoke
                                     </button>
                                 </div>
@@ -768,6 +1152,7 @@
                     </tbody>
                 </table>
             </div>
+
 
         </div>
     </div>

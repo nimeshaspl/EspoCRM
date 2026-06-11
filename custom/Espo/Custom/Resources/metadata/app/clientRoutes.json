@@ -40,5 +40,11 @@
       "controller": "OtherProfileOverview",
       "action": "view"
     }
+  },
+  "CRunPayroll": {
+    "params": {
+      "controller": "CRunPayroll",
+      "action": "view"
+    }
   }
 }

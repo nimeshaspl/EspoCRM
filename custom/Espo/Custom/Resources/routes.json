@@ -1,0 +1,11 @@
+[
+    {
+        "route": "/ExportDataMaster/export",
+        "method": "GET",
+        "params": {
+            "controller": "ExportDataMaster",
+            "action": "export",
+            "noAuth": false
+        }
+    }
+]
