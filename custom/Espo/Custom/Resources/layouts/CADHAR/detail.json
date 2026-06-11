@@ -1,0 +1,29 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "adharNumber"
+                }
+            ],
+            [
+                {
+                    "name": "adharEnrollementNumber"
+                },
+                {
+                    "name": "attachments"
+                }
+            ],
+            [
+                {
+                    "name": "addressAsPerAadhar"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

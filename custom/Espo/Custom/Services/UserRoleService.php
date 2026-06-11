@@ -60,7 +60,7 @@ class UserRoleService
             ->getRDBRepository('User')
             ->join('roles')
             ->where(['rolesMiddle.roleId' => $roleId, 'isActive' => true])
-            ->select(['id', 'name', 'cIsIntern'])
+            ->select(['id', 'name', 'cIsIntern','isActive','avatarId','cIsWorkFromHome'])
             ->find();
 
         $list = [];
@@ -68,7 +68,10 @@ class UserRoleService
             $list[] = [
                 'id'   => $u->getId(),
                 'name' => $u->get('name'),
-                'cIsIntern' => $u->get('cIsIntern')
+                'cIsIntern' => $u->get('cIsIntern'),
+                'isActive' => $u->get('isActive'),
+                'avatarId' => $u->get('avatarId'),
+                'cIsWorkFromHome' => $u->get('cIsWorkFromHome')
             ];
         }
 
