@@ -4,5 +4,11 @@
             "Permanent": "Permanent",
             "Current": "Current"
         }
+    },
+    "fields": {
+        "pincode": "Pincode"
+    },
+    "labels": {
+        "Create CEmployeeAddress": "Create EmployeeAddress"
     }
 }

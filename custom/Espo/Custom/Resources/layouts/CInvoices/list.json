@@ -1,0 +1,22 @@
+[
+    {
+        "name": "project",
+        "width": 16
+    },
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "amountInr",
+        "width": 16
+    },
+    {
+        "name": "dueAmount",
+        "width": 16
+    },
+    {
+        "name": "invoiceDate",
+        "width": 16
+    }
+]

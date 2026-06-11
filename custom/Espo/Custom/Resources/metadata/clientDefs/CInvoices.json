@@ -1,0 +1,18 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "color": "#11c7a1",
+    "iconClass": "fas fa-money-check-dollar",
+    "relationshipPanels": {
+        "project": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "invoicePayments": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

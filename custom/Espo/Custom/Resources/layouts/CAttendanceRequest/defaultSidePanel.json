@@ -1,0 +1,17 @@
+[
+    {
+        "name": ":assignedUser"
+    },
+    {
+        "name": "teams"
+    },
+    {
+        "name": "status"
+    },
+    {
+        "name": "systemClockIn"
+    },
+    {
+        "name": "systemClockOut"
+    }
+]

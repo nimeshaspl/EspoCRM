@@ -1,0 +1,22 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "invoiceDate",
+        "width": 20
+    },
+    {
+        "name": "amountInr",
+        "width": 20
+    },
+    {
+        "name": "dueAmount",
+        "width": 20
+    },
+    {
+        "name": "createdAt",
+        "width": 20
+    }
+]

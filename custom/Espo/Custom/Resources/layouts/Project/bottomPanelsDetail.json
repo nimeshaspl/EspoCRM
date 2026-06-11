@@ -26,5 +26,11 @@
     },
     "timesheets": {
         "index": 7
+    },
+    "invoiceses": {
+        "index": 8
+    },
+    "projectExternalExps": {
+        "index": 9
     }
 }

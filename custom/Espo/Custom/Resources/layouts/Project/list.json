@@ -26,9 +26,14 @@
         "name": "actualHours"
     },
     {
-        "name": "totalBudget"
+        "name": "projectBudget",
+        "width": 16
     },
     {
         "name": "totalBudgetUtilized"
+    },
+    {
+        "name": "invoiceAmount",
+        "width": 16
     }
 ]

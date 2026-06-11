@@ -1,0 +1,30 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "date"
+                }
+            ],
+            [
+                {
+                    "name": "clockIn"
+                },
+                {
+                    "name": "clockOut"
+                }
+            ],
+            [
+                {
+                    "name": "reason"
+                },
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

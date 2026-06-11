@@ -192,6 +192,42 @@
             "notNull": false,
             "type": "float",
             "isCustom": true
+        },
+        "invoiceAmount": {
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "readOnly": true,
+            "isCustom": true
+        },
+        "totalPaymentRecieved": {
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "readOnly": true,
+            "isCustom": true
+        },
+        "pendingAmountForInvoice": {
+            "notNull": false,
+            "type": "float",
+            "readOnly": true,
+            "audited": true,
+            "isCustom": true
+        },
+        "projectBudget": {
+            "notNull": false,
+            "type": "float",
+            "min": 1,
+            "decimalPlaces": 2,
+            "audited": true,
+            "isCustom": true
+        },
+        "externalExp": {
+            "notNull": false,
+            "type": "float",
+            "min": 1,
+            "audited": true,
+            "isCustom": true
         }
     },
     "links": {
@@ -279,6 +315,20 @@
             "type": "hasMany",
             "foreign": "project",
             "entity": "CCRTracking",
+            "audited": false,
+            "isCustom": true
+        },
+        "invoiceses": {
+            "type": "hasMany",
+            "foreign": "project",
+            "entity": "CInvoices",
+            "audited": false,
+            "isCustom": true
+        },
+        "projectExternalExps": {
+            "type": "hasMany",
+            "foreign": "project",
+            "entity": "CProjectExternalExp",
             "audited": false,
             "isCustom": true
         }

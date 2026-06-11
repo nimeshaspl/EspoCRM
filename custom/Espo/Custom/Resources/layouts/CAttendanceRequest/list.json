@@ -1,0 +1,22 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "clockIn",
+        "width": 16
+    },
+    {
+        "name": "clockOut",
+        "width": 16
+    },
+    {
+        "name": "date",
+        "width": 16
+    },
+    {
+        "name": "status",
+        "width": 16
+    }
+]

@@ -11,5 +11,8 @@
         "parent": {
             "layout": null
         }
-    }
+    },
+    "kanbanViewMode": false,
+    "color": null,
+    "iconClass": null
 }

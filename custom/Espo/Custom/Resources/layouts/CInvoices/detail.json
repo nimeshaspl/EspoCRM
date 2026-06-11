@@ -1,0 +1,32 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "amountInr"
+                },
+                {
+                    "name": "dueAmount"
+                }
+            ],
+            [
+                {
+                    "name": "invoiceDate"
+                },
+                {
+                    "name": "description"
+                }
+            ],
+            [
+                {
+                    "name": "streamUpdatedAt"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

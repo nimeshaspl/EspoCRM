@@ -1,0 +1,27 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "amountInr"
+                },
+                {
+                    "name": "dueAmount"
+                }
+            ],
+            [
+                {
+                    "name": "invoiceDate"
+                },
+                {
+                    "name": "description"
+                },
+                {
+                    "name": "project"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": ""
+    }
+]

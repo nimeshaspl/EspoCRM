@@ -7,7 +7,11 @@
         "emailSchedules": "Email Schedules",
         "cAppraisalDate": "Appraisal Date",
         "cAppraisalTemplate": "Appraisal Template",
-        "cAppraisalRelease": "Appraisal Release"
+        "cAppraisalRelease": "Appraisal Release",
+        "cDesignation": "Designation",
+        "cDepartment": "Department",
+        "cBloodGroup": "BloodGroup",
+        "cApprovedBy": "ApprovedBy"
     },
     "links": {
         "employeeTarget": "Employee Target",

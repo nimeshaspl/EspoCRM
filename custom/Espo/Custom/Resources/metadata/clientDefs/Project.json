@@ -34,6 +34,14 @@
         "cRTrackings": {
             "layout": null,
             "selectPrimaryFilterName": null
+        },
+        "invoiceses": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "projectExternalExps": {
+            "layout": null,
+            "selectPrimaryFilterName": null
         }
     },
     "kanbanViewMode": false

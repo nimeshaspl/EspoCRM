@@ -2,7 +2,7 @@
     "fields": {
         "name": "Expense Title",
         "assignedUser": "Exp Created By",
-        "expenseBillAttachement": "Expense Bill Attachement",
+        "expenseBillAttachement": "Expense Bill Attachment",
         "amount": "Amount",
         "vendorName": "Vendor Name",
         "otherDescription": "Other Description",

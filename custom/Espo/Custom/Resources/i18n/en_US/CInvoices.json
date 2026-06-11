@@ -1,0 +1,17 @@
+{
+    "fields": {
+        "name": "Invoice Number",
+        "invoiceDate": "Invoice Date",
+        "project": "Project",
+        "invoicePayments": "Invoice Payments",
+        "amountInr": "Amount Inr",
+        "dueAmount": "Due Amount"
+    },
+    "links": {
+        "project": "Project",
+        "invoicePayments": "Invoice Payments"
+    },
+    "labels": {
+        "Create CInvoices": "Create Invoices"
+    }
+}

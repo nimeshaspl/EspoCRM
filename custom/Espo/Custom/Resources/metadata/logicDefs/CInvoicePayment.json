@@ -1,0 +1,34 @@
+{
+    "fields": {
+        "amount": {
+            "readOnlySaved": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "amount"
+                    },
+                    {
+                        "type": "notEquals",
+                        "attribute": "$user.id",
+                        "data": {
+                            "values": {
+                                "name": "Kuldip Thakkar"
+                            }
+                        },
+                        "value": "649ab165ad77cf9d5"
+                    },
+                    {
+                        "type": "notEquals",
+                        "attribute": "$user.id",
+                        "data": {
+                            "values": {
+                                "name": "Aarti Rathod"
+                            }
+                        },
+                        "value": "69565f36657c4f059"
+                    }
+                ]
+            }
+        }
+    }
+}

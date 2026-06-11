@@ -60,7 +60,10 @@
             "type": "linkOne"
         },
         "cDepartment": {
-            "type": "linkOne"
+            "type": "linkOne",
+            "required": true,
+            "audited": true,
+            "inlineEditDisabled": true
         },
         "cDesignation": {
             "type": "linkOne",

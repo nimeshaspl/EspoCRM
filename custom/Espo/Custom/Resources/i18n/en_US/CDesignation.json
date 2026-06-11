@@ -1,5 +1,8 @@
 {
     "fields": {
         "isActive": "Is Active ?"
+    },
+    "labels": {
+        "Create CDesignation": "Create Designation"
     }
 }

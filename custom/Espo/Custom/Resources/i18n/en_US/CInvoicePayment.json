@@ -1,0 +1,14 @@
+{
+    "fields": {
+        "name": "Payment Mode",
+        "paymentDate": "Payment Date",
+        "invoices": "Invoices",
+        "amount": "Amount"
+    },
+    "links": {
+        "invoices": "Invoices"
+    },
+    "labels": {
+        "Create CInvoicePayment": "Create Invoice Payment"
+    }
+}

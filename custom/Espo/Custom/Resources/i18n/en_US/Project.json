@@ -17,7 +17,14 @@
         "totalBudgetUtilized": "TotalBudgetUtilized",
         "totalBudget": "Total Budget",
         "workToBeBills": "Work To Be Bills",
-        "cRTrackings": "CR Tracking"
+        "cRTrackings": "CR Tracking",
+        "invoiceses": "Invoiceses",
+        "invoiceAmount": "Invoice Amount",
+        "totalPaymentRecieved": "Total Payment Recieved",
+        "pendingAmountForInvoice": "Pending Amount For Invoice",
+        "projectBudget": "Project Budget",
+        "projectExternalExps": "Project External Exps",
+        "externalExp": "External Exp"
     },
     "links": {
         "contact": "Contact",
@@ -28,7 +35,9 @@
         "timesheets": "Timesheets",
         "managerMappings": "Manager Mappings",
         "workToBeBills": "Work To Be Bills",
-        "cRTrackings": "CR Tracking"
+        "cRTrackings": "CR Tracking",
+        "invoiceses": "Invoiceses",
+        "projectExternalExps": "Project External Exps"
     },
     "labels": {
         "Create Project": "Create Project"

@@ -38,7 +38,9 @@
         "isActive": {
             "notNull": true,
             "type": "bool",
-            "isCustom": true
+            "isCustom": true,
+            "default": true,
+            "audited": true
         },
         "state": {
             "type": "link"
@@ -90,7 +92,12 @@
     },
     "collection": {
         "orderBy": "createdAt",
-        "order": "desc"
+        "order": "desc",
+        "textFilterFields": [
+            "name"
+        ],
+        "fullTextSearch": false,
+        "countDisabled": false
     },
     "indexes": {
         "name": {
@@ -117,5 +124,6 @@
                 "id"
             ]
         }
-    }
+    },
+    "optimisticConcurrencyControl": false
 }

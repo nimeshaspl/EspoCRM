@@ -1,0 +1,40 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "days"
+                }
+            ],
+            [
+                {
+                    "name": "reason"
+                },
+                {
+                    "name": "dayMode"
+                }
+            ],
+            [
+                {
+                    "name": "startDate"
+                },
+                {
+                    "name": "endDate"
+                }
+            ],
+            [
+                {
+                    "name": "status"
+                },
+                {
+                    "name": "leaveType"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

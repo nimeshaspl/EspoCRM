@@ -1,0 +1,14 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "amount",
+        "width": 20
+    },
+    {
+        "name": "expDate",
+        "width": 20
+    }
+]

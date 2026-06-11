@@ -17,7 +17,13 @@
                     "name": "totalBudget"
                 },
                 {
+                    "name": "projectBudget"
+                },
+                {
                     "name": "totalBudgetUtilized"
+                },
+                {
+                    "name": "externalExp"
                 }
             ],
             [
@@ -39,6 +45,17 @@
             [
                 {
                     "name": "projectDocuments"
+                }
+            ],
+            [
+                {
+                    "name": "invoiceAmount"
+                },
+                {
+                    "name": "totalPaymentRecieved"
+                },
+                {
+                    "name": "pendingAmountForInvoice"
                 }
             ]
         ],

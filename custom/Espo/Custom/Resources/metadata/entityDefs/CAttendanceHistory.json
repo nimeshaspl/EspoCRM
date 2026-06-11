@@ -118,7 +118,12 @@
     },
     "collection": {
         "orderBy": "createdAt",
-        "order": "desc"
+        "order": "desc",
+        "textFilterFields": [
+            "name"
+        ],
+        "fullTextSearch": false,
+        "countDisabled": false
     },
     "indexes": {
         "name": {
@@ -145,5 +150,6 @@
                 "id"
             ]
         }
-    }
+    },
+    "optimisticConcurrencyControl": false
 }

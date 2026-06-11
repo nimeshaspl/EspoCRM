@@ -1,0 +1,13 @@
+{
+    "fields": {
+        "expDate": "Exp Date",
+        "amount": "Amount",
+        "project": "Project"
+    },
+    "labels": {
+        "Create CProjectExternalExp": "Create Project External Exp"
+    },
+    "links": {
+        "project": "Project"
+    }
+}
