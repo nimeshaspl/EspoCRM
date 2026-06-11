@@ -46,19 +46,6 @@
         "CSalesPlanningMonthly": "Sales Planning Monthly",
         "CAttendance": "Attendance",
         "CAttendanceRequest": "Attendance Request",
-<<<<<<< Updated upstream
-        "CNotice": "Notice",
-        "CPayPackage": "PayPackage",
-        "CPayrollDetails": "Payroll Detail",
-        "CPayroll": "Payroll",
-        "CEmployeePayroll": "EmployeePayroll",
-        "CPayslip": "Payslip",
-        "CPackage": "Package",
-        "CLeaveRequest": "LeaveRequest",
-        "CLeaveBalance": "LeaveBalance",
-        "CLeave": "Leave",
-        "CLoan": "Loan"
-=======
         "CADHAR": "ADHAR",
         "CAttendanceHistory": "AttendanceHistory",
         "CBanks": "Banks",
@@ -104,7 +91,6 @@
         "CInvoices": "Invoices",
         "CInvoicePayment": "Invoice Payment",
         "CProjectExternalExp": "Project External Exp"
->>>>>>> Stashed changes
     },
     "scopeNamesPlural": {
         "EmployeeTarget": "Employee Targets",
@@ -143,18 +129,6 @@
         "CSalesPlanningMonthly": "Sales Planning Monthlies",
         "CAttendance": "Attendance",
         "CAttendanceRequest": "Attendance Request",
-<<<<<<< Updated upstream
-        "CNotice": "Notices",
-        "CPayPackage": "PayPackage",
-        "CPayrollDetails": "Payroll Details",
-        "CPayroll": "Payroll",
-        "CEmployeePayroll": "EmployeePayrolls",
-        "CPayslip": "Payslip",
-        "CPackage": "Package",
-        "CLeaveRequest": "LeaveRequest",
-        "CLeaveBalance": "LeaveBalance",
-        "CLeave": "Leave"
-=======
         "CADHAR": "ADHAR",
         "CAttendanceHistory": "AttendanceHistory",
         "CBanks": "Banks",
@@ -200,6 +174,6 @@
         "CInvoices": "Invoices",
         "CInvoicePayment": "Invoice Payments",
         "CProjectExternalExp": "Project External Exps"
->>>>>>> Stashed changes
+
     }
 }
