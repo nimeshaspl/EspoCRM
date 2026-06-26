@@ -4,19 +4,19 @@
         "link": true
     },
     {
-        "name": "isActive",
+        "name": "presentDays",
         "width": 16
     },
     {
-        "name": "isFNF",
+        "name": "absentDays",
         "width": 16
     },
     {
-        "name": "isIntern",
+        "name": "leaveDays",
         "width": 16
     },
     {
-        "name": "assignedUser",
+        "name": "totalWorkingDays",
         "width": 16
     }
 ]

@@ -1,0 +1,19 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "type",
+        "width": 16
+    },
+    {
+        "name": "employees",
+        "width": 16,
+        "notSortable": true
+    },
+    {
+        "name": "salaryPayout",
+        "width": 16
+    }
+]

@@ -4,19 +4,7 @@
         "link": true
     },
     {
-        "name": "specialAllowance",
-        "width": 16
-    },
-    {
         "name": "basicPay",
-        "width": 16
-    },
-    {
-        "name": "balancingFigure",
-        "width": 16
-    },
-    {
-        "name": "conveyanceAllowance",
         "width": 16
     },
     {
@@ -28,7 +16,7 @@
         "width": 16
     },
     {
-        "name": "pTGross",
+        "name": "conveyanceAllowance",
         "width": 16
     }
 ]

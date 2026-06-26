@@ -66,21 +66,24 @@
             "isCustom": true,
             "readOnly": true,
             "audited": true,
-            "inlineEditDisabled": true
+            "inlineEditDisabled": true,
+            "default": 0
         },
         "pTGross": {
             "type": "currency",
             "isCustom": true,
             "readOnly": true,
             "audited": true,
-            "inlineEditDisabled": true
+            "inlineEditDisabled": true,
+            "default": 0
         },
         "balancingFigure": {
             "type": "currency",
             "isCustom": true,
             "readOnly": true,
             "audited": true,
-            "inlineEditDisabled": true
+            "inlineEditDisabled": true,
+            "default": 0
         },
         "specialAllowance": {
             "type": "currency",
@@ -94,7 +97,8 @@
             "isCustom": true,
             "readOnly": true,
             "audited": true,
-            "inlineEditDisabled": true
+            "inlineEditDisabled": true,
+            "default": 0
         },
         "hRAGross": {
             "type": "currency",
@@ -153,12 +157,7 @@
     },
     "collection": {
         "orderBy": "createdAt",
-        "order": "desc",
-        "textFilterFields": [
-            "name"
-        ],
-        "fullTextSearch": false,
-        "countDisabled": false
+        "order": "desc"
     },
     "indexes": {
         "name": {
@@ -185,6 +184,5 @@
                 "id"
             ]
         }
-    },
-    "optimisticConcurrencyControl": false
+    }
 }

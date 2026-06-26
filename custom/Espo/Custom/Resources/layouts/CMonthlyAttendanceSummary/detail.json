@@ -1,0 +1,53 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "date"
+                }
+            ],
+            [
+                {
+                    "name": "absentDays"
+                },
+                {
+                    "name": "presentDays"
+                },
+                {
+                    "name": "totalWorkingDays"
+                }
+            ],
+            [
+                {
+                    "name": "avgOvertime"
+                },
+                {
+                    "name": "avgWorkDuration"
+                }
+            ],
+            [
+                {
+                    "name": "leaveDays"
+                },
+                {
+                    "name": "paidLeave"
+                },
+                {
+                    "name": "unpaidLeave"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "employee"
+                },
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

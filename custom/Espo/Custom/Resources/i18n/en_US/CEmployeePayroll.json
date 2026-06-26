@@ -33,14 +33,35 @@
         "netSalaryCurrency": "Net Salary (Currency)",
         "netSalaryConverted": "Net Salary (Converted)",
         "paymentStatus": "Payment Status",
-        "paymentDate": "Payment Date"
+        "paymentDate": "Payment Date",
+        "monthlyAttendanceSummary": "Monthly Attendance Summary",
+        "fname": "Full name",
+        "newGrossSalary": "New Gross Salary",
+        "newGrossSalaryCurrency": "New Gross Salary (Currency)",
+        "newGrossSalaryConverted": "New Gross Salary (Converted)",
+        "newNetSalary": "New Net Salary",
+        "newNetSalaryCurrency": "New Net Salary (Currency)",
+        "newNetSalaryConverted": "New Net Salary (Converted)",
+        "grossSalaryDifference": "Gross Salary Difference",
+        "grossSalaryDifferenceCurrency": "Gross Salary Difference (Currency)",
+        "grossSalaryDifferenceConverted": "Gross Salary Difference (Converted)",
+        "netSalaryDifference": "Net Salary Difference",
+        "netSalaryDifferenceCurrency": "Net Salary Difference (Currency)",
+        "netSalaryDifferenceConverted": "Net Salary Difference (Converted)",
+        "leaveAbsentDeduction": "Leave/Absent Deduction",
+        "leaveAbsentDeductionCurrency": "Leave/Absent Deduction (Currency)",
+        "leaveAbsentDeductionConverted": "Leave/Absent Deduction (Converted)",
+        "lateJoinDeduction": "Late join deduction",
+        "lateJoinDeductionCurrency": "Late join deduction (Currency)",
+        "lateJoinDeductionConverted": "Late join deduction (Converted)"
     },
     "links": {
         "employee": "Employee",
-        "payrollDetailses": "Payroll Detailses"
+        "payrollDetailses": "Payroll Detailses",
+        "monthlyAttendanceSummary": "Monthly Attendance Summary"
     },
     "labels": {
-        "Create CEmployeePayroll": "Create EmployeePayroll"
+        "Create CEmployeePayroll": "Create Employee Payroll"
     },
     "options": {
         "paymentStatus": {
@@ -48,5 +69,9 @@
             "Processed": "Processed",
             "Paid": "Paid"
         }
+    },
+    "tooltips": {
+        "grossSalaryDifference": "Difference between Gross Salary and New Gross Salary ",
+        "netSalaryDifference": "Difference between Net Salary and New Net Salary "
     }
 }

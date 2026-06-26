@@ -1,0 +1,25 @@
+{
+    "fields": {
+        "employees": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "equals",
+                        "attribute": "type",
+                        "value": "Specific"
+                    }
+                ]
+            }
+        },
+        "date": {
+            "invalid": {
+                "conditionGroup": [
+                    {
+                        "type": "inFuture",
+                        "attribute": "date"
+                    }
+                ]
+            }
+        }
+    }
+}

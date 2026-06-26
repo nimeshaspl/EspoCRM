@@ -9,5 +9,12 @@
     },
     "links": {
         "payrolls": "Payrolls"
+    },
+    "tooltips": {
+        "pTGross": "Fixed (i.e. 200)",
+        "basicPay": "(%) of Gross Salary",
+        "hRAGross": "(%) of Basic Pay",
+        "conveyanceAllowance": "Fixed (i.e. 1600 )",
+        "medical": "Fixed ( i.e. 1200 )"
     }
 }

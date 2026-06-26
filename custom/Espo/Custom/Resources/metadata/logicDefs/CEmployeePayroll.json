@@ -1,0 +1,334 @@
+{
+    "fields": {
+        "basicPay": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "basicPay",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "basicPay"
+                    }
+                ]
+            }
+        },
+        "conveyanceAllowance": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "conveyanceAllowance",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "conveyanceAllowance"
+                    }
+                ]
+            }
+        },
+        "specialAllowance": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "specialAllowance",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "specialAllowance"
+                    }
+                ]
+            }
+        },
+        "medical": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "medical",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "medical"
+                    }
+                ]
+            }
+        },
+        "hRAGross": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "hRAGross",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "hRAGross"
+                    }
+                ]
+            }
+        },
+        "grossSalaryDifference": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "grossSalaryDifference",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "grossSalaryDifference"
+                    }
+                ]
+            }
+        },
+        "netSalaryDifference": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "netSalaryDifference",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "netSalaryDifference"
+                    }
+                ]
+            }
+        },
+        "newNetSalary": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "newNetSalary",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "newNetSalary"
+                    }
+                ]
+            }
+        },
+        "newGrossSalary": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "newGrossSalary",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "newGrossSalary"
+                    }
+                ]
+            }
+        },
+        "netSalary": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "netSalary",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "netSalary"
+                    }
+                ]
+            }
+        },
+        "totalDeductions": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "totalDeductions",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "totalDeductions"
+                    }
+                ]
+            }
+        },
+        "tdsAmount": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "tdsAmount",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "tdsAmount"
+                    }
+                ]
+            }
+        },
+        "pFAmount": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "pFAmount",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "pFAmount"
+                    }
+                ]
+            }
+        },
+        "esicAmount": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "esicAmount",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "esicAmount"
+                    }
+                ]
+            }
+        },
+        "professionalTax": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "professionalTax",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "professionalTax"
+                    }
+                ]
+            }
+        },
+        "loanDeduction": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "loanDeduction",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "loanDeduction"
+                    }
+                ]
+            }
+        },
+        "grossSalary": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "grossSalary",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "grossSalary"
+                    }
+                ]
+            }
+        },
+        "lateJoinDeduction": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "lateJoinDeduction",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "lateJoinDeduction"
+                    }
+                ]
+            }
+        },
+        "pTGross": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "pTGross",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "pTGross"
+                    }
+                ]
+            }
+        },
+        "leaveAbsentDeduction": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "leaveAbsentDeduction",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "leaveAbsentDeduction"
+                    }
+                ]
+            }
+        },
+        "balancingFigure": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "balancingFigure",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "balancingFigure"
+                    }
+                ]
+            }
+        },
+        "advanceDeduction": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "notEquals",
+                        "attribute": "advanceDeduction",
+                        "value": 0
+                    },
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "advanceDeduction"
+                    }
+                ]
+            }
+        }
+    }
+}

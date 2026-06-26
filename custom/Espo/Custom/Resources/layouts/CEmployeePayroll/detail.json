@@ -1,0 +1,166 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "date"
+                },
+                {
+                    "name": "designation"
+                },
+                {
+                    "name": "department"
+                }
+            ],
+            [
+                {
+                    "name": "doj"
+                },
+                {
+                    "name": "location"
+                },
+                {
+                    "name": "totalMonthDays"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "pfNumber"
+                },
+                {
+                    "name": "esicAmount"
+                },
+                {
+                    "name": "uanNumber"
+                },
+                {
+                    "name": "panNumber"
+                }
+            ],
+            [
+                {
+                    "name": "workingDays"
+                },
+                {
+                    "name": "presentDays"
+                },
+                {
+                    "name": "totalArrearDays"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "cLOP"
+                },
+                {
+                    "name": "pLOP"
+                },
+                {
+                    "name": "duration"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "newNetSalary"
+                },
+                {
+                    "name": "newGrossSalary"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "basicPay"
+                },
+                {
+                    "name": "hRAGross"
+                }
+            ],
+            [
+                {
+                    "name": "medical"
+                },
+                {
+                    "name": "conveyanceAllowance"
+                }
+            ],
+            [
+                {
+                    "name": "specialAllowance"
+                },
+                false
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Earning\/ Income"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "pTGross"
+                },
+                {
+                    "name": "leaveAbsentDeduction"
+                }
+            ],
+            [
+                {
+                    "name": "lateJoinDeduction"
+                },
+                false
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": false,
+        "tabLabel": null,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Deduction"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "netSalary"
+                },
+                {
+                    "name": "grossSalary"
+                }
+            ],
+            [
+                {
+                    "name": "netSalaryDifference"
+                },
+                {
+                    "name": "grossSalaryDifference"
+                }
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "Original Amount"
+    }
+]

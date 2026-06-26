@@ -2,6 +2,26 @@
     "fields": {
         "cDesignation": {
             "visible": null
+        },
+        "cLastDate": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isTrue",
+                        "attribute": "cIsFNF"
+                    }
+                ]
+            }
+        },
+        "cResignationDate": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isTrue",
+                        "attribute": "cIsFNF"
+                    }
+                ]
+            }
         }
     }
 }

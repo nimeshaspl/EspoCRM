@@ -34,6 +34,9 @@
         "teams": {
             "type": "linkMultiple",
             "view": "views/fields/teams"
+        },
+        "employee": {
+            "type": "link"
         }
     },
     "links": {
@@ -54,6 +57,13 @@
             "entity": "Team",
             "relationName": "entityTeam",
             "layoutRelationshipsDisabled": true
+        },
+        "employee": {
+            "type": "belongsTo",
+            "foreign": "attendanceRecords1",
+            "entity": "CEmployee",
+            "audited": false,
+            "isCustom": true
         }
     },
     "collection": {

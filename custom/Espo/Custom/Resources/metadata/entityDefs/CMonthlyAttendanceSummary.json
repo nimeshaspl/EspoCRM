@@ -85,6 +85,59 @@
             "readOnlyAfterCreate": true,
             "inlineEditDisabled": true,
             "isCustom": true
+        },
+        "month": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "year": {
+            "type": "int",
+            "isCustom": true
+        },
+        "paidLeave": {
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "readOnly": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "unpaidLeave": {
+            "notNull": false,
+            "type": "float",
+            "isCustom": true,
+            "audited": true,
+            "readOnly": true,
+            "inlineEditDisabled": true
+        },
+        "date": {
+            "notNull": false,
+            "type": "date",
+            "audited": true,
+            "readOnly": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "avgOvertimeSeconds": {
+            "type": "int",
+            "isCustom": true
+        },
+        "avgWorkDurationSeconds": {
+            "type": "int",
+            "isCustom": true
+        },
+        "overtimeSeconds": {
+            "type": "int",
+            "isCustom": true
+        },
+        "workDurationSeconds": {
+            "type": "int",
+            "isCustom": true
+        },
+        "employeePayroll": {
+            "type": "link"
         }
     },
     "links": {
@@ -112,16 +165,17 @@
             "entity": "CEmployee",
             "audited": false,
             "isCustom": true
+        },
+        "employeePayroll": {
+            "type": "belongsTo",
+            "foreign": "monthlyAttendanceSummary",
+            "entity": "CEmployeePayroll",
+            "isCustom": true
         }
     },
     "collection": {
         "orderBy": "createdAt",
-        "order": "desc",
-        "textFilterFields": [
-            "name"
-        ],
-        "fullTextSearch": false,
-        "countDisabled": false
+        "order": "desc"
     },
     "indexes": {
         "name": {
@@ -148,6 +202,5 @@
                 "id"
             ]
         }
-    },
-    "optimisticConcurrencyControl": false
+    }
 }

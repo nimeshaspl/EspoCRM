@@ -90,7 +90,9 @@
         "CNotice": "Notice",
         "CInvoices": "Invoices",
         "CInvoicePayment": "Invoice Payment",
-        "CProjectExternalExp": "Project External Exp"
+        "CProjectExternalExp": "Project External Exp",
+        "CEmployeePayroll": "Employee Payroll",
+        "CPayrollDetails": "Payroll Detail"
     },
     "scopeNamesPlural": {
         "EmployeeTarget": "Employee Targets",
@@ -173,7 +175,8 @@
         "CNotice": "Notices",
         "CInvoices": "Invoices",
         "CInvoicePayment": "Invoice Payments",
-        "CProjectExternalExp": "Project External Exps"
-
+        "CProjectExternalExp": "Project External Exps",
+        "CEmployeePayroll": "Employee Payroll",
+        "CPayrollDetails": "Payroll Details"
     }
 }
