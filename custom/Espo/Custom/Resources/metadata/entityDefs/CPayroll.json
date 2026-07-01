@@ -2,8 +2,12 @@
     "fields": {
         "name": {
             "type": "varchar",
-            "required": true,
-            "pattern": "$noBadCharacters"
+            "required": false,
+            "pattern": "$noBadCharacters",
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "options": []
         },
         "description": {
             "type": "text"
@@ -35,41 +39,101 @@
             "type": "linkMultiple",
             "view": "views/fields/teams"
         },
-        "isPayrollClose": {
-            "notNull": true,
-            "type": "bool",
-            "isCustom": true
-        },
-        "employee": {
-            "type": "link"
-        },
         "date": {
             "notNull": false,
             "type": "date",
-            "isCustom": true
+            "isCustom": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "audited": true,
+            "required": true
         },
         "totalEmployees": {
             "type": "int",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "default": 0
         },
         "wageAmount": {
             "type": "currency",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "default": 0
         },
         "salaryPayout": {
             "type": "currency",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "default": 0
         },
         "taxPayment": {
             "type": "currency",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "default": 0
         },
         "pTGross": {
             "type": "currency",
+            "isCustom": true,
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "default": 0
+        },
+        "month": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 100,
+            "audited": true,
+            "readOnlyAfterCreate": true,
+            "options": [],
+            "isCustom": true,
+            "readOnly": true,
+            "inlineEditDisabled": true
+        },
+        "year": {
+            "type": "varchar",
+            "required": false,
+            "readOnlyAfterCreate": true,
+            "audited": true,
+            "inlineEditDisabled": true,
+            "isCustom": true,
+            "readOnly": true
+        },
+        "type": {
+            "type": "enum",
+            "options": [
+                "General",
+                "FNF",
+                "Specific"
+            ],
+            "style": {
+                "General": null,
+                "FNF": null,
+                "Specific": null
+            },
+            "default": "General",
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "audited": true,
+            "maxLength": 100,
             "isCustom": true
         },
-        "payPackage": {
-            "type": "link"
+        "employees": {
+            "type": "linkMultiple"
         }
     },
     "links": {
@@ -91,13 +155,6 @@
             "relationName": "entityTeam",
             "layoutRelationshipsDisabled": true
         },
-        "employee": {
-            "type": "belongsTo",
-            "foreign": "payrolls",
-            "entity": "CEmployee",
-            "audited": false,
-            "isCustom": true
-        },
         "payrollIssues": {
             "type": "hasMany",
             "foreign": "payroll",
@@ -105,10 +162,18 @@
             "audited": false,
             "isCustom": true
         },
-        "payPackage": {
-            "type": "belongsTo",
-            "foreign": "payrolls",
-            "entity": "CPayPackage",
+        "employeePayrolls": {
+            "type": "hasMany",
+            "foreign": "payroll",
+            "entity": "CEmployeePayroll",
+            "audited": false,
+            "isCustom": true
+        },
+        "employees": {
+            "type": "hasMany",
+            "relationName": "cPayrollEmployee",
+            "foreign": "payrolls1",
+            "entity": "CEmployee",
             "audited": false,
             "isCustom": true
         }

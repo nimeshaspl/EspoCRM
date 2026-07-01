@@ -1,0 +1,23 @@
+[
+    {
+        "name": ":assignedUser"
+    },
+    {
+        "name": "employee"
+    },
+    {
+        "name": "month"
+    },
+    {
+        "name": "year"
+    },
+    {
+        "name": "monthlyAttendanceSummary"
+    },
+    {
+        "name": "payroll"
+    },
+    {
+        "name": "teams"
+    }
+]

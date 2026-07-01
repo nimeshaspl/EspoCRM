@@ -260,6 +260,19 @@
             "notNull": true,
             "type": "bool",
             "isCustom": true
+        },
+        "payrolls1": {
+            "type": "linkMultiple"
+        },
+        "isFNF": {
+            "notNull": true,
+            "type": "bool",
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "tooltip": true,
+            "isCustom": true
         }
     },
     "links": {
@@ -461,16 +474,34 @@
             "entity": "CEmployeePayroll",
             "audited": false,
             "isCustom": true
+        },
+        "attendanceRecords": {
+            "type": "hasMany",
+            "relationName": "cAttendanceRecordEmployee",
+            "foreign": "employees",
+            "entity": "CAttendanceRecord",
+            "audited": false,
+            "isCustom": true
+        },
+        "payrolls1": {
+            "type": "hasMany",
+            "relationName": "cPayrollEmployee",
+            "foreign": "employees",
+            "entity": "CPayroll",
+            "audited": false,
+            "isCustom": true
+        },
+        "attendanceRecords1": {
+            "type": "hasMany",
+            "foreign": "employee",
+            "entity": "CAttendanceRecord",
+            "audited": false,
+            "isCustom": true
         }
     },
     "collection": {
         "orderBy": "createdAt",
-        "order": "desc",
-        "textFilterFields": [
-            "name"
-        ],
-        "fullTextSearch": false,
-        "countDisabled": false
+        "order": "desc"
     },
     "indexes": {
         "name": {
@@ -497,6 +528,5 @@
                 "id"
             ]
         }
-    },
-    "optimisticConcurrencyControl": false
+    }
 }

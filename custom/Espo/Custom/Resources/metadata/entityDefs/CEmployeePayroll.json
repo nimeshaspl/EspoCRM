@@ -3,7 +3,11 @@
         "name": {
             "type": "varchar",
             "required": true,
-            "pattern": "$noBadCharacters"
+            "pattern": "$noBadCharacters",
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "options": []
         },
         "description": {
             "type": "text"
@@ -41,55 +45,99 @@
         "presentDays": {
             "notNull": false,
             "type": "float",
-            "isCustom": true
+            "isCustom": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true
         },
         "workingDays": {
             "notNull": false,
             "type": "float",
             "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
             "inlineEditDisabled": true,
             "isCustom": true
         },
         "leaveDays": {
             "notNull": false,
             "type": "float",
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
             "isCustom": true
         },
         "grossSalary": {
             "type": "currency",
-            "isCustom": true
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true,
+            "default": 0
+
         },
         "loanDeduction": {
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
             "type": "currency",
-            "isCustom": true
+            "isCustom": true,
+            "default": 0
         },
         "advanceDeduction": {
             "type": "currency",
-            "isCustom": true
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true,
+            "default": 0
         },
         "pFAmount": {
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
             "type": "currency",
             "isCustom": true
         },
         "esicAmount": {
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
             "type": "currency",
-            "isCustom": true
+            "isCustom": true,
+            "default": 0
         },
         "professionalTax": {
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
             "type": "currency",
-            "isCustom": true
+            "isCustom": true,
+            "default": 0
         },
         "tdsAmount": {
             "type": "currency",
-            "isCustom": true
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true,
+            "default": 0
         },
         "totalDeductions": {
             "type": "currency",
-            "isCustom": true
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true,
+            "default": 0
         },
         "netSalary": {
             "type": "currency",
-            "isCustom": true
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true,
+            "default": 0
         },
         "paymentStatus": {
             "type": "enum",
@@ -109,13 +157,273 @@
             "maxLength": 100,
             "isCustom": true
         },
-        "paymentDate": {
+        "payroll": {
+            "type": "link"
+        },
+        "designation": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "options": [],
+            "isCustom": true
+        },
+        "department": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "options": [],
+            "isCustom": true
+        },
+        "panNumber": {
+            "type": "varchar",
+            "maxLength": 100,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "options": [],
+            "isCustom": true
+        },
+        "doj": {
             "notNull": false,
             "type": "date",
-            "required": true,
-            "audited": true,
+            "isCustom": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true
+        },
+        "location": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true
+        },
+        "totalMonthDays": {
+            "type": "int",
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
             "inlineEditDisabled": true,
             "isCustom": true
+        },
+        "pfNumber": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "esicNumber": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "uanNumber": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "effectiveWorkingDays": {
+            "notNull": false,
+            "type": "float",
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "totalArrearDays": {
+            "notNull": false,
+            "type": "float",
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "cLOP": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "pLOP": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "duration": {
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "date": {
+            "notNull": false,
+            "type": "date",
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "month": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "year": {
+            "type": "varchar",
+            "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "monthlyAttendanceSummary": {
+            "type": "linkOne"
+        },
+        "fname": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 100,
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "options": [],
+            "isCustom": true
+        },
+        "newGrossSalary": {
+            "type": "currency",
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true,
+            "default": 0
+        },
+        "newNetSalary": {
+            "type": "currency",
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "isCustom": true,
+            "default": 0
+        },
+        "grossSalaryDifference": {
+            "type": "currency",
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "tooltip": true,
+            "isCustom": true,
+            "default": 0
+        },
+        "netSalaryDifference": {
+            "type": "currency",
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "tooltip": true,
+            "isCustom": true,
+            "default": 0
+        },
+        "basicPay": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true,
+            "default": 0
+        },
+        "conveyanceAllowance": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true,
+            "default": 0
+        },
+        "pTGross": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true,
+            "default": 0
+        },
+        "balancingFigure": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true,
+            "default": 0
+        },
+        "specialAllowance": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true,
+            "default": 0
+        },
+        "medical": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true,
+            "default": 0
+        },
+        "hRAGross": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true,
+            "default": 0
+        },
+        "leaveAbsentDeduction": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true,
+            "default": 0
+        },
+        "lateJoinDeduction": {
+            "type": "currency",
+            "isCustom": true,
+            "readOnly": true,
+            "audited": true,
+            "inlineEditDisabled": true,
+            "default": 0
         }
     },
     "links": {
@@ -150,11 +458,29 @@
             "entity": "CPayrollDetails",
             "audited": false,
             "isCustom": true
+        },
+        "payroll": {
+            "type": "belongsTo",
+            "foreign": "employeePayrolls",
+            "entity": "CPayroll",
+            "audited": false,
+            "isCustom": true
+        },
+        "monthlyAttendanceSummary": {
+            "type": "hasOne",
+            "foreign": "employeePayroll",
+            "entity": "CMonthlyAttendanceSummary",
+            "isCustom": true
         }
     },
     "collection": {
         "orderBy": "createdAt",
-        "order": "desc"
+        "order": "desc",
+        "textFilterFields": [
+            "name"
+        ],
+        "fullTextSearch": false,
+        "countDisabled": false
     },
     "indexes": {
         "name": {
@@ -181,5 +507,6 @@
                 "id"
             ]
         }
-    }
+    },
+    "optimisticConcurrencyControl": false
 }

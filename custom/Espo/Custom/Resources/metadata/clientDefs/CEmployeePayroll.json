@@ -11,6 +11,13 @@
         "payrollDetailses": {
             "layout": null,
             "selectPrimaryFilterName": null
+        },
+        "monthlyAttendanceSummary": {
+            "layout": null,
+            "selectPrimaryFilterName": null
         }
-    }
+    },
+    "kanbanViewMode": false,
+    "color": null,
+    "iconClass": null
 }

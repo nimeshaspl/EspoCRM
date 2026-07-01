@@ -5,27 +5,21 @@
                 {
                     "name": "name"
                 },
-                false
-            ],
-            [
                 {
-                    "name": "basicPay"
-                },
-                {
-                    "name": "hRAGross"
+                    "name": "type"
                 }
             ],
             [
                 {
-                    "name": "conveyanceAllowance"
+                    "name": "amount"
                 },
                 {
-                    "name": "medical"
+                    "name": "employeePayroll"
                 }
             ],
             [
                 {
-                    "name": "pTGross"
+                    "name": "description"
                 },
                 false
             ]

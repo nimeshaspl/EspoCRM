@@ -162,6 +162,27 @@
             "notNull": true,
             "type": "bool",
             "isCustom": true
+        },
+        "cIsFNF": {
+            "notNull": true,
+            "type": "bool",
+            "audited": true,
+            "inlineEditDisabled": true,
+            "tooltip": true,
+            "isCustom": true
+        },
+        "cResignationDate": {
+            "notNull": false,
+            "type": "date",
+            "tooltip": true,
+            "isCustom": true
+        },
+        "cLastDate": {
+            "notNull": false,
+            "type": "date",
+            "audited": true,
+            "inlineEditDisabled": true,
+            "isCustom": true
         }
     },
     "links": {

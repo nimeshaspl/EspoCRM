@@ -5,5 +5,11 @@
     ],
     "kanbanViewMode": false,
     "color": null,
-    "iconClass": null
+    "iconClass": null,
+    "relationshipPanels": {
+        "employee": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
 }

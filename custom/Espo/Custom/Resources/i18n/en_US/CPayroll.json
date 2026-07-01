@@ -3,7 +3,8 @@
         "Create CPayroll": "Create Payroll"
     },
     "fields": {
-        "payPackage": "Pay Package"
+        "payPackage": "Pay Package",
+        "description": "Description"
     },
     "links": {
         "payPackage": "Pay Package"

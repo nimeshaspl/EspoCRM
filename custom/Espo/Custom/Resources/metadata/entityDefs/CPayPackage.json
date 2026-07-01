@@ -41,42 +41,51 @@
             "type": "float",
             "audited": true,
             "inlineEditDisabled": true,
-            "isCustom": true
+            "isCustom": true,
+            "default": 0,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "tooltip": true
         },
         "pTGross": {
             "notNull": false,
             "type": "float",
             "audited": true,
             "inlineEditDisabled": true,
-            "isCustom": true
+            "isCustom": true,
+            "default": 0,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "tooltip": true
         },
         "balancingFigure": {
             "notNull": false,
             "type": "float",
             "audited": true,
             "inlineEditDisabled": true,
-            "isCustom": true
-        },
-        "specialAllowance": {
-            "notNull": false,
-            "type": "float",
-            "audited": true,
-            "inlineEditDisabled": true,
-            "isCustom": true
+            "isCustom": true,
+            "default": 0
         },
         "medical": {
             "notNull": false,
             "type": "float",
             "audited": true,
             "inlineEditDisabled": true,
-            "isCustom": true
+            "isCustom": true,
+            "default": 0,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "tooltip": true
         },
         "hRAGross": {
             "notNull": false,
             "type": "float",
             "audited": true,
             "inlineEditDisabled": true,
-            "isCustom": true
+            "isCustom": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "tooltip": true
         },
         "isPFEnable": {
             "notNull": true,
@@ -100,7 +109,10 @@
             "type": "float",
             "audited": true,
             "inlineEditDisabled": true,
-            "isCustom": true
+            "isCustom": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "tooltip": true
         }
     },
     "links": {

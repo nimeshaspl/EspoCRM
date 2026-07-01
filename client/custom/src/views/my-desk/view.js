@@ -14,7 +14,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
 
             const today = new Date().toISOString().split('T')[0];
             this.fetchLatestNotice();
-            console.log('Today\'s date:', today);
+            // console.log('Today\'s date:', today);
 
             this.notClockInUsers = [];
             this.clockedInUsers = [];
@@ -145,7 +145,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                 .then(function (response) {
 
                     const notice = response.list && response.list[0];
-                    // console.log('Fetched latest notice:', notice);
+                    // // console.log('Fetched latest notice:', notice);
 
                     if (notice) {
                         this.latestNotice = notice;
@@ -155,7 +155,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                 }.bind(this))
 
                 .catch(function (error) {
-                    console.error('Error fetching latest notice:', error);
+                    // console.error('Error fetching latest notice:', error);
                 });
         },
         fetchBirthdayUsers: function () {
@@ -179,7 +179,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
 
                     const users = response.list || [];
 
-                    // console.log('Fetched users:', users);
+                    // // console.log('Fetched users:', users);
 
                     // Today's birthdays
                     this.todayBirthdayUsers = users.filter(function (user) {
@@ -233,8 +233,8 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
 
                     });
 
-                    // console.log('Today birthdays:', this.todayBirthdayUsers);
-                    // console.log('Upcoming birthdays:', this.upcomingBirthdayUsers);
+                    // // console.log('Today birthdays:', this.todayBirthdayUsers);
+                    // // console.log('Upcoming birthdays:', this.upcomingBirthdayUsers);
 
                     this.render();
 
@@ -242,7 +242,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
 
                 .catch(function (error) {
 
-                    console.error('Error fetching birthday users:', error);
+                    // console.error('Error fetching birthday users:', error);
 
                 });
         },
@@ -267,7 +267,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
 
                     const users = response.list || [];
 
-                    // console.log('Fetched users:', users);
+                    // // console.log('Fetched users:', users);
 
                     // Today's anniversaries
                     this.todayAnniversaryUsers = users.filter(function (user) {
@@ -321,8 +321,8 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
 
                     });
 
-                    // console.log('Today anniversaries:', this.todayAnniversaryUsers);
-                    // console.log('Upcoming anniversaries:', this.upcomingAnniversaryUsers);
+                    // // console.log('Today anniversaries:', this.todayAnniversaryUsers);
+                    // // console.log('Upcoming anniversaries:', this.upcomingAnniversaryUsers);
 
                     this.render();
 
@@ -330,7 +330,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
 
                 .catch(function (error) {
 
-                    console.error('Error fetching anniversary users:', error);
+                    // console.error('Error fetching anniversary users:', error);
 
                 });
         },
@@ -366,7 +366,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
 
                     const holidays = response.list || [];
 
-                    // console.log('Fetched next holiday:', holidays);
+                    // // console.log('Fetched next holiday:', holidays);
 
                     if (holidays.length > 0) {
                         const holiday = holidays[0];
@@ -389,7 +389,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
 
                 .catch(function (error) {
 
-                    console.error('Error fetching next holiday:', error);
+                    // console.error('Error fetching next holiday:', error);
 
                 });
         },
@@ -409,7 +409,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                 maxSize: 200
             }).then(function (attResponse) {
                 var records = attResponse.list || [];
-                console.log('Fetched attendance records:', records);
+                // console.log('Fetched attendance records:', records);
 
                 // ✅ Step 2: Collect all assignedUserIds from attendance records
                 var attendedUserIds = records
@@ -424,7 +424,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                     Espo.Ajax.getRequest('CAttendance/action/employeeList')
                         .then(function (response) {
                             var allEmployees = response.list || [];
-                            console.log('Fetched all employees for notClockInUsers:', allEmployees);
+                            // console.log('Fetched all employees for notClockInUsers:', allEmployees);
                             self.notClockInUsers = allEmployees.map(function (user) {
                                 return {
                                     id: user.id,
@@ -461,7 +461,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                         };
                     });
 
-                    console.log('User avatar map:', userAvatarMap);
+                    // console.log('User avatar map:', userAvatarMap);
 
                     self.clockedInUsers = [];
                     self.clockedOutUsers = [];
@@ -489,8 +489,8 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                         .concat(self.clockedOutUsers.map(function (u) { return u.id; }))
                         .filter(Boolean);
 
-                    console.log('Clocked in:', self.clockedInUsers);
-                    console.log('Clocked out:', self.clockedOutUsers);
+                    // console.log('Clocked in:', self.clockedInUsers);
+                    // console.log('Clocked out:', self.clockedOutUsers);
 
                     // ✅ Step 6: Fetch all employees and subtract clocked users
                     Espo.Ajax.getRequest('CAttendance/action/employeeList')
@@ -512,19 +512,19 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                                     };
                                 });
 
-                            console.log('Not clocked in:', self.notClockInUsers);
+                            // console.log('Not clocked in:', self.notClockInUsers);
                             self.render();
                         })
                         .catch(function (error) {
-                            console.error('Error fetching employee list:', error);
+                            // console.error('Error fetching employee list:', error);
                         });
 
                 }).catch(function (error) {
-                    console.error('Error fetching user avatars:', error);
+                    // console.error('Error fetching user avatars:', error);
                 });
 
             }).catch(function (error) {
-                console.error('Error fetching attendance data:', error);
+                // console.error('Error fetching attendance data:', error);
             });
         },
 
@@ -623,7 +623,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                 }.bind(this))
 
                 .catch(function (error) {
-                    console.error('Error fetching leave request data:', error);
+                    // console.error('Error fetching leave request data:', error);
                 });
         },
         fetchOptionalHolidayUsers: function (date) {
@@ -648,7 +648,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                 .then(function (holidayResponse) {
 
                     var holidays = holidayResponse.list || [];
-                    console.log('Fetched optional holidays:', holidays);
+                    // console.log('Fetched optional holidays:', holidays);
                     if (!holidays.length) {
                         self.onOptionalHolidayUsers = [];
                         self.render();
@@ -656,7 +656,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                     }
 
                     var holidayId = holidays[0].id;
-                    console.log('Fetched optional holiday ID:', holidayId);
+                    // console.log('Fetched optional holiday ID:', holidayId);
 
                     // Step 2: Fetch CHolidaySelection records linked to that holiday
                     return Espo.Ajax.getRequest('CHolidaySelection', {
@@ -676,7 +676,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                     if (!selectionResponse) return null;
 
                     var selections = selectionResponse.list || [];
-                    console.log('Fetched holiday selections:', selections);
+                    // console.log('Fetched holiday selections:', selections);
 
                     if (!selections.length) {
                         self.onOptionalHolidayUsers = [];
@@ -713,7 +713,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                     if (!userResponse) return;
 
                     var users = userResponse.list || [];
-                    console.log('Fetched optional holiday users:', users);
+                    // console.log('Fetched optional holiday users:', users);
 
                     self.onOptionalHolidayUsers = users.map(function (user) {
                         return {
@@ -729,7 +729,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
 
                 })
                 .catch(function (error) {
-                    console.error('Error fetching optional holiday users:', error);
+                    // console.error('Error fetching optional holiday users:', error);
                 });
         },
         simpleModal: function (title, htmlContent) {
@@ -791,7 +791,7 @@ define('custom:views/my-desk/view', ['view'], function (Dep) {
                 e.stopPropagation();
             });
 
-            console.log('Modal overlay displayed:', modalId);
+            // console.log('Modal overlay displayed:', modalId);
 
             // ✅ Return both modalId and closeModal function
             return {

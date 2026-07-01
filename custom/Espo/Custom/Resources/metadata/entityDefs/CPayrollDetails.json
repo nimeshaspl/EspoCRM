@@ -4,7 +4,11 @@
             "type": "varchar",
             "required": true,
             "pattern": "$noBadCharacters",
-            "options": []
+            "options": [],
+            "audited": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "readOnly": true
         },
         "description": {
             "type": "text"
@@ -48,13 +52,21 @@
             },
             "default": "Earning",
             "maxLength": 100,
-            "isCustom": true
+            "isCustom": true,
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true
         },
         "amount": {
             "type": "currency",
             "audited": true,
             "inlineEditDisabled": true,
-            "isCustom": true
+            "isCustom": true,
+            "default": 0,
+            "readOnlyAfterCreate": true,
+            "readOnly": true,
+            "required": true
         },
         "employeePayroll": {
             "type": "link"

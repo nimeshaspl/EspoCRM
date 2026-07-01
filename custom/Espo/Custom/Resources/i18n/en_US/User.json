@@ -11,7 +11,13 @@
         "cDesignation": "Designation",
         "cDepartment": "Department",
         "cBloodGroup": "BloodGroup",
-        "cApprovedBy": "ApprovedBy"
+        "cApprovedBy": "ApprovedBy",
+        "cIsFNF": "Is FNF ?",
+        "cResignationDate": "Resignation Date",
+        "cLastDate": "Last Date",
+        "cMaritialStatus": "Marital Status",
+        "cDob": "Date of Birth",
+        "cDoj": "Date of Joining"
     },
     "links": {
         "employeeTarget": "Employee Target",
@@ -30,5 +36,9 @@
             "BDM": "BDM",
             "TL": "TL"
         }
+    },
+    "tooltips": {
+        "cIsFNF": "Full & Final Employee",
+        "cResignationDate": "The date employee applied for resignation "
     }
 }

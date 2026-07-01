@@ -1,5 +1,11 @@
 {
     "labels": {
         "Create CAttendanceRecord": "Create AttendanceRecord"
+    },
+    "fields": {
+        "employee": "Employee"
+    },
+    "links": {
+        "employee": "Employee"
     }
 }

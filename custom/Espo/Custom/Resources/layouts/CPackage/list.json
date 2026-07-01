@@ -4,19 +4,19 @@
         "link": true
     },
     {
-        "name": "isActive",
+        "name": "payPackage",
         "width": 16
     },
     {
-        "name": "isFNF",
+        "name": "effectiveFrom",
         "width": 16
     },
     {
-        "name": "isIntern",
+        "name": "grossSalary",
         "width": 16
     },
     {
-        "name": "assignedUser",
+        "name": "amountCTC",
         "width": 16
     }
 ]

@@ -23,7 +23,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
 
         setup: function () {
             Dep.prototype.setup.call(this);
-            console.log("Attendance Page Loaded");
+            // console.log("Attendance Page Loaded");
 
             this.attendanceList = [];
             this.employeeList = [];
@@ -144,7 +144,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
         initializePage: function () {
             Espo.Ajax.getRequest('CAttendance/action/todayStatus')
                 .then(function (response) {
-                    console.log('Today Status Response:', response);
+                    // console.log('Today Status Response:', response);
                     this.isEmployee = response.isEmployee || false;
                     this.employeeId = response.employeeId || null;
 
@@ -167,7 +167,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
 
                 }.bind(this))
                 .catch(function () {
-                    console.error('Status API failed');
+                    // console.error('Status API failed');
                     this.loadAttendance(); // fallback
                 }.bind(this));
         },
@@ -184,7 +184,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             this.$el.find('[data-action="clockOut"]').addClass('hidden');
 
             this.updateClockButtons(this.clockStatus);
-            console.log("Summary Data:", this.summaryData);
+            // console.log("Summary Data:", this.summaryData);
             // this.getUserRoles();
         },
 
@@ -222,15 +222,15 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             var self = this;
             return Espo.Ajax.getRequest('CAttendance/action/userRoles')
                 .then(function (response) {
-                    console.log('User Roles Response:', response);
-                    // console.log('User Roles :', response.roles);
-                    // console.log('User Roles :', response.roles.some(role => role.name === 'HR'));
+                    // console.log('User Roles Response:', response);
+                    // // console.log('User Roles :', response.roles);
+                    // // console.log('User Roles :', response.roles.some(role => role.name === 'HR'));
                     self.isHR = response.roles.some(role => role.name === 'HR');
-                    // console.log('Is HR:', self.isHR);
+                    // // console.log('Is HR:', self.isHR);
                     return response.roles || [];
                 })
                 .catch(function (error) {
-                    console.error('User Roles Error:', error);
+                    // console.error('User Roles Error:', error);
                     return [];
                 });
         },
@@ -343,7 +343,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
                 };
 
             }).catch(function (err) {
-                console.error('Failed to load summary', err);
+                // console.error('Failed to load summary', err);
 
                 // ✅ Safety fallback
                 self.summaryData = {
@@ -420,8 +420,8 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
         // =========================
         actionClockIn: function () {
             var isWFH = this.getUser().get('cIsWorkFromHome');
-            // console.log(this.getUser().attributes);
-            console.log("Is Work From Home:", isWFH);
+            // // console.log(this.getUser().attributes);
+            // console.log("Is Work From Home:", isWFH);
             if (!isWFH) {
                 Espo.Ui.info('You can\'t clock in/out manually because it\'s  only for work from home employees', 1000);
                 return;
@@ -493,8 +493,8 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
         // =========================
         actionClockOut: function () {
             var isWFH = this.getUser().get('cIsWorkFromHome');
-            // console.log(this.getUser().attributes);
-            console.log("Is Work From Home:", isWFH);
+            // // console.log(this.getUser().attributes);
+            // console.log("Is Work From Home:", isWFH);
             if (!isWFH) {
                 Espo.Ui.info('You can\'t clock in/out manually because it\'s  only for work from home employees', 1000);
                 return;
@@ -538,14 +538,14 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
                 });
         },
         actionAttendanceUpdate: function () {
-            console.log("actionAttendanceUpdate function called.!");
+            // console.log("actionAttendanceUpdate function called.!");
             var self = this;
-            console.log("Self:", self);
+            // console.log("Self:", self);
             if (!self.attendanceList || self.attendanceList.length === 0) {
                 Espo.Ui.warning('No attendance record found to update . First clock in to update attendance');
                 return;
             }
-            console.log("Employee ID:", self.attendanceList[0].employeeId);
+            // console.log("Employee ID:", self.attendanceList[0].employeeId);
 
             const today = new Date();
 
@@ -749,7 +749,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             }, 10);
         },
         actionEditAttendance: function (e) {
-            console.log("actionEditAttendance function called");
+            // console.log("actionEditAttendance function called");
 
             var self = this;
             var recordId = $(e.currentTarget).data('id');
@@ -856,7 +856,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
                             status: "Present"
                         };
 
-                        console.log("Updating with:", updatedData);
+                        // console.log("Updating with:", updatedData);
 
                         Espo.Ajax.putRequest('CAttendance/' + recordId, updatedData)
                             .then(function () {
@@ -864,7 +864,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
                                 location.reload();
                             })
                             .catch(function (err) {
-                                console.error(err);
+                                // console.error(err);
                                 Espo.Ui.error('Update failed');
                             });
 
@@ -874,7 +874,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
             });
         },
         actionCreateAttendance: function () {
-            console.log("actionCreateAttendance function called");
+            // console.log("actionCreateAttendance function called");
             var self = this;
             const today = new Date();
 
@@ -965,7 +965,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
                     var clockInTime = $('#clockIn').val();
                     var clockOutTime = $('#clockOut').val();
                     var date = $('#date').val();
-                    console.log("Form Data:", { employeeId, userId, clockInTime, clockOutTime, date });
+                    // console.log("Form Data:", { employeeId, userId, clockInTime, clockOutTime, date });
 
                     if (!employeeId) {
                         Espo.Ui.warning('Please select employee');
@@ -1158,7 +1158,7 @@ define('custom:views/attendance-page/view', ['view', 'date-time'], function (Dep
                 e.stopPropagation();
             });
 
-            console.log('Modal overlay displayed:', modalId);
+            // console.log('Modal overlay displayed:', modalId);
 
             // ✅ Return both modalId and closeModal function
             return {

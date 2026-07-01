@@ -1,0 +1,66 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "date"
+                },
+                {
+                    "name": "type"
+                }
+            ],
+            [
+                {
+                    "name": "employees"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "month"
+                },
+                {
+                    "name": "year"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "salaryPayout"
+                },
+                {
+                    "name": "wageAmount"
+                }
+            ],
+            [
+                {
+                    "name": "totalEmployees"
+                },
+                {
+                    "name": "taxPayment"
+                }
+            ],
+            [
+                {
+                    "name": "pTGross"
+                },
+                false
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "All Total Amount"
+    }
+]

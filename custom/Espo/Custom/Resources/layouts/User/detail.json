@@ -80,5 +80,26 @@
         ],
         "style": "default",
         "label": ""
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "cIsFNF"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "cResignationDate"
+                },
+                {
+                    "name": "cLastDate"
+                }
+            ]
+        ],
+        "style": "default",
+        "noteStyle": "info",
+        "label": ""
     }
 ]

@@ -1,5 +1,14 @@
 {
     "labels": {
         "Create CMonthlyAttendanceSummary": "Create MonthlyAttendanceSummary"
+    },
+    "fields": {
+        "date": "Date",
+        "paidLeave": "Paid Leave",
+        "unpaidLeave": "Unpaid Leave",
+        "employeePayroll": "Employee Payroll"
+    },
+    "links": {
+        "employeePayroll": "Employee Payroll"
     }
 }

@@ -1,5 +1,4 @@
 {
-    
     "linkEntityList": [
         "employeeBanks"
     ],
@@ -126,9 +125,18 @@
         "employeePayrolls": {
             "layout": null,
             "selectPrimaryFilterName": null
+        },
+        "attendanceRecords": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "payrolls1": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "attendanceRecords1": {
+            "layout": null,
+            "selectPrimaryFilterName": null
         }
-    },
-    "kanbanViewMode": false,
-    "color": null,
-    "iconClass": null
+    }
 }

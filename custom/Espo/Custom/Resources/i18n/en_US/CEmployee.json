@@ -1,8 +1,14 @@
 {
     "fields": {
-        "employeePayrolls": "Employee Payrolls"
+        "employeePayrolls": "Employee Payrolls",
+        "attendanceRecords1": "Attendance Records1",
+        "isFNF": "Is FNF"
     },
     "links": {
-        "employeePayrolls": "Employee Payrolls"
+        "employeePayrolls": "Employee Payrolls",
+        "attendanceRecords1": "Attendance Records1"
+    },
+    "tooltips": {
+        "isFNF": "According to User Entity "
     }
 }

@@ -25,28 +25,25 @@ class CAttendance
         $now   = date('Y-m-d H:i:s');
 
         if (!$this->userHasEmployeeRole($user)) {
-            return ['status'=>'error','message'=>'Only employees can clock in.'];
+            return ['status' => 'error', 'message' => 'Only employees can clock in.'];
         }
 
         $employee = $this->getEmployeeByUser($user->getId());
 
         if (!$employee) {
-            return ['status'=>'error','message'=>'Employee record not found.'];
+            return ['status' => 'error', 'message' => 'Employee record not found.'];
         }
 
         $attendance = $this->entityManager
             ->getRDBRepository('CAttendance')
             ->where([
-                'employeeId'=>$employee->getId(),
-                'date'=>$today
+                'employeeId' => $employee->getId(),
+                'date'       => $today
             ])
             ->findOne();
 
-        /* First Clock In */
         if (!$attendance) {
-
             $attendance = $this->entityManager->getNewEntity('CAttendance');
-
             $attendance->set([
                 'employeeId'=>$employee->getId(),
                 'assignedUserId'=>$user->getId(),
@@ -59,41 +56,110 @@ class CAttendance
             ]);
 
             $this->entityManager->saveEntity($attendance);
-
-        } else {
-
-            $lastHistory = $this->getLastHistory($attendance->getId());
-
-            if ($lastHistory && $lastHistory->get('actionType') === 'Clock In') {
-                return [
-                    'status'=>'error',
-                    'message'=>'You must clock out before clocking in again.'
-                ];
-            }
+            return [
+                'status'  => 'success',
+                'message' => 'Clocked In Successfully',
+                'time'    => date('h:i:s A')
+            ];
         }
 
-        /* History Record */
 
-        $history = $this->entityManager->getNewEntity('CAttendanceHistory');
+        if ($attendance->get('firstClockIn')) {
+            return [
+                'status'  => 'error',
+                'message' => 'You have already clocked in.'
+            ];
+        }
 
-        $history->set([
-            'attendanceId'=>$attendance->getId(),
-            'employeeId'=>$employee->getId(),
-            'assignedUserId'=>$user->getId(),
-            'actionType'=>'Clock In',
-            'actionTime'=>$now,
-            'totalWorkSeconds'=>$attendance->get('totalWorkSeconds'),
-            'totalWorkingHours'=>$attendance->get('totalHours')
+        $attendance->set([
+            'firstClockIn' => $now,
+            'status'       => 'Present'
         ]);
 
-        $this->entityManager->saveEntity($history);
+        $this->entityManager->saveEntity($attendance);
 
         return [
-            'status'=>'success',
-            'message'=>'Clocked In Successfully',
-            'time'=>date('h:i:s A')
+            'status'  => 'success',
+            'message' => 'Clocked In Successfully',
+            'time'    => date('h:i:s A')
         ];
     }
+    // public function clockIn($data = null): array
+    // {
+    //     $user  = $this->user;
+    //     $today = date('Y-m-d');
+    //     $now   = date('Y-m-d H:i:s');
+
+    //     if (!$this->userHasEmployeeRole($user)) {
+    //         return ['status'=>'error','message'=>'Only employees can clock in.'];
+    //     }
+
+    //     $employee = $this->getEmployeeByUser($user->getId());
+
+    //     if (!$employee) {
+    //         return ['status'=>'error','message'=>'Employee record not found.'];
+    //     }
+
+    //     $attendance = $this->entityManager
+    //         ->getRDBRepository('CAttendance')
+    //         ->where([
+    //             'employeeId'=>$employee->getId(),
+    //             'date'=>$today
+    //         ])
+    //         ->findOne();
+
+    //     /* First Clock In */
+    //     if (!$attendance) {
+
+    //         $attendance = $this->entityManager->getNewEntity('CAttendance');
+
+    //         $attendance->set([
+    //             'employeeId'=>$employee->getId(),
+    //             'assignedUserId'=>$user->getId(),
+    //             'date'=>$today,
+    //             'firstClockIn'=>$now,
+    //             'status'=>'Present',
+    //             'totalHours'=>'00:00:00',
+    //             'totalWorkSeconds'=>0,
+    //             'name'=>$employee->get('name').' - '.$today
+    //         ]);
+
+    //         $this->entityManager->saveEntity($attendance);
+
+    //     } else {
+
+    //         $lastHistory = $this->getLastHistory($attendance->getId());
+
+    //         if ($lastHistory && $lastHistory->get('actionType') === 'Clock In') {
+    //             return [
+    //                 'status'=>'error',
+    //                 'message'=>'You must clock out before clocking in again.'
+    //             ];
+    //         }
+    //     }
+
+    //     /* History Record */
+
+    //     $history = $this->entityManager->getNewEntity('CAttendanceHistory');
+
+    //     $history->set([
+    //         'attendanceId'=>$attendance->getId(),
+    //         'employeeId'=>$employee->getId(),
+    //         'assignedUserId'=>$user->getId(),
+    //         'actionType'=>'Clock In',
+    //         'actionTime'=>$now,
+    //         'totalWorkSeconds'=>$attendance->get('totalWorkSeconds'),
+    //         'totalWorkingHours'=>$attendance->get('totalHours')
+    //     ]);
+
+    //     $this->entityManager->saveEntity($history);
+
+    //     return [
+    //         'status'=>'success',
+    //         'message'=>'Clocked In Successfully',
+    //         'time'=>date('h:i:s A')
+    //     ];
+    // }
 
 
     /* =====================================================
@@ -101,91 +167,115 @@ class CAttendance
      * ===================================================== */
 
     public function clockOut($data = null): array
-{
-    $user  = $this->user;
-    $today = date('Y-m-d');
-    $now   = date('Y-m-d H:i:s');
+    {
+        $user  = $this->user;
+        $today = date('Y-m-d');
+        $now   = date('Y-m-d H:i:s');
 
-    $employee = $this->getEmployeeByUser($user->getId());
+        $employee = $this->getEmployeeByUser($user->getId());
 
-    $attendance = $this->entityManager
-        ->getRDBRepository('CAttendance')
-        ->where([
-            'employeeId'=>$employee->getId(),
-            'date'=>$today
-        ])
-        ->findOne();
+        if (!$employee) {
+            return [
+                'status'  => 'error',
+                'message' => 'Employee record not found.'
+            ];
+        }
 
-    if (!$attendance) {
-        return ['status'=>'error','message'=>'You must clock in first.'];
-    }
+        $attendance = $this->entityManager
+            ->getRDBRepository('CAttendance')
+            ->where([
+                'employeeId' => $employee->getId(),
+                'date'       => $today
+            ])
+            ->findOne();
 
-    /* 🔹 Get last Clock In only */
-    $lastClockIn = $this->entityManager
-        ->getRDBRepository('CAttendanceHistory')
-        ->where([
-            'attendanceId'=>$attendance->getId(),
-            'actionType'=>'Clock In'
-        ])
-        ->order('actionTime','DESC')
-        ->findOne();
+        if (!$attendance) {
+            return [
+                'status'  => 'error',
+                'message' => 'Attendance record not found for today.'
+            ];
+        }
 
-    if (!$lastClockIn) {
-        return ['status'=>'error','message'=>'No clock-in found.'];
-    }
+        if (!$attendance->get('firstClockIn')) {
+            return [
+                'status'  => 'error',
+                'message' => 'You must clock in first.'
+            ];
+        }
 
-    /* 🔹 Prevent double clock-out */
-    $lastHistory = $this->getLastHistory($attendance->getId());
+        if ($attendance->get('lastClockOut')) {
+            return [
+                'status'  => 'error',
+                'message' => 'You have already clocked out.'
+            ];
+        }
 
-    if ($lastHistory && $lastHistory->get('actionType') === 'Clock Out') {
+        $attendance->set([
+            'lastClockOut' => $now
+        ]);
+
+        $this->entityManager->saveEntity($attendance);
+
         return [
-            'status'=>'error',
-            'message'=>'You must clock in before clocking out again.'
+            'status'  => 'success',
+            'message' => 'Clocked Out Successfully'
         ];
     }
+    // public function clockOut($data = null): array
+    // {
+    //     $user  = $this->user;
+    //     $today = date('Y-m-d');
+    //     $now   = date('Y-m-d H:i:s');
 
-    /* 🔹 Session Calculation */
-    $clockInTime  = strtotime($lastClockIn->get('actionTime'));
-    $clockOutTime = strtotime($now);
+    //     $employee = $this->getEmployeeByUser($user->getId());
 
-    $sessionSeconds = $clockOutTime - $clockInTime;
+    //     if (!$employee) {
+    //         return [
+    //             'status'  => 'error',
+    //             'message' => 'Employee record not found.'
+    //         ];
+    //     }
 
-    $previousSeconds = (int)$attendance->get('totalWorkSeconds');
+    //     $attendance = $this->entityManager
+    //         ->getRDBRepository('CAttendance')
+    //         ->where([
+    //             'employeeId' => $employee->getId(),
+    //             'date'       => $today
+    //         ])
+    //         ->findOne();
 
-    $totalSeconds = $previousSeconds + $sessionSeconds;
+    //     if (!$attendance) {
+    //         return [
+    //             'status'  => 'error',
+    //             'message' => 'Attendance record not found for today.'
+    //         ];
+    //     }
 
-    $hours = gmdate("H:i:s", $totalSeconds);
+    //     if (!$attendance->get('firstClockIn')) {
+    //         return [
+    //             'status'  => 'error',
+    //             'message' => 'You must clock in first.'
+    //         ];
+    //     }
 
-    /* 🔹 Update Attendance */
-    $attendance->set([
-        'lastClockOut'=>$now,
-        'totalWorkSeconds'=>$totalSeconds,
-        'totalHours'=>$hours
-    ]);
+    //     if ($attendance->get('lastClockOut')) {
+    //         return [
+    //             'status'  => 'error',
+    //             'message' => 'You have already clocked out.'
+    //         ];
+    //     }
 
-    $this->entityManager->saveEntity($attendance);
+    //     $attendance->set([
+    //         'lastClockOut' => $now
+    //     ]);
 
-    /* 🔹 Save History */
-    $history = $this->entityManager->getNewEntity('CAttendanceHistory');
+    //     $this->entityManager->saveEntity($attendance);
 
-    $history->set([
-        'attendanceId'=>$attendance->getId(),
-        'employeeId'=>$employee->getId(),
-        'assignedUserId'=>$user->getId(),
-        'actionType'=>'Clock Out',
-        'actionTime'=>$now,
-        'totalWorkSeconds'=>$totalSeconds,
-        'totalWorkingHours'=>$hours
-    ]);
-
-    $this->entityManager->saveEntity($history);
-
-    return [
-        'status'=>'success',
-        'message'=>'Clocked Out Successfully',
-        'totalHours'=>$hours
-    ];
-}
+    //     return [
+    //         'status'  => 'success',
+    //         'message' => 'Clocked Out Successfully'
+    //     ];
+    // }
 
 
     /* =====================================================
@@ -206,59 +296,61 @@ class CAttendance
      * TODAY STATUS
      * ===================================================== */
     public function getTodayStatus(): array
-{
-    $user  = $this->user;
-    $today = date('Y-m-d');
+    {
+        $user  = $this->user;
+        $today = date('Y-m-d');
 
-    $employee = $this->getEmployeeByUser($user->getId());
+        $employee = $this->getEmployeeByUser($user->getId());
 
-    if (!$employee) {
-        return ['isEmployee' => false];
-    }
+        if (!$employee) {
+            return ['isEmployee' => false];
+        }
 
-    $attendance = $this->entityManager
-        ->getRDBRepository('CAttendance')
-        ->where([
-            'employeeId' => $employee->getId(),
-            'date'       => $today,
-        ])
-        ->findOne();
+        $attendance = $this->entityManager
+            ->getRDBRepository('CAttendance')
+            ->where([
+                'employeeId' => $employee->getId(),
+                'date'       => $today,
+            ])
+            ->findOne();
 
-    if (!$attendance) {
+        if (!$attendance) {
+            return [
+                'isEmployee'  => true,
+                'isClockedIn' => false,
+                'isClockedOut'=> false,
+                'employeeId'  => $employee->getId()
+            ];
+        }
+
+        /* ✅ Get LAST ACTION from history */
+        $lastHistory = $this->getLastHistory($attendance->getId());
+
+        // $isClockedIn  = false;
+        // $isClockedOut = false;
+
+        // if ($lastHistory) {
+
+        //     if ($lastHistory->get('actionType') === 'Clock In') {
+        //         $isClockedIn  = true;
+        //         // $isClockedOut = false;
+
+        //     } elseif ($lastHistory->get('actionType') === 'Clock Out') {
+        //         // $isClockedIn  = false;
+        //         $isClockedIn  = true;
+        //         $isClockedOut = true;
+        //     }
+        // }
+        $isClockedIn  = !empty($attendance->get('firstClockIn'));
+        $isClockedOut = !empty($attendance->get('lastClockOut'));
+
         return [
             'isEmployee'  => true,
-            'isClockedIn' => false,
-            'isClockedOut'=> false,
+            'isClockedIn' => $isClockedIn,
+            'isClockedOut'=> $isClockedOut,
             'employeeId'  => $employee->getId()
         ];
     }
-
-    /* ✅ Get LAST ACTION from history */
-    $lastHistory = $this->getLastHistory($attendance->getId());
-
-    $isClockedIn  = false;
-    $isClockedOut = false;
-
-    if ($lastHistory) {
-
-        if ($lastHistory->get('actionType') === 'Clock In') {
-            $isClockedIn  = true;
-            // $isClockedOut = false;
-
-        } elseif ($lastHistory->get('actionType') === 'Clock Out') {
-            // $isClockedIn  = false;
-            $isClockedIn  = true;
-            $isClockedOut = true;
-        }
-    }
-
-    return [
-        'isEmployee'  => true,
-        'isClockedIn' => $isClockedIn,
-        'isClockedOut'=> $isClockedOut,
-        'employeeId'  => $employee->getId()
-    ];
-}
     // public function getTodayStatus(): array
     // {
     //     $user  = $this->user;
