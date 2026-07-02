@@ -1,0 +1,13 @@
+{
+    "functionClassNameMap": {
+        "custom\\numberToWords": "Espo\\Custom\\FormulaFunctions\\NumberToWords",
+        "custom\\amountToWords": "Espo\\Custom\\FormulaFunctions\\AmountToWords"
+    },
+    "functionList": [
+        "__APPEND__",
+        {
+            "name": "custom\\numberToWords",
+            "insertText": "custom\\numberToWords(NUMBER)"
+        }
+    ]
+}

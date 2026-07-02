@@ -2,7 +2,8 @@
     "_delimiter_": {
         "disabled": true
     },
-    "payrollDetailses": {
+    "stream": {
+        "sticked": false,
         "index": 0
     }
 }

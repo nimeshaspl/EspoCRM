@@ -53,7 +53,8 @@
         "leaveAbsentDeductionConverted": "Leave/Absent Deduction (Converted)",
         "lateJoinDeduction": "Late join deduction",
         "lateJoinDeductionCurrency": "Late join deduction (Currency)",
-        "lateJoinDeductionConverted": "Late join deduction (Converted)"
+        "lateJoinDeductionConverted": "Late join deduction (Converted)",
+        "netSalaryInWords": "Net Salary In Words"
     },
     "links": {
         "employee": "Employee",

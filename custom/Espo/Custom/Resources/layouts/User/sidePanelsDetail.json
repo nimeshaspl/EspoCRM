@@ -1,0 +1,21 @@
+{
+    "default": {
+        "index": 0
+    },
+    "_delimiter_": {
+        "index": 1
+    },
+    "activities": {
+        "dynamicLogicVisible": null,
+        "style": "primary",
+        "dynamicLogicStyled": null,
+        "sticked": true,
+        "index": 2
+    },
+    "history": {
+        "index": 3
+    },
+    "tasks": {
+        "index": 4
+    }
+}

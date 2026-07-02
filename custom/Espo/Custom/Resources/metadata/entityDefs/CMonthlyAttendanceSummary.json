@@ -138,6 +138,17 @@
         },
         "employeePayroll": {
             "type": "link"
+        },
+        "totalDays": {
+            "notNull": false,
+            "type": "float",
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "tooltip": true,
+            "isCustom": true,
+            "default": 0
         }
     },
     "links": {
