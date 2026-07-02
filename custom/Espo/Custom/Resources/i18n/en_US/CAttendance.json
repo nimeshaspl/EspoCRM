@@ -1,5 +1,18 @@
 {
     "labels": {
         "Create CAttendance": "Create Attendance"
+    },
+    "options": {
+        "status": {
+            "Present": "Present",
+            "Absent": "Absent",
+            "Half Day": "Half Day",
+            "Pending": "Pending",
+            "Leave": "Leave",
+            "Week Off": "Week Off"
+        }
+    },
+    "fields": {
+        "employeeCode": "Employee Code"
     }
 }

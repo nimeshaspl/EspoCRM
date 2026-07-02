@@ -61,13 +61,15 @@
         },
         "cDepartment": {
             "type": "linkOne",
-            "required": true,
+            "required": false,
             "audited": true,
-            "inlineEditDisabled": true
+            "inlineEditDisabled": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true
         },
         "cDesignation": {
             "type": "linkOne",
-            "required": true,
+            "required": false,
             "audited": true,
             "inlineEditDisabled": true
         },
@@ -182,6 +184,17 @@
             "type": "date",
             "audited": true,
             "inlineEditDisabled": true,
+            "isCustom": true
+        },
+        "cEmployeeCode": {
+            "type": "varchar",
+            "maxLength": 100,
+            "audited": true,
+            "readOnly": false,
+            "readOnlyAfterCreate": false,
+            "inlineEditDisabled": false,
+            "options": [],
+            "tooltip": true,
             "isCustom": true
         }
     },

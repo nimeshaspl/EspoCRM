@@ -329,6 +329,36 @@
                     }
                 ]
             }
+        },
+        "uanNumber": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "uanNumber"
+                    }
+                ]
+            }
+        },
+        "panNumber": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "panNumber"
+                    }
+                ]
+            }
+        },
+        "pfNumber": {
+            "visible": {
+                "conditionGroup": [
+                    {
+                        "type": "isNotEmpty",
+                        "attribute": "pfNumber"
+                    }
+                ]
+            }
         }
     }
 }

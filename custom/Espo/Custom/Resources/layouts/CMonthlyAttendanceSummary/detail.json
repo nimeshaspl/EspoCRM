@@ -22,14 +22,6 @@
             ],
             [
                 {
-                    "name": "avgOvertime"
-                },
-                {
-                    "name": "avgWorkDuration"
-                }
-            ],
-            [
-                {
                     "name": "leaveDays"
                 },
                 {
@@ -39,6 +31,22 @@
                     "name": "unpaidLeave"
                 },
                 false
+            ],
+            [
+                {
+                    "name": "overtime"
+                },
+                {
+                    "name": "workDuration"
+                }
+            ],
+            [
+                {
+                    "name": "avgOvertime"
+                },
+                {
+                    "name": "avgWorkDuration"
+                }
             ],
             [
                 {

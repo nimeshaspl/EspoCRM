@@ -74,7 +74,6 @@
             "inlineEditDisabled": true,
             "isCustom": true,
             "default": 0
-
         },
         "loanDeduction": {
             "readOnly": true,
@@ -424,6 +423,12 @@
             "audited": true,
             "inlineEditDisabled": true,
             "default": 0
+        },
+        "netSalaryInWords": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
         }
     },
     "links": {

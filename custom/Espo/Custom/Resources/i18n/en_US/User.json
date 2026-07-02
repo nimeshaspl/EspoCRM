@@ -17,7 +17,8 @@
         "cLastDate": "Last Date",
         "cMaritialStatus": "Marital Status",
         "cDob": "Date of Birth",
-        "cDoj": "Date of Joining"
+        "cDoj": "Date of Joining",
+        "cEmployeeCode": "Employee code"
     },
     "links": {
         "employeeTarget": "Employee Target",
@@ -39,6 +40,7 @@
     },
     "tooltips": {
         "cIsFNF": "Full & Final Employee",
-        "cResignationDate": "The date employee applied for resignation "
+        "cResignationDate": "The date employee applied for resignation ",
+        "cEmployeeCode": "Employee code according to biometric"
     }
 }

@@ -1,0 +1,30 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "date"
+                }
+            ],
+            [
+                {
+                    "name": "firstClockIn"
+                },
+                {
+                    "name": "lastClockOut"
+                }
+            ],
+            [
+                {
+                    "name": "status"
+                },
+                false
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

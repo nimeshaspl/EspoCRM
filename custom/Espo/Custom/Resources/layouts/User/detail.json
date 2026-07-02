@@ -29,6 +29,9 @@
                 },
                 {
                     "name": "phoneNumber"
+                },
+                {
+                    "name": "cEmployeeCode"
                 }
             ],
             [
