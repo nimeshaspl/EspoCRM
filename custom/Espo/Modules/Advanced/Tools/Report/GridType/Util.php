@@ -11,13 +11,14 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\GridType;
 
+use Espo\Core\ORM\Type\FieldType;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\DateTime;
 use Espo\Core\Utils\Language;
@@ -69,34 +70,37 @@ class Util
 
     /**
      * @todo Use ColumnData object.
-     * @param scalar $value
-     * @return scalar
+     * @param scalar|string[] $value
+     * @return scalar|string[]
      */
     public function getCellDisplayValue($value, object $columnData)
     {
+        /** @var ColumnData $columnData */
+
         $displayValue = $value;
 
         $fieldType = $columnData->fieldType;
 
-        if ($fieldType === 'link') {
-            if ($value) {
+        if ($fieldType === FieldType::LINK) {
+            if ($value && is_string($value)) {
                 try {
-                    $foreignEntityType = $this->metadata->get(
-                        ['entityDefs', $columnData->entityType, 'links', $columnData->field, 'entity']);
+                    /** @var ?string $foreignEntityType */
+                    $foreignEntityType = $this->metadata
+                        ->get(['entityDefs', $columnData->entityType, 'links', $columnData->field, 'entity']);
 
                     if ($foreignEntityType) {
-                        $e = $this->entityManager->getEntity($foreignEntityType, $value);
+                        $e = $this->entityManager->getEntityById($foreignEntityType, $value);
 
                         if ($e) {
                             $displayValue = $e->get('name');
                         }
                     }
-                } catch (Exception $e) {}
+                } catch (Exception) {}
             }
-        }
-        else if ($fieldType === 'enum') {
-            $displayValue = $this->language
-                ->translateOption($value, $columnData->field, $columnData->entityType);
+        } else if ($fieldType === FieldType::ENUM) {
+            $displayValue = is_string($value) ?
+                $this->language->translateOption($value, $columnData->field, $columnData->entityType) :
+                '';
 
             $translation = $this->metadata
                 ->get(['entityDefs', $columnData->entityType, 'fields', $columnData->field, 'translation']);
@@ -108,35 +112,38 @@ class Util
                 $translation = str_replace('.', '.options.', $optionsReference);
             }
 
-            if ($translation) {
+            if ($translation && (is_string($value) || is_int($value))) {
                 $translationMap = $this->language->get(explode('.', $translation));
 
                 if (is_array($translationMap) && array_key_exists($value, $translationMap)) {
                     $displayValue = $translationMap[$value];
                 }
             }
-        }
-        else if ($fieldType === 'datetime' || $fieldType === 'datetimeOptional') {
-            if ($value) {
+        } else if ($fieldType === FieldType::DATETIME || $fieldType === FieldType::DATETIME_OPTIONAL) {
+            if ($value && is_string($value)) {
                 $displayValue = $this->dateTime->convertSystemDateTime($value);
             }
-        }
-        else if ($fieldType === 'date') {
-            if ($value) {
+        } else if ($fieldType === FieldType::DATE) {
+            if ($value && is_string($value)) {
                 $displayValue = $this->dateTime->convertSystemDate($value);
             }
-        }
-        else if ($fieldType === 'multiEnum' || $fieldType === 'checklist' || $fieldType === 'array') {
-            $displayValue = array_map(
-                function ($item) use ($columnData) {
-                    return $this->language->translateOption(
-                        $item,
-                        $columnData->field,
-                        $columnData->entityType
-                    );
-                },
-                $value ?? []
-            );
+        } else if (
+            $fieldType === FieldType::MULTI_ENUM ||
+            $fieldType === FieldType::CHECKLIST ||
+            $fieldType === FieldType::ARRAY
+        ) {
+            if (is_array($value)) {
+                $displayValue = array_map(
+                    function ($item) use ($columnData) {
+                        return $this->language->translateOption(
+                            $item,
+                            $columnData->field,
+                            $columnData->entityType
+                        );
+                    },
+                    $value
+                );
+            }
         }
 
         if (is_null($displayValue)) {
@@ -148,7 +155,7 @@ class Util
 
     public function translateGroupName(string $entityType, string $item): string
     {
-        if (strpos($item, ':(') !== false) {
+        if (str_contains($item, ':(')) {
             return '';
         }
 
@@ -157,21 +164,21 @@ class Util
 
     public function translateColumnName(string $entityType, string $item): string
     {
-        if (strpos($item, ':(') !== false) {
+        if (str_contains($item, ':(')) {
             return $item;
         }
 
         $field = $item;
         $function = null;
 
-        if (strpos($item, ':') !== false) {
+        if (str_contains($item, ':')) {
             [$function, $field] = explode(':', $item);
         }
 
         $groupLabel = '';
         $entityTypeLocal = $entityType;
 
-        if (strpos($field, '.') !== false) {
+        if (str_contains($field, '.')) {
             [$link, $field] = explode('.', $field);
 
             $entityTypeLocal = $this->metadata->get(['entityDefs', $entityType, 'links', $link, 'entity']);
@@ -183,10 +190,10 @@ class Util
             $field = str_replace('Converted', '', $field);
         }
 
-        $groupLabel .= $this->language->translate($field, 'fields', $entityTypeLocal);
+        $groupLabel .= $this->language->translateLabel($field, 'fields', $entityTypeLocal);
 
         if ($function) {
-            $functionLabel = $this->language->translate($function, 'functions', 'Report');
+            $functionLabel = $this->language->translateLabel($function, 'functions', 'Report');
 
             if ($function === 'COUNT' && $field === 'id') {
                 return $functionLabel;

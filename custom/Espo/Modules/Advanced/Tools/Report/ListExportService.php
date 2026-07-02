@@ -11,19 +11,21 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report;
 
 use Espo\Core\Acl\Table as AclTable;
 use Espo\Core\AclManager;
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Core\InjectableFactory;
+use Espo\Core\ORM\Type\FieldType;
 use Espo\Core\Select\SearchParams;
 use Espo\Core\Select\Where\Item as WhereItem;
 use Espo\Entities\User;
@@ -32,43 +34,34 @@ use Espo\Modules\Advanced\Tools\Report\ListType\ExportParams;
 use Espo\Modules\Advanced\Tools\Report\ListType\RunParams as ListRunParams;
 use Espo\Modules\Advanced\Tools\Report\ListType\SubReportParams;
 use Espo\ORM\Defs as OrmDefs;
+use Espo\ORM\EntityCollection;
 use Espo\ORM\EntityManager;
+use Espo\ORM\SthCollection;
 use Espo\Tools\Export\Export as ExportTool;
 use Espo\Tools\Export\Params as ExportToolParams;
 
 class ListExportService
 {
-    private AclManager $aclManager;
-    private InjectableFactory $injectableFactory;
-    private Service $service;
-    private OrmDefs $ormDefs;
-    private EntityManager $entityManager;
-
     public function __construct(
-        AclManager $aclManager,
-        InjectableFactory $injectableFactory,
-        Service $service,
-        OrmDefs $ormDefs,
-        EntityManager $entityManager
-    ) {
-        $this->aclManager = $aclManager;
-        $this->injectableFactory = $injectableFactory;
-        $this->service = $service;
-        $this->ormDefs = $ormDefs;
-        $this->entityManager = $entityManager;
-    }
+        private AclManager $aclManager,
+        private InjectableFactory $injectableFactory,
+        private Service $service,
+        private OrmDefs $ormDefs,
+        private EntityManager $entityManager,
+    ) {}
 
     /**
      * @throws Error
      * @throws Forbidden
      * @throws NotFound
+     * @throws BadRequest
      */
     public function export(
         string $id,
         SearchParams $searchParams,
         ExportParams $exportParams,
         ?SubReportParams $subReportParams = null,
-        ?User $user = null
+        ?User $user = null,
     ): string {
 
         $runParams = ListRunParams::create()->withIsExport();
@@ -82,14 +75,13 @@ class ListExportService
 
         if ($exportParams->getFieldList() === null) {
             $runParams = $runParams->withFullSelect();
-        }
-        else {
+        } else {
             $customColumnList = [];
 
             foreach ($exportParams->getFieldList() as $item) {
                 $value = $item;
 
-                if (strpos($item, '_') !== false) {
+                if (str_contains($item, '_')) {
                     $value = str_replace('_', '.', $item);
                 }
 
@@ -115,23 +107,22 @@ class ListExportService
 
         $reportResult = $subReportParams ?
             $this->service->runSubReportList(
-                $id,
-                $searchParams,
-                $subReportParams,
-                $user,
-                $runParams
+                id: $id,
+                searchParams: $searchParams,
+                subReportParams: $subReportParams,
+                user: $user,
+                runParams: $runParams,
             ) :
             $this->service->runList(
-                $id,
-                $searchParams,
-                $user,
-                $runParams
+                id: $id,
+                searchParams: $searchParams,
+                user: $user,
+                runParams: $runParams,
             );
 
         $collection = $reportResult->getCollection();
 
-        /** @var ?Report $report */
-        $report = $this->entityManager->getEntityById(Report::ENTITY_TYPE, $id);
+        $report = $this->entityManager->getRDBRepositoryByClass(Report::class)->getById($id);
 
         if (!$report) {
             throw new NotFound("Report $id not found.");
@@ -140,47 +131,22 @@ class ListExportService
         $entityType = $report->getTargetEntityType();
 
         if (
+            $subReportParams &&
+            ($collection instanceof EntityCollection || $collection instanceof SthCollection)
+        ) {
+            $entityType = $collection->getEntityType();
+        }
+
+        if (
             $user &&
             !$this->aclManager->checkScope($user, $entityType, AclTable::ACTION_READ)
         ) {
             throw new Forbidden("No 'read' access for '$entityType' scope.");
         }
 
-        $attributeList = null;
-
-        if ($exportParams->getAttributeList()) {
-            $attributeList = [];
-
-            foreach ($exportParams->getAttributeList() as $attribute) {
-                if (strpos($attribute, '_')) {
-                    [$link, $field] = explode('_', $attribute);
-
-                    $foreignType = $this->getForeignFieldType($entityType, $link, $field);
-
-                    if ($foreignType === 'link') {
-                        $attributeList[] = $attribute . 'Id';
-                        $attributeList[] = $attribute . 'Name';
-
-                        continue;
-                    }
-                }
-
-                $attributeList[] = $attribute;
-            }
-        }
+        $exportParamsNew = $this->prepareExportParams($exportParams, $entityType, $report);
 
         $export = $this->injectableFactory->create(ExportTool::class);
-
-        $exportParamsNew = ExportToolParams::create($entityType)
-            ->withAttributeList($attributeList)
-            ->withFieldList($exportParams->getFieldList())
-            ->withFormat($exportParams->getFormat())
-            ->withName($report->getName())
-            ->withFileName($report->getName() . ' ' . date('Y-m-d'));
-
-        foreach ($exportParams->getParams() as $k => $v) {
-            $exportParamsNew = $exportParamsNew->withParam($k, $v);
-        }
 
         return $export
             ->setParams($exportParamsNew)
@@ -210,5 +176,59 @@ class ListExportService
         }
 
         return $entityDefs->getField($field)->getType();
+    }
+
+    private function prepareExportParams(
+        ExportParams $exportParams,
+        string $entityType,
+        Report $report,
+    ): ExportToolParams  {
+
+        $attributeList = null;
+
+        if ($exportParams->getAttributeList()) {
+            $attributeList = $this->prepareAttributeList($entityType, $exportParams->getAttributeList());
+        }
+
+        $exportParamsNew = ExportToolParams::create($entityType)
+            ->withAttributeList($attributeList)
+            ->withFieldList($exportParams->getFieldList())
+            ->withFormat($exportParams->getFormat())
+            ->withName($report->getName())
+            ->withFileName($report->getName() . ' ' . date('Y-m-d'));
+
+        foreach ($exportParams->getParams() as $k => $v) {
+            $exportParamsNew = $exportParamsNew->withParam($k, $v);
+        }
+
+        return $exportParamsNew;
+    }
+
+    /**
+     * @param string[] $setAttributeList
+     * @return string[]
+     */
+    public function prepareAttributeList(string $entityType, array $setAttributeList): array
+    {
+        $attributeList = [];
+
+        foreach ($setAttributeList as $attribute) {
+            if (strpos($attribute, '_')) {
+                [$link, $field] = explode('_', $attribute);
+
+                $foreignType = $this->getForeignFieldType($entityType, $link, $field);
+
+                if ($foreignType === FieldType::LINK) {
+                    $attributeList[] = $attribute . 'Id';
+                    $attributeList[] = $attribute . 'Name';
+
+                    continue;
+                }
+            }
+
+            $attributeList[] = $attribute;
+        }
+
+        return $attributeList;
     }
 }

@@ -1,14 +1,4 @@
 {
-    "fields": {
-        "acceptanceStatusMeetings": {
-            "reportDisabled": true,
-            "notStorable": true
-        },
-        "acceptanceStatusCalls": {
-            "reportDisabled": true,
-            "notStorable": true
-        }
-    },
     "links": {
         "reportEmailSending": {
             "type": "hasMany",

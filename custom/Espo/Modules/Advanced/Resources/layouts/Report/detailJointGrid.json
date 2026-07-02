@@ -1,10 +1,9 @@
 [
     {
-        "label": "",
         "rows": [
-            [{"name": "name"}, {"name":"type", "readOnly": true}],
+            [{"name": "name"}, {"name": "type", "readOnly": true}],
             [{"name": "category"}, false],
-            [{"name": "description", "fullWidth": true}]
+            [{"name": "description"}]
         ]
     },
     {

@@ -11,18 +11,20 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Controllers;
 
 use Espo\Core\Api\Request;
 use Espo\Core\Exceptions\BadRequest;
+use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Modules\Advanced\Tools\Workflow\Service;
+use stdClass;
 
 class WorkflowManual
 {
@@ -33,12 +35,14 @@ class WorkflowManual
         $this->service = $service;
     }
 
+
     /**
      * @throws BadRequest
      * @throws Forbidden
+     * @throws Error
      * @throws NotFound
      */
-    public function postActionRun(Request $request): bool
+    public function postActionRun(Request $request): stdClass
     {
         $data = $request->getParsedBody();
 
@@ -49,8 +53,16 @@ class WorkflowManual
             throw new BadRequest();
         }
 
-        $this->service->runManual($id, $targetId);
+        $result = $this->service->runManual($id, $targetId);
 
-        return true;
+        $response = (object) [];
+
+        if ($result->alert) {
+            $response->message = $result->alert->message;
+            $response->type = $result->alert->type;
+            $response->autoClose = $result->alert->autoClose;
+        }
+
+        return $response;
     }
 }

@@ -11,13 +11,14 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report;
 
+use Espo\Core\Binding\BindingContainerBuilder;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Formula\Exceptions\Error as FormulaError;
@@ -47,60 +48,59 @@ class ReportHelper
 
     private const ATTR_HAVING = '_having';
 
-    private Metadata $metadata;
-    private InjectableFactory $injectableFactory;
-    private FormulaManager $formulaManager;
-    private Config $config;
-    private Preferences $preferences;
-    private FormulaChecker $formulaChecker;
-
     public function __construct(
-        Metadata $metadata,
-        InjectableFactory $injectableFactory,
-        FormulaManager $formulaManager,
-        Config $config,
-        Preferences $preferences,
-        FormulaChecker $formulaChecker
-    ) {
-        $this->metadata = $metadata;
-        $this->injectableFactory = $injectableFactory;
-        $this->formulaManager = $formulaManager;
-        $this->config = $config;
-        $this->preferences = $preferences;
-        $this->formulaChecker = $formulaChecker;
-    }
+        private Metadata $metadata,
+        private InjectableFactory $injectableFactory,
+        private FormulaManager $formulaManager,
+        private Config $config,
+        private Preferences $preferences,
+        private FormulaChecker $formulaChecker,
+    ) {}
 
     /**
      * @throws Error
-     * @return ListReport|GridReport
      */
-    public function createInternalReport(Report $report): object
+    public function createInternalReport(Report $report): ListReport|GridReport
     {
-        $className = $report->get('internalClassName');
+        $name = $report->get('internalClassName');
 
-        if ($className) {
-            if (stripos($className, ':') !== false) {
-                [$moduleName, $reportName] = explode(':', $className);
+        if (!$name) {
+            throw new Error('Internal report name is not specified.');
+        }
 
-                if ($moduleName === 'Custom') {
-                    $className = "Espo\\Custom\\Reports\\$reportName";
-                } else {
-                    $className = "Espo\\Modules\\$moduleName\\Reports\\$reportName";
-                }
+        $className = $this->metadata->get("app.advancedReport.internalReports.$name.className");
+
+        if (!$className) {
+            if (stripos($name, ':') === false) {
+                throw new Error("Internal report $name is not defined.");
+            }
+
+            [$moduleName, $reportName] = explode(':', $name);
+
+            if ($moduleName === 'Custom') {
+                $className = "Espo\\Custom\\Reports\\$reportName";
+            } else {
+                $className = "Espo\\Modules\\$moduleName\\Reports\\$reportName";
             }
         }
 
-        if (!$className) {
-            throw new Error('No class name specified for internal report.');
+        if (!class_exists($className)) {
+            throw new Error("Class $className for report $name does not exist.");
         }
 
-        return $this->injectableFactory->create($className);
+        /** @var class-string<ListReport|GridReport> $className */
+
+        $binding = BindingContainerBuilder::create()
+            ->bindInstance(Report::class, $report)
+            ->build();
+
+        return $this->injectableFactory->createWithBinding($className, $binding);
     }
 
     /**
      * @throws Forbidden
      */
-    public function checkReportCanBeRunToRun(Report $report): void
+    public function checkReportCanBeRun(Report $report): void
     {
         if (
             in_array(
@@ -108,12 +108,13 @@ class ReportHelper
                 $this->metadata->get('entityDefs.Report.entityListToIgnore', [])
             )
         ) {
-            throw new Forbidden();
+            throw new Forbidden("Entity type is not allowed.");
         }
     }
 
     /**
      * @throws Error
+     * @throws Forbidden
      */
     public function fetchGridDataFromReport(Report $report): GridData
     {
@@ -122,23 +123,25 @@ class ReportHelper
         }
 
         return new GridData(
-            $report->getTargetEntityType(),
-            $report->get('columns') ?? [],
-            $report->get('groupBy') ?? [],
-            $report->get('orderBy') ?? [],
-            $report->get('applyAcl'),
-            $this->fetchFiltersWhereFromReport($report),
-            $report->get('chartType'),
-            get_object_vars($report->get('chartColors') ?? (object) []),
-            $report->get('chartColor'),
-            $report->get('chartDataList'),
-            ($report->get('data') ?? (object) [])->success ?? null,
-            $report->get('columnsData') ?? (object) [],
+            entityType: $report->getTargetEntityType(),
+            columns: $report->getColumns(),
+            groupBy: $report->getGroupBy(),
+            orderBy: $report->getOrderBy(),
+            applyAcl: $report->getApplyAcl(),
+            filtersWhere: $this->fetchFiltersWhereFromReport($report),
+            chartType: $report->getChartType(),
+            chartColors: get_object_vars($report->get('chartColors') ?? (object) []),
+            chartColor: $report->get('chartColor'),
+            chartDataList: $report->get('chartDataList'),
+            success: ($report->get('data') ?? (object) [])->success ?? null,
+            columnsData: $report->getColumnsData(),
+            tableMode: $report->getTableMode(),
         );
     }
 
     /**
      * @throws Error
+     * @throws Forbidden
      */
     public function fetchListDataFromReport(Report $report): ListData
     {
@@ -148,13 +151,16 @@ class ReportHelper
 
         return new ListData(
             $report->getTargetEntityType(),
-            $report->get('columns') ?? [],
-            $report->get('orderByList'),
-            $report->get('columnsData'),
+            $report->getColumns(),
+            $report->getOrderByList(),
+            $report->getColumnsData(),
             $this->fetchFiltersWhereFromReport($report)
         );
     }
 
+    /**
+     * @throws Error
+     */
     public function fetchJointDataFromReport(Report $report): JointData
     {
         if ($report->getType() !== Report::TYPE_JOINT_GRID) {
@@ -167,6 +173,10 @@ class ReportHelper
         );
     }
 
+    /**
+     * @throws Error
+     * @throws Forbidden
+     */
     public function fetchFiltersWhereFromReport(Report $report): ?WhereItem
     {
         $isNotList = $report->getType() !== Report::TYPE_LIST;
@@ -179,11 +189,24 @@ class ReportHelper
             return null;
         }
 
-        return WhereItem::fromRawAndGroup(json_decode(json_encode($raw), true));
+        $raw = json_decode(
+            /** @phpstan-ignore-next-line  */
+            json_encode($raw),
+            true
+        );
+
+        return WhereItem::fromRawAndGroup($raw);
     }
 
     /**
-     * @throws Error
+     * @param array<string, object{
+     *     where?: mixed,
+     *     field?: string,
+     *     type?: string,
+     *     dateTime?: string,
+     *     value?: mixed,
+     * }>|null $filtersData
+     * @return stdClass[]|null
      */
     private function convertFiltersData(?array $filtersData): ?array
     {
@@ -202,8 +225,7 @@ class ReportHelper
 
             if (isset($defs->where)) {
                 $arr[] = $defs->where;
-            }
-            else {
+            } else {
                 if (isset($defs->field)) {
                     $field = $defs->field;
                 }
@@ -217,13 +239,12 @@ class ReportHelper
                         $defs->value ?? null,
                         false
                     );
-                }
-                else {
+                } else {
                     $o = new stdClass();
 
                     $o->type = $type;
                     $o->field = $field;
-                    $o->value = $defs->value;
+                    $o->value = $defs->value ?? null;
 
                     $arr[] = $o;
                 }
@@ -234,7 +255,24 @@ class ReportHelper
     }
 
     /**
+     * @param object{
+     *     type?: string,
+     *     name?: ?string,
+     *     params?: object{
+     *         type?: string,
+     *         where?: mixed,
+     *         attribute?: string,
+     *         field?: string,
+     *         dateTime?: string,
+     *         value?: mixed,
+     *         function?: string,
+     *         expression?: string,
+     *         operator?: string,
+     *     },
+     * }[] $filtersDataList
+     * @return stdClass[]|null
      * @throws Error
+     * @throws Forbidden
      */
     private function convertFiltersDataList(array $filtersDataList, bool $useSystemTimeZone): ?array
     {
@@ -275,7 +313,7 @@ class ReportHelper
 
                 $o = new stdClass();
 
-                $o->type = $params->type;
+                $o->type = $params->type ?? null;
 
                 if ($o->type === self::WHERE_TYPE_NOT) {
                     $o->type = self::WHERE_TYPE_SUB_QUERY_NOT_IN;
@@ -296,10 +334,7 @@ class ReportHelper
             if ($type === 'complexExpression') {
                 $o = (object) [];
 
-                $function = null;
-                if (isset($params->function)) {
-                    $function = $params->function;
-                }
+                $function = $params->function ?? null;
 
                 if ($function === 'custom') {
                     if (empty($params->expression)) {
@@ -308,8 +343,7 @@ class ReportHelper
 
                     $o->attribute = $params->expression;
                     $o->type = 'expression';
-                }
-                else if ($function === 'customWithOperator') {
+                } else if ($function === 'customWithOperator') {
                     if (empty($params->expression)) {
                         continue;
                     }
@@ -320,8 +354,7 @@ class ReportHelper
 
                     $o->attribute = $params->expression;
                     $o->type = $params->operator;
-                }
-                else {
+                } else {
                     if (empty($params->attribute)) {
                         continue;
                     }
@@ -333,7 +366,7 @@ class ReportHelper
                     $o->attribute = $params->attribute;
 
                     if ($function) {
-                        $o->attribute = $params->function . ':' . $o->attribute;
+                        $o->attribute = $function . ':' . $o->attribute;
                     }
 
                     $o->type = $params->operator;
@@ -396,7 +429,7 @@ class ReportHelper
     /**
      * @param mixed $value
      */
-    private function fixDateTimeWhere(string $type, string $field, $value, bool $useSystemTimeZone): ?object
+    private function fixDateTimeWhere(string $type, string $field, $value, bool $useSystemTimeZone): object
     {
         $timeZone = null;
 
@@ -451,17 +484,17 @@ class ReportHelper
             return;
         }
 
-        if (strpos($attribute, ':') !== false) {
+        if (str_contains($attribute, ':')) {
             throw new Forbidden("Expressions are not allowed in runtime filter.");
         }
 
-        if (strpos($attribute, '.') === false) {
+        if (!str_contains($attribute, '.')) {
             return;
         }
 
         $isAllowed = in_array($attribute, $allowedFilterList);
 
-        if (!$isAllowed && substr($attribute, -2) === 'Id') {
+        if (!$isAllowed && str_ends_with($attribute, 'Id')) {
             $isAllowed = in_array(substr($attribute, 0, -2), $allowedFilterList);
         }
 
@@ -473,6 +506,7 @@ class ReportHelper
     /**
      * @return mixed
      * @throws Forbidden
+     * @throws FormulaError
      */
     private function runFormula(string $script)
     {

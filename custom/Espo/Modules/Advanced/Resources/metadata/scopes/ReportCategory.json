@@ -4,7 +4,7 @@
     "tab": false,
     "acl": "recordAllTeamNo",
     "module": "Advanced",
-    "customizable": true,
+    "customizable": false,
     "importable": false,
     "type": "CategoryTree",
     "notifications": false

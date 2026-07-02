@@ -11,15 +11,17 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Job\QueueName;
+use Espo\Core\Mail\Exceptions\NoSmtp;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Entities\Email;
 use Espo\Entities\Job;
 use Espo\Entities\Team;
@@ -27,7 +29,6 @@ use Espo\Entities\User;
 use Espo\Modules\Advanced\Tools\Workflow\Jobs\SendEmail as SendEmailJob;
 use Espo\Modules\Advanced\Tools\Workflow\SendEmailService;
 use Espo\Modules\Crm\Entities\Contact;
-use Espo\ORM\Entity;
 use Espo\Repositories\Email as EmailRepository;
 
 use RuntimeException;
@@ -35,7 +36,10 @@ use stdClass;
 
 class SendEmail extends Base
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    /**
+     * @throws Error
+     */
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         $jobData = [
             'workflowId' => $this->getWorkflowId(),
@@ -44,6 +48,7 @@ class SendEmail extends Base
             'from' => $this->getEmailAddressData('from'),
             'to' => $this->getEmailAddressData('to'),
             'replyTo' => $this->getEmailAddressData('replyTo'),
+            'cc' => $this->getEmailAddressData('cc'),
             'emailTemplateId' => $actionData->emailTemplateId ?? null,
             'doNotStore' => $actionData->doNotStore ?? false,
             'optOutLink' => $actionData->optOutLink ?? false,
@@ -52,6 +57,10 @@ class SendEmail extends Base
         if ($this->bpmnProcess) {
             $jobData['processId'] = $this->bpmnProcess->getId();
         }
+
+        $attachmentsVariable = $actionData->attachmentsVariable ?? null;
+
+        $jobData['attachmentIds'] = $this->getAttachmentIds($attachmentsVariable);
 
         if (is_null($jobData['to'])) {
             return true;
@@ -70,9 +79,14 @@ class SendEmail extends Base
 
             $service = $this->injectableFactory->create(SendEmailService::class);
 
+            /** @phpstan-ignore-next-line  */
             $jobData = json_decode(json_encode($jobData));
 
-            $emailId = $service->send($jobData);
+            try {
+                $emailId = $service->send($jobData);
+            } catch (NoSmtp $e) {
+                throw new Error($e->getMessage(), previous: $e);
+            }
 
             if (
                 $storeSentEmailData &&
@@ -90,7 +104,7 @@ class SendEmail extends Base
             return true;
         }
 
-        $job = $this->getEntityManager()->getNewEntity(Job::ENTITY_TYPE);
+        $job = $this->entityManager->getNewEntity(Job::ENTITY_TYPE);
 
         $job->set([
             'name' => SendEmailJob::class,
@@ -100,7 +114,7 @@ class SendEmail extends Base
             'queue' => QueueName::E0,
         ]);
 
-        $this->getEntityManager()->saveEntity($job);
+        $this->entityManager->saveEntity($job);
 
         return true;
     }
@@ -113,6 +127,7 @@ class SendEmail extends Base
      *     entityType?: string,
      *     entityId?: string,
      * }
+     * @throws Error
      */
     private function getEmailAddressData(string $type): ?array
     {
@@ -125,7 +140,7 @@ class SendEmail extends Base
                 $address = $data->{$type . 'Email'};
 
                 if ($address && str_contains($address, '{$$') && $this->hasVariables()) {
-                    $variables = $this->getVariables() ?? (object) [];
+                    $variables = $this->getVariables();
 
                     foreach (get_object_vars($variables) as $key => $v) {
                         if ($v && is_string($v)) {
@@ -183,16 +198,18 @@ class SendEmail extends Base
                     $specifiedEntityType = Contact::ENTITY_TYPE;
                 }
 
+                /** @var string $specifiedEntityType */
+
                 return [
                     'type' => $fieldValue,
                     'entityIds' => $data->{$type . 'SpecifiedEntityIds'},
-                    'entityType' => $specifiedEntityType
+                    'entityType' => $specifiedEntityType,
                 ];
 
             case 'currentUser':
                 return [
                     'entityType' => User::ENTITY_TYPE,
-                    'entityId' => $this->getUser()->getId(),
+                    'entityId' => $this->user->getId(),
                     'type' => $fieldValue,
                 ];
 
@@ -206,7 +223,7 @@ class SendEmail extends Base
                 $emailAddress = null;
 
                 /** @var EmailRepository $repo */
-                $repo = $this->getEntityManager()->getRepository(Email::ENTITY_TYPE);
+                $repo = $this->entityManager->getRepository(Email::ENTITY_TYPE);
 
                 if (!$entity instanceof Email) {
                     throw new RuntimeException("Workflow send-email fromOrReplyTo did not receive email.");
@@ -228,9 +245,8 @@ class SendEmail extends Base
                     }
 
                     $emailAddress = $matches[0][0];
-                }
-                else if ($entity->has('from') && $entity->get('from')) {
-                    $emailAddress = $entity->get('from');
+                } else if ($entity->has('from') && $entity->getFromAddress()) {
+                    $emailAddress = $entity->getFromAddress();
                 }
 
                 if (!$emailAddress) {
@@ -271,5 +287,37 @@ class SendEmail extends Base
                     'type' => $fieldValue,
                 ];
         }
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getAttachmentIds(mixed $attachmentsVariable): array
+    {
+        $attachmentIds = [];
+
+        if (is_string($attachmentsVariable) && $attachmentsVariable[0] === '$') {
+            $attachmentsVariable = substr($attachmentsVariable, 1);
+        }
+
+        if ($this->hasVariables() && is_string($attachmentsVariable) && $attachmentsVariable) {
+            $attachmentIds = $this->getVariables()->$attachmentsVariable ?? null;
+
+            if (is_string($attachmentIds)) {
+                $attachmentIds = [$attachmentIds];
+            }
+
+            if (!is_array($attachmentIds)) {
+                $attachmentIds = [];
+            }
+        }
+
+        foreach ($attachmentIds as $id) {
+            if (!is_string($id)) {
+                throw new RuntimeException("Not a string value in attachments variable.");
+            }
+        }
+
+        return $attachmentIds;
     }
 }

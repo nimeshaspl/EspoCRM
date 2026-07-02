@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
@@ -22,16 +22,17 @@ use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 
 abstract class Event extends Base
 {
-    protected function rejectConcurrentPendingFlows()
+    protected function rejectConcurrentPendingFlows(): void
     {
         $flowNode = $this->getFlowNode();
 
-        if ($flowNode->get('previousFlowNodeElementType') === 'gatewayEventBased') {
+        if ($flowNode->getPreviousFlowNodeElementType() === 'gatewayEventBased') {
+            /** @var iterable<BpmnFlowNode> $concurrentFlowNodeList */
             $concurrentFlowNodeList = $this->getEntityManager()
-                ->getRepository(BpmnFlowNode::ENTITY_TYPE)
+                ->getRDBRepository(BpmnFlowNode::ENTITY_TYPE)
                 ->where([
                     'previousFlowNodeElementType' => 'gatewayEventBased',
-                    'previousFlowNodeId' => $flowNode->get('previousFlowNodeId'),
+                    'previousFlowNodeId' => $flowNode->getPreviousFlowNodeId(),
                     'processId' => $flowNode->getProcessId(),
                     'id!=' => $flowNode->get('id'),
                     'status' => BpmnFlowNode::STATUS_PENDING,
@@ -39,7 +40,7 @@ abstract class Event extends Base
                 ->find();
 
             foreach ($concurrentFlowNodeList as $concurrentFlowNode) {
-                $concurrentFlowNode->set('status', BpmnFlowNode::STATUS_REJECTED);
+                $concurrentFlowNode->setStatus(BpmnFlowNode::STATUS_REJECTED);
 
                 $this->getEntityManager()->saveEntity($concurrentFlowNode);
             }

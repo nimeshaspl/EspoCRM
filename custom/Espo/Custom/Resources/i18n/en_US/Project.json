@@ -24,7 +24,8 @@
         "pendingAmountForInvoice": "Pending Amount For Invoice",
         "projectBudget": "Project Budget",
         "projectExternalExps": "Project External Exps",
-        "externalExp": "External Exp"
+        "externalExp": "External Exp",
+        "accountNote": "Account Note"
     },
     "links": {
         "contact": "Contact",

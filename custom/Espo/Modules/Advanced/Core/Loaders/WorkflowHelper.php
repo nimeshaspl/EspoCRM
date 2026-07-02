@@ -11,28 +11,24 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Loaders;
 
-use Espo\Core\Container;
 use Espo\Core\Container\Loader;
+use Espo\Core\InjectableFactory;
 use Espo\Modules\Advanced\Core\Workflow\Helper as Service;
 
 class WorkflowHelper implements Loader
 {
-    private Container $container;
-
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-    }
+    public function __construct(private InjectableFactory $injectableFactory)
+    {}
 
     public function load(): Service
     {
-        return new Service($this->container);
+        return $this->injectableFactory->create(Service::class);
     }
 }

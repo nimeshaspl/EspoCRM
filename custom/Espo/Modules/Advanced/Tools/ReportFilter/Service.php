@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\ReportFilter;
@@ -30,25 +30,13 @@ use Espo\ORM\EntityManager;
 
 class Service
 {
-    private EntityManager $entityManager;
-    private Metadata $metadata;
-    private InjectableFactory $injectableFactory;
-    private DataManager $dataManager;
-    private Config $config;
-
     public function __construct(
-        EntityManager $entityManager,
-        Metadata $metadata,
-        InjectableFactory $injectableFactory,
-        DataManager $dataManager,
-        Config $config
-    ) {
-        $this->entityManager = $entityManager;
-        $this->metadata = $metadata;
-        $this->injectableFactory = $injectableFactory;
-        $this->dataManager = $dataManager;
-        $this->config = $config;
-    }
+        private EntityManager $entityManager,
+        private Metadata $metadata,
+        private InjectableFactory $injectableFactory,
+        private DataManager $dataManager,
+        private Config $config
+    ) {}
 
     public function rebuild(?string $specificEntityType = null): void
     {
@@ -81,6 +69,7 @@ class Service
         }
 
         foreach ($entityTypeList as $entityType) {
+            /** @var array<string, mixed> $removedHash */
             $removedHash = [];
             $isChanged = false;
 
@@ -133,7 +122,7 @@ class Service
             }
 
             $reportFilterList = $this->entityManager
-                ->getRDBRepository(ReportFilter::ENTITY_TYPE)
+                ->getRDBRepositoryByClass(ReportFilter::class)
                 ->where([
                     'isActive' => true,
                     'entityType' => $entityType,
@@ -210,7 +199,7 @@ class Service
 
                 $this->metadata->saveCustom('entityDefs', $entityType, $entityDefs);
 
-                if ($supportsFilterNames) {
+                if ($supportsFilterNames && isset($selectDefs)) {
                     foreach (get_object_vars($filtersData) as $name => $ignored) {
                         $selectDefs->primaryFilterClassNameMap->$name = ReportPrimaryFilter::class;
                     }
@@ -219,12 +208,12 @@ class Service
                 foreach ($removedHash as $name => $item) {
                     $language->delete($entityType, 'presetFilters', $name);
 
-                    if ($supportsFilterNames) {
+                    if ($supportsFilterNames && isset($selectDefs)) {
                         unset($selectDefs->primaryFilterClassNameMap->$name);
                     }
                 }
 
-                if ($supportsFilterNames) {
+                if ($supportsFilterNames && isset($selectDefs)) {
                     $this->metadata->saveCustom('selectDefs', $entityType, $selectDefs);
                 }
             }

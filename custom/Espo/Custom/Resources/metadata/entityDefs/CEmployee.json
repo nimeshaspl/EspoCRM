@@ -419,13 +419,6 @@
             "audited": false,
             "isCustom": true
         },
-        "payrolls": {
-            "type": "hasMany",
-            "foreign": "employee",
-            "entity": "CPayroll",
-            "audited": false,
-            "isCustom": true
-        },
         "payrollIssues": {
             "type": "hasMany",
             "foreign": "employee",

@@ -11,70 +11,48 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow;
 
 use Espo\Core\Exceptions\Error;
-use Espo\Core\Formula\Exceptions\Error as FormulaException;
-use Espo\Core\Formula\Manager as FormulaManager;
 
 use stdClass;
 
 class ConditionManager extends BaseManager
 {
     protected string $dirName = 'Conditions';
+
+    /** @var string[]  */
     protected array $requiredOptions = [
         'comparison',
         'fieldToCompare',
     ];
 
     /**
-     * @param ?stdClass[] $conditionsAll
-     * @param ?stdClass[] $conditionsAny
+     * @param ?stdClass[] $all
+     * @param ?stdClass[] $any
+     * @throws Error
      */
     public function check(
-        ?array $conditionsAll = null,
-        ?array$conditionsAny = null,
-        ?string $conditionsFormula = null
+        ?array $all = null,
+        ?array $any = null,
+        ?string $formula = null
     ): bool {
 
-        $result = true;
-
-        if (!is_null($conditionsAll)) {
-            $result &= $this->checkConditionsAll($conditionsAll);
-        }
-
-        if (!is_null($conditionsAny)) {
-            $result &= $this->checkConditionsAny($conditionsAny);
-        }
-
-        if (!empty($conditionsFormula)) {
-            $result &= $this->checkConditionsFormula($conditionsFormula);
-        }
-
-        return $result;
+        return $this->conditionManager->check($this->getEntity(), $all, $any, $formula);
     }
 
     /**
      * @param stdClass[] $conditions
+     * @throws Error
      */
     public function checkConditionsAny(array $conditions): bool
     {
-        if (empty($conditions)) {
-            return true;
-        }
-
-        foreach ($conditions as $condition) {
-            if ($this->processCheck($condition)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->conditionManager->checkConditionsAny($this->getEntity(), $conditions);
     }
 
     /**
@@ -83,78 +61,15 @@ class ConditionManager extends BaseManager
      */
     public function checkConditionsAll(array $conditions): bool
     {
-        if (!isset($conditions)) {
-            return true;
-        }
-
-        foreach ($conditions as $condition) {
-            if (!$this->processCheck($condition)) {
-                return false;
-            }
-        }
-
-        return true;
+        return $this->conditionManager->checkConditionsAll($this->getEntity(), $conditions);
     }
 
     /**
      * @param array<string, mixed> $variables Formula variables to pass.
      * @throws Error
-     * @throws FormulaException
      */
     public function checkConditionsFormula(?string $formula, array $variables = []): bool
     {
-        if (empty($formula)) {
-            return true;
-        }
-
-        $formula = trim($formula, " \t\n\r");
-
-        if (empty($formula)) {
-            return true;
-        }
-
-        if (substr($formula, -1) === ';') {
-            $formula = substr($formula, 0, -1);
-        }
-
-        if (empty($formula)) {
-            return true;
-        }
-
-        $actualVariables = (object) [];
-
-        $actualVariables->__targetEntity = $this->getEntity();
-
-        foreach ($variables as $key => $value) {
-            $actualVariables->$key = $value;
-        }
-
-        return (bool) $this->getFormulaManager()->run($formula, $this->getEntity(), $actualVariables);
-    }
-
-    /**
-     * @throws Error
-     */
-    private function processCheck(stdClass $condition): bool
-    {
-        $entity = $this->getEntity();
-        $entityType = $entity->getEntityType();
-
-        if (!$this->validate($condition)) {
-            $this->getLog()->warning(
-                'Workflow['.$this->getWorkflowId().']: Condition data is broken for the Entity ['.$entityType.'].');
-
-            return false;
-        }
-
-        $impl = $this->getImpl($condition->comparison);
-
-        return $impl->process($entity, $condition);
-    }
-
-    private function getFormulaManager(): FormulaManager
-    {
-        /** @var FormulaManager */
-        return $this->getContainer()->get('formulaManager');
+        return $this->conditionManager->checkConditionsFormula($this->getEntity(), $formula, (object) $variables);
     }
 }

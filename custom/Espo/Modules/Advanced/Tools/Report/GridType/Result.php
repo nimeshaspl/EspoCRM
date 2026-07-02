@@ -11,56 +11,34 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\GridType;
 
+use Espo\Modules\Advanced\Entities\Report;
 use stdClass;
 
 class Result
 {
     private bool $isJoint = false;
-    private ?string $entityType;
-    /** @var string[] */
-    private array $groupByList;
-    /** @var string[] */
-    private array $columnList;
-    /** @var string[] */
-    private array $numericColumnList;
-    /** @var string[] */
-    private array $summaryColumnList;
-    /** @var string[] */
-    private array $nonSummaryColumnList;
     /** @var string[] */
     private array $subListColumnList;
-    /** @var string[] */
-    private array $aggregatedColumnList;
     private stdClass $nonSummaryColumnGroupMap;
     private stdClass $subListData;
     private stdClass $sums;
-    /** @var ?array<string, array<string, mixed>> */
+    /** @var array<string, array<string, mixed>> */
     private array $groupValueMap;
-    /** @var ?array<string, string> */
-    private ?array $columnNameMap;
-    /** @var ?array<string, string> */
-    private ?array $columnTypeMap;
     private stdClass $cellValueMaps;
-    /** @var array{0: string[], 1?: string[]} */
-    private array $grouping;
     private stdClass $reportData;
     private stdClass $nonSummaryData;
-    /** @var ?string */
-    private ?string $chartType;
     /** @var ?string */
     private ?string $success = null;
     private stdClass $chartColors;
     /** @var ?string */
     private ?string $chartColor = null;
-    /** @var ?stdClass[] */
-    private ?array $chartDataList;
     private stdClass $columnDecimalPlacesMap;
     /** @var ?string[] */
     private ?array $group1NonSummaryColumnList = null;
@@ -80,7 +58,6 @@ class Result
     private array $columnReportIdMap = [];
     /** @var array<string, string> */
     private array $columnSubReportLabelMap = [];
-    private bool $emptyStringGroupExcluded;
 
     /**
      * @param ?string $entityType
@@ -98,60 +75,54 @@ class Result
      * @param ?string[] $columnNameMap
      * @param ?string[] $columnTypeMap
      * @param ?stdClass $cellValueMaps
-     * @param array $grouping
+     * @param array{0?: string[], 1?: string[]} $grouping
      * @param ?stdClass $reportData
      * @param ?stdClass $nonSummaryData
      * @param ?string $chartType
      * @param ?stdClass[] $chartDataList
      * @param ?stdClass $columnDecimalPlacesMap
+     * @param array<string, string> $groupNameMap
+     * @param ?array<int, stdClass & object{name: string, label: string, entityType: string}> $subReportSwitchDataList
      */
     public function __construct(
-        ?string $entityType,
-        array $groupByList,
-        array $columnList,
-        array $numericColumnList = [],
-        array $summaryColumnList = [],
-        array $nonSummaryColumnList = [],
+        private ?string $entityType,
+        private array $groupByList,
+        private array $columnList,
+        private array $numericColumnList = [],
+        private array $summaryColumnList = [],
+        private array $nonSummaryColumnList = [],
         ?array $subListColumnList = null,
-        array $aggregatedColumnList = [],
+        private array $aggregatedColumnList = [],
         ?stdClass $nonSummaryColumnGroupMap = null,
         ?stdClass $subListData = null,
         ?stdClass $sums = null,
         ?array $groupValueMap = null,
-        ?array $columnNameMap = null,
-        ?array $columnTypeMap = null,
+        private ?array $columnNameMap = null,
+        private ?array $columnTypeMap = null,
         ?stdClass $cellValueMaps = null,
-        array $grouping = [],
+        private array $grouping = [],
         ?stdClass $reportData = null,
         ?stdClass $nonSummaryData = null,
-        ?string $chartType = null,
-        ?array $chartDataList = null,
+        private ?string $chartType = null,
+        private ?array $chartDataList = null,
         ?stdClass $columnDecimalPlacesMap = null,
-        bool $emptyStringGroupExcluded = false
+        private bool $emptyStringGroupExcluded = false,
+        private bool $noSubReport = false,
+        private ?string $currency = null,
+        private array $groupNameMap = [],
+        private ?array $subReportSwitchDataList = null,
+        private ?string $tableMode = null,
     ) {
-        $this->entityType = $entityType;
-        $this->groupByList = $groupByList;
-        $this->columnList = $columnList;
-        $this->numericColumnList = $numericColumnList;
-        $this->summaryColumnList = $summaryColumnList;
-        $this->nonSummaryColumnList = $nonSummaryColumnList;
         $this->subListColumnList = $subListColumnList ?? [];
-        $this->aggregatedColumnList = $aggregatedColumnList;
         $this->nonSummaryColumnGroupMap = $nonSummaryColumnGroupMap ?? (object) [];
         $this->subListData = $subListData ?? (object) [];
         $this->sums = $sums ?? (object) [];
         $this->groupValueMap = $groupValueMap ?? [];
-        $this->columnNameMap = $columnNameMap;
-        $this->columnTypeMap = $columnTypeMap;
         $this->cellValueMaps = $cellValueMaps ?? (object) [];
-        $this->grouping = $grouping;
         $this->reportData = $reportData ?? (object) [];
         $this->nonSummaryData = $nonSummaryData ?? (object) [];
-        $this->chartType = $chartType;
-        $this->chartDataList = $chartDataList;
         $this->columnDecimalPlacesMap = $columnDecimalPlacesMap ?? (object) [];
         $this->chartColors = (object) [];
-        $this->emptyStringGroupExcluded = $emptyStringGroupExcluded;
     }
 
     public function getEntityType(): ?string
@@ -239,11 +210,11 @@ class Result
     }
 
     /**
-     * @return array<string, string>|null
+     * @return array<string, string>
      */
-    public function getColumnNameMap(): ?array
+    public function getColumnNameMap(): array
     {
-        return $this->columnNameMap;
+        return $this->columnNameMap ?? [];
     }
 
     /**
@@ -260,7 +231,7 @@ class Result
     }
 
     /**
-     * @return array{0: string[], 1?: string[]}
+     * @return array{0?: string[], 1?: string[]}
      */
     public function getGrouping(): array
     {
@@ -297,6 +268,9 @@ class Result
         return $this->chartColor;
     }
 
+    /**
+     * @return ?stdClass[]
+     */
     public function getChartDataList(): ?array
     {
         return $this->chartDataList;
@@ -404,24 +378,28 @@ class Result
     public function setAggregatedColumnList(array $aggregatedColumnList): Result
     {
         $this->aggregatedColumnList = $aggregatedColumnList;
+
         return $this;
     }
 
     public function setNonSummaryColumnGroupMap(stdClass $nonSummaryColumnGroupMap): Result
     {
         $this->nonSummaryColumnGroupMap = $nonSummaryColumnGroupMap;
+
         return $this;
     }
 
     public function setSubListData(stdClass $subListData): Result
     {
         $this->subListData = $subListData;
+
         return $this;
     }
 
     public function setSums(stdClass $sums): Result
     {
         $this->sums = $sums;
+
         return $this;
     }
 
@@ -432,6 +410,7 @@ class Result
     public function setGroupValueMap(?array $groupValueMap): Result
     {
         $this->groupValueMap = $groupValueMap;
+
         return $this;
     }
 
@@ -441,6 +420,7 @@ class Result
     public function setColumnNameMap(?array $columnNameMap): Result
     {
         $this->columnNameMap = $columnNameMap;
+
         return $this;
     }
 
@@ -450,40 +430,45 @@ class Result
     public function setColumnTypeMap(?array $columnTypeMap): Result
     {
         $this->columnTypeMap = $columnTypeMap;
+
         return $this;
     }
 
     public function setCellValueMaps(?stdClass $cellValueMaps): Result
     {
         $this->cellValueMaps = $cellValueMaps;
+
         return $this;
     }
 
     /**
-     * @param array $grouping
-     * @return Result
+     * @param array{0?: string[], 1?: string[]} $grouping
      */
     public function setGrouping(array $grouping): Result
     {
         $this->grouping = $grouping;
+
         return $this;
     }
 
     public function setReportData(stdClass $reportData): Result
     {
         $this->reportData = $reportData;
+
         return $this;
     }
 
     public function setNonSummaryData(stdClass $nonSummaryData): Result
     {
         $this->nonSummaryData = $nonSummaryData;
+
         return $this;
     }
 
     public function setChartType(?string $chartType): Result
     {
         $this->chartType = $chartType;
+
         return $this;
     }
 
@@ -502,6 +487,7 @@ class Result
     public function setChartColor(?string $chartColor): Result
     {
         $this->chartColor = $chartColor;
+
         return $this;
     }
 
@@ -665,10 +651,23 @@ class Result
         return $this->emptyStringGroupExcluded;
     }
 
+    public function getCurrency(): ?string
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getGroupNameMap(): array
+    {
+        return $this->groupNameMap;
+    }
+
     public function toRaw(): stdClass
     {
         return (object) [
-            'type' => 'Grid',
+            'type' => Report::TYPE_GRID,
             'entityType' => $this->entityType, // string
             'depth' => count($this->groupByList), // int
             'columnList' => $this->columnList, // string[]
@@ -681,7 +680,7 @@ class Result
             'nonSummaryColumnGroupMap' => $this->nonSummaryColumnGroupMap, // stdClass
             'subListData' => $this->subListData, // object<stdClass[]>
             'sums' => $this->sums, // object<int|float>
-            'groupValueMap' => $this->groupValueMap, // array<string, array<string, mixed>>
+            'groupValueMap' => (object) $this->groupValueMap, // array<string, array<string, mixed>>
             'columnNameMap' => $this->columnNameMap, // array<string, string>
             'columnTypeMap' => $this->columnTypeMap, // array<string, string>
             'cellValueMaps' => $this->cellValueMaps, // object<object> (when grouping by link)
@@ -706,6 +705,16 @@ class Result
             'columnReportIdMap' => (object) $this->columnReportIdMap,
             'columnSubReportLabelMap' => (object) $this->columnSubReportLabelMap,
             'emptyStringGroupExcluded' => $this->emptyStringGroupExcluded,
+            'noSubReport' => $this->noSubReport,
+            'currency' => $this->currency,
+            'subReportSwitchDataList' => $this->subReportSwitchDataList,
+            'tableMode' => $this->tableMode,
+            'groupNameMap' => (object) $this->groupNameMap,
         ];
+    }
+
+    public function getTableMode(): ?string
+    {
+        return $this->tableMode;
     }
 }

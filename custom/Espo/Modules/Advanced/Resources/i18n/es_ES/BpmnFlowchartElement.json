@@ -16,7 +16,7 @@
     "emailTemplate": "Plantilla de correo electrónico",
     "doNotStore": "No almacenar correo electrónico enviado",
     "actions": "Acciones",
-    "formula": "Fórmula (script)",
+    "formula": "Fórmula Script",
     "actionType": "Tipo de acción",
     "targetUser": "Usuario objetivo",
     "assignmentType": "Asignación",

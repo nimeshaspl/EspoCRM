@@ -11,15 +11,14 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
 use Espo\Modules\Advanced\Core\Bpmn\Utils\Helper;
-
 use Espo\Modules\Advanced\Entities\BpmnFlowchart;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 use Espo\Modules\Advanced\Entities\BpmnProcess;
@@ -40,7 +39,7 @@ class SubProcess extends CallActivity
         $target = $this->getNewTargetEntity();
 
         if (!$target) {
-            $GLOBALS['log']->info("BPM Sub-Process: Could not get target for sub-process.");
+            $this->getLog()->info("BPM Sub-Process: Could not get target for sub-process.");
 
             $this->fail();
 
@@ -60,7 +59,8 @@ class SubProcess extends CallActivity
             'list' => $this->getAttributeValue('dataList') ?? [],
         ]);
 
-        $flowchart = $this->getEntityManager()->getEntity(BpmnFlowchart::ENTITY_TYPE);
+        /** @var BpmnFlowchart $flowchart */
+        $flowchart = $this->getEntityManager()->getNewEntity(BpmnFlowchart::ENTITY_TYPE);
 
         $flowchart->set([
             'targetType' => $target->getEntityType(),
@@ -71,21 +71,21 @@ class SubProcess extends CallActivity
             'elementsDataHash' => $eData['elementsDataHash'],
             'hasNoneStartEvent' => count($eData['eventStartIdList']) > 0,
             'eventStartIdList'=> $eData['eventStartIdList'],
-            'teamsIds' => $this->getProcess()->getLinkMultipleIdList('teams'),
-            'assignedUserId' => $this->getProcess()->get('assignedUserId'),
+            'teamsIds' => $this->getProcess()->getTeams()->getIdList(),
+            'assignedUserId' => $this->getProcess()->getAssignedUser()?->getId(),
             'name' => $this->getAttributeValue('title') ?? 'Sub-Process',
         ]);
 
         /** @var BpmnProcess $subProcess */
         $subProcess = $this->getEntityManager()->createEntity(BpmnProcess::ENTITY_TYPE, [
             'status' => BpmnFlowNode::STATUS_CREATED,
-            'targetId' => $target->get('id'),
+            'targetId' => $target->getId(),
             'targetType' => $target->getEntityType(),
-            'parentProcessId' => $this->getProcess()->get('id'),
-            'parentProcessFlowNodeId' => $flowNode->get('id'),
+            'parentProcessId' => $this->getProcess()->getId(),
+            'parentProcessFlowNodeId' => $flowNode->getId(),
             'rootProcessId' => $this->getProcess()->getRootProcessId(),
-            'assignedUserId' => $this->getProcess()->get('assignedUserId'),
-            'teamsIds' => $this->getProcess()->getLinkMultipleIdList('teams'),
+            'assignedUserId' => $this->getProcess()->getAssignedUser()?->getId(),
+            'teamsIds' => $this->getProcess()->getTeams()->getIdList(),
             'variables' => $variables,
             'createdEntitiesData' => $createdEntitiesData,
             'startElementId' => $this->getSubProcessStartElementId(),
@@ -95,20 +95,18 @@ class SubProcess extends CallActivity
             'skipStartProcessFlow' => true,
         ]);
 
-        $flowNode->set([
-            'status' => BpmnFlowNode::STATUS_IN_PROCESS,
-        ]);
+        $flowNode->setStatus(BpmnFlowNode::STATUS_IN_PROCESS);
 
-        $flowNode->setDataItemValue('subProcessId', $subProcess->get('id'));
+        $flowNode->setDataItemValue('subProcessId', $subProcess->getId());
 
         $this->getEntityManager()->saveEntity($flowNode);
 
         try {
             $this->getManager()->startCreatedProcess($subProcess, $flowchart);
-        }
-        catch (Throwable $e) {
-            $GLOBALS['log']->error("BPM Sub-Process: Starting sub-process failure, {$subProcess->get('id')}. " .
-                $e->getMessage());
+        } catch (Throwable $e) {
+            $message = "BPM Sub-Process: Starting sub-process failure, {$subProcess->getId()}. {$e->getMessage()}";
+
+            $this->getLog()->error($message, ['exception' => $e]);
 
             $this->fail();
 

@@ -4,6 +4,13 @@
         "detail": "advanced:views/bpmn-flowchart/record/detail",
         "edit": "advanced:views/bpmn-flowchart/record/edit"
     },
+    "views": {
+        "list": "modules/advanced/views/bpmn-flowchart/list-with-categories"
+    },
+    "modalViews": {
+        "select": "views/modals/select-records-with-categories"
+    },
+    "mergeDisabled": true,
     "menu": {
         "list": {
             "dropdown": [
@@ -47,8 +54,7 @@
         "eventStartConditional": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -114,8 +120,7 @@
         "eventStartTimer": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -135,8 +140,10 @@
                 },
                 "scheduling": {
                     "type": "varchar",
-                    "maxLength": 16,
-                    "tooltip": true
+                    "maxLength": 48,
+                    "tooltip": true,
+                    "view": "advanced:views/workflow/fields/scheduling",
+                    "noSpellCheck": true
                 },
                 "schedulingApplyTimezone": {
                     "type": "bool",
@@ -194,8 +201,7 @@
         "eventStartError": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -203,7 +209,7 @@
                 "errorCode": {
                     "type": "varchar",
                     "maxLength": 64,
-                    "trim": true
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -240,8 +246,7 @@
         "eventStartEscalation": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -252,7 +257,7 @@
                 "escalationCode": {
                     "type": "varchar",
                     "maxLength": 64,
-                    "trim": true
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -294,8 +299,7 @@
         "eventStartSignal": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -306,8 +310,8 @@
                 "signal": {
                     "type": "varchar",
                     "maxLength": 200,
-                    "trim": true,
-                    "view": "advanced:views/bpmn-flowchart-element/fields/signal"
+                    "view": "advanced:views/bpmn-flowchart-element/fields/signal",
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -350,8 +354,7 @@
         "eventStart": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -380,8 +383,7 @@
         "eventStartCompensation": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -410,8 +412,7 @@
         "eventEnd": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -440,8 +441,7 @@
         "eventEndTerminate": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -470,8 +470,7 @@
         "eventEndError": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -479,7 +478,7 @@
                 "errorCode": {
                     "type": "varchar",
                     "maxLength": 64,
-                    "trim": true
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -515,8 +514,7 @@
         "eventEndEscalation": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -524,7 +522,7 @@
                 "escalationCode": {
                     "type": "varchar",
                     "maxLength": 64,
-                    "trim": true
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -560,8 +558,7 @@
         "eventEndSignal": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -569,7 +566,7 @@
                 "signal": {
                     "type": "varchar",
                     "maxLength": 200,
-                    "trim": true
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -605,8 +602,7 @@
         "eventIntermediateSignalThrow": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -614,7 +610,7 @@
                 "signal": {
                     "type": "varchar",
                     "maxLength": 200,
-                    "trim": true
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -650,8 +646,7 @@
         "eventIntermediateSignalCatch": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -659,8 +654,8 @@
                 "signal": {
                     "type": "varchar",
                     "maxLength": 200,
-                    "trim": true,
-                    "view": "advanced:views/bpmn-flowchart-element/fields/signal"
+                    "view": "advanced:views/bpmn-flowchart-element/fields/signal",
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -696,8 +691,7 @@
         "eventIntermediateCompensationThrow": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -705,8 +699,8 @@
                 "activityId": {
                     "type": "varchar",
                     "maxLength": 36,
-                    "trim": true,
-                    "tooltip": "compensateActivityId"
+                    "tooltip": "compensateActivityId",
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -742,8 +736,7 @@
         "eventEndCompensation": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -751,8 +744,8 @@
                 "activityId": {
                     "type": "varchar",
                     "maxLength": 36,
-                    "trim": true,
-                    "tooltip": "compensateActivityId"
+                    "tooltip": "compensateActivityId",
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -788,8 +781,7 @@
         "eventIntermediateMessageCatch": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -867,8 +859,7 @@
         "eventIntermediateEscalationThrow": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -876,7 +867,7 @@
                 "escalationCode": {
                     "type": "varchar",
                     "maxLength": 64,
-                    "trim": true
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -912,8 +903,7 @@
         "eventIntermediateCompensationBoundary": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -942,8 +932,7 @@
         "eventIntermediateMessageBoundary": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1033,8 +1022,7 @@
         "eventIntermediateSignalBoundary": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1045,8 +1033,8 @@
                 "signal": {
                     "type": "varchar",
                     "maxLength": 200,
-                    "trim": true,
-                    "view": "advanced:views/bpmn-flowchart-element/fields/signal"
+                    "view": "advanced:views/bpmn-flowchart-element/fields/signal",
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -1087,8 +1075,7 @@
         "eventIntermediateEscalationBoundary": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1099,7 +1086,7 @@
                 "escalationCode": {
                     "type": "varchar",
                     "maxLength": 64,
-                    "trim": true
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -1139,8 +1126,7 @@
         "eventIntermediateErrorBoundary": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1148,7 +1134,7 @@
                 "errorCode": {
                     "type": "varchar",
                     "maxLength": 64,
-                    "trim": true
+                    "noSpellCheck": true
                 }
             },
             "defaults": {
@@ -1184,8 +1170,7 @@
         "eventIntermediateConditionalBoundary": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1240,8 +1225,7 @@
         "eventIntermediateTimerBoundary": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1295,8 +1279,7 @@
         "eventIntermediateConditionalCatch": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1338,8 +1321,7 @@
         "eventIntermediateTimerCatch": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1386,8 +1368,7 @@
         "gatewayExclusive": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1443,8 +1424,7 @@
         "gatewayInclusive": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1500,8 +1480,7 @@
         "gatewayParallel": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1529,8 +1508,7 @@
         "gatewayEventBased": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1559,8 +1537,7 @@
         "task": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "actions": {
                     "type": "base",
@@ -1583,6 +1560,15 @@
                         "executeFormula"
                     ]
                 },
+                "isolateVariables": {
+                    "type": "bool",
+                    "tooltip": true
+                },
+                "returnVariableList": {
+                    "type": "array",
+                    "noEmptyString": true,
+                    "tooltip": "taskReturnVariableList"
+                },
                 "description": {
                     "type": "text"
                 }
@@ -1592,7 +1578,7 @@
                     "name": "text",
                     "rows": [
                         [
-                            {"name": "text", "fullWidth": true}
+                            {"name": "text"}
                         ]
                     ]
                 },
@@ -1600,7 +1586,15 @@
                     "label": "Actions",
                     "rows": [
                         [
-                            {"name": "actions", "fullWidth": true, "noLabel": true}
+                            {"name": "actions", "noLabel": true}
+                        ]
+                    ]
+                },
+                {
+                    "rows": [
+                        [
+                            {"name": "isolateVariables"},
+                            {"name": "returnVariableList"}
                         ]
                     ]
                 },
@@ -1608,7 +1602,7 @@
                     "name": "description",
                     "rows": [
                         [
-                            {"name": "description", "fullWidth": true}
+                            {"name": "description"}
                         ]
                     ]
                 },
@@ -1626,17 +1620,45 @@
                     ]
                 }
             ],
+            "defaults": {
+                "text": null,
+                "isolateVariables": false,
+                "returnVariableList": [],
+                "description": null
+            },
+            "dynamicLogic": {
+                "fields": {
+                    "returnVariableList": {
+                        "visible": {
+                            "conditionGroup": [
+                                {
+                                    "type": "isTrue",
+                                    "attribute": "isolateVariables"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "recordDetailView": "advanced:views/bpmn-flowchart-element/record/detail"
         },
         "taskScript": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "formula": {
                     "type": "formula",
                     "view": "advanced:views/bpmn-flowchart-element/fields/task-script-formula"
+                },
+                "isolateVariables": {
+                    "type": "bool",
+                    "tooltip": true
+                },
+                "returnVariableList": {
+                    "type": "array",
+                    "noEmptyString": true,
+                    "tooltip": "taskReturnVariableList"
                 },
                 "description": {
                     "type": "text"
@@ -1659,6 +1681,14 @@
                     ]
                 },
                 {
+                    "rows": [
+                        [
+                            {"name": "isolateVariables"},
+                            {"name": "returnVariableList"}
+                        ]
+                    ]
+                },
+                {
                     "name": "description",
                     "rows": [
                         [
@@ -1680,22 +1710,40 @@
                     ]
                 }
             ],
+            "defaults": {
+                "text": null,
+                "isolateVariables": false,
+                "returnVariableList": [],
+                "description": null,
+                "formula": null
+            },
+            "dynamicLogic": {
+                "fields": {
+                    "returnVariableList": {
+                        "visible": {
+                            "conditionGroup": [
+                                {
+                                    "type": "isTrue",
+                                    "attribute": "isolateVariables"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "recordDetailView": "advanced:views/bpmn-flowchart-element/record/detail"
         },
         "taskUser": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "name": {
                     "type": "varchar",
-                    "trim": true,
                     "tooltip": "userTaskName"
                 },
                 "instructions": {
                     "type": "text",
-                    "trim": true,
                     "tooltip": "userTaskInstructions"
                 },
                 "description": {
@@ -1813,8 +1861,7 @@
         "taskSendMessage": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"
@@ -1838,15 +1885,24 @@
                     "view": "advanced:views/bpmn-flowchart-element/fields/task-send-message-reply-to",
                     "options": ["", "system", "specifiedEmailAddress", "processAssignedUser"]
                 },
+                "cc": {
+                    "type": "enum",
+                    "view": "advanced:views/bpmn-flowchart-element/fields/task-send-message-reply-to",
+                    "options": ["", "system", "specifiedEmailAddress", "processAssignedUser"]
+                },
                 "fromEmailAddress": {
                     "type": "varchar",
-                    "tooltip": "taskSendMessageEmailAddress"
+                    "tooltip": "taskSendMessageFromEmailAddress"
                 },
                 "toEmailAddress": {
                     "type": "varchar",
                     "tooltip": "taskSendMessageEmailAddress"
                 },
                 "replyToEmailAddress": {
+                    "type": "varchar",
+                    "tooltip": "taskSendMessageEmailAddress"
+                },
+                "ccEmailAddress": {
                     "type": "varchar",
                     "tooltip": "taskSendMessageEmailAddress"
                 },
@@ -1871,6 +1927,12 @@
                 },
                 "optOutLink": {
                     "type": "bool"
+                },
+                "attachmentsVariable": {
+                    "type": "varchar",
+                    "maxLength": 64,
+                    "noSpellCheck": true,
+                    "tooltip": "attachmentsVariable"
                 }
             },
             "layout": [
@@ -1888,16 +1950,10 @@
                             {"name": "messageType"}, false
                         ],
                         [
-                            {"name": "from"}, false
+                            {"name": "from"}, {"name": "fromEmailAddress"}
                         ],
                         [
-                            {"name": "fromEmailAddress"}, false
-                        ],
-                        [
-                            {"name": "to"}, false
-                        ],
-                        [
-                            {"name": "toEmailAddress"}, false
+                            {"name": "to"}, {"name": "toEmailAddress"}
                         ],
                         [
                             {"name": "toSpecifiedTeams"}, false
@@ -1909,16 +1965,19 @@
                             {"name": "toSpecifiedContacts"}, false
                         ],
                         [
-                            {"name": "replyTo"}, false
+                            {"name": "cc"}, {"name": "ccEmailAddress"}
                         ],
                         [
-                            {"name": "replyToEmailAddress"}, false
+                            {"name": "replyTo"}, {"name": "replyToEmailAddress"}
                         ],
                         [
                             {"name": "emailTemplate"}, false
                         ],
                         [
                             {"name": "doNotStore"}, {"name": "optOutLink"}
+                        ],
+                        [
+                            {"name": "attachmentsVariable"}, false
                         ]
                     ]
                 },
@@ -1950,16 +2009,17 @@
                 "doNotStore": false,
                 "from": "system",
                 "to": "processAssignedUser",
-                "replyTo": "",
+                "replyTo": null,
+                "cc": null,
                 "messageType": "Email",
-                "optOutLink": false
+                "optOutLink": false,
+                "attachmentsVariable": null
             }
         },
         "callActivity": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "callableType": {
                     "type": "enum",
@@ -1978,11 +2038,11 @@
                 },
                 "returnCollectionVariable": {
                     "type": "varchar",
-                    "trim": true,
                     "tooltip": true,
                     "options": [
                         "resultCollection"
-                    ]
+                    ],
+                    "noSpellCheck": true
                 },
                 "isMultiInstance": {
                     "type": "bool"
@@ -2181,8 +2241,7 @@
         "subProcess": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "target": {
                     "type": "enum",
@@ -2204,11 +2263,11 @@
                 },
                 "returnCollectionVariable": {
                     "type": "varchar",
-                    "trim": true,
                     "tooltip": true,
                     "options": [
                         "resultCollection"
-                    ]
+                    ],
+                    "noSpellCheck": true
                 },
                 "isExpanded": {
                     "type": "bool"
@@ -2378,14 +2437,13 @@
                     }
                 }
             },
-            "recordEditView": "advanced:views/bpmn-flowchart-element/record/sub-process-detail",
+            "recordDetailView": "advanced:views/bpmn-flowchart-element/record/sub-process-detail",
             "recordEditView": "advanced:views/bpmn-flowchart-element/record/sub-process-edit"
         },
         "eventSubProcess": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "target": {
                     "type": "enum",
@@ -2453,14 +2511,13 @@
                     ]
                 }
             ],
-            "recordEditView": "advanced:views/bpmn-flowchart-element/record/sub-process-detail",
+            "recordDetailView": "advanced:views/bpmn-flowchart-element/record/sub-process-detail",
             "recordEditView": "advanced:views/bpmn-flowchart-element/record/sub-process-edit"
         },
         "flow": {
             "fields": {
                 "text": {
-                    "type": "varchar",
-                    "trim": true
+                    "type": "varchar"
                 },
                 "description": {
                     "type": "text"

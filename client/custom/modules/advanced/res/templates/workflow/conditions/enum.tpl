@@ -13,10 +13,12 @@
     </span>
 {{else}}
     <div class="row">
-        <div class="col-sm-3 comparison">
+        <div class="col-sm-6 comparison">
             <span data-field="comparison">{{{comparisonField}}}</span>
         </div>
-        <div class="col-sm-5 subject">
+    </div>
+    <div class="row">
+        <div class="col-sm-12 subject">
             {{{subject}}}
         </div>
     </div>

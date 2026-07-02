@@ -10,5 +10,12 @@
     },
     "accessControlFilterClassNameMap": {
         "mandatory": "Espo\\Modules\\Advanced\\Classes\\Select\\Report\\AccessControlFilters\\Mandatory"
+    },
+    "selectAttributesDependencyMap": {
+        "id": [
+            "internalClassName",
+            "type",
+            "entityType"
+        ]
     }
 }

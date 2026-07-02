@@ -50,5 +50,17 @@
             }
         }
     },
-    "searchPanelDisabled": true
+    "searchPanelDisabled": true,
+    "relationshipPanels": {
+        "report": {
+            "selectMandatoryAttributeList": [
+                "internalClassName",
+                "columnsData",
+                "groupBy",
+                "columns",
+                "type",
+                "entityType"
+            ]
+        }
+    }
 }

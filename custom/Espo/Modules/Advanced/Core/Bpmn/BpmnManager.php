@@ -11,32 +11,51 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn;
 
 use Espo\Core\Exceptions\Error;
+use Espo\Core\Field\DateTime as DateTimeField;
+use Espo\Core\InjectableFactory;
+use Espo\Core\Job\Job\Data;
+use Espo\Core\Job\JobSchedulerFactory;
+use Espo\Core\Job\QueueName;
+use Espo\Core\Utils\DateTime as DateTimeUtil;
+use Espo\Core\Utils\Log;
 use Espo\Modules\Advanced\Core\Bpmn\Elements\Base;
 use Espo\Modules\Advanced\Entities\BpmnFlowchart;
 use Espo\Modules\Advanced\Entities\BpmnProcess;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
+use Espo\Modules\Advanced\Entities\BpmnSignalListener;
+use Espo\Modules\Advanced\Tools\Bpmn\Jobs\ProcessRootProcessFlows;
 use Espo\ORM\Collection;
-use Espo\ORM\EntityManager;
 use Espo\ORM\Entity;
+use Espo\Core\ORM\Entity as CoreEntity;
+use Espo\ORM\EntityManager;
 use Espo\Core\Container;
 use Espo\Core\Utils\Config;
+use Espo\ORM\Query\Part\Condition as Cond;
+use Espo\ORM\Query\Part\Expression as Expr;
+use Espo\ORM\Query\Part\Join;
+use Espo\ORM\Query\SelectBuilder;
+use Espo\ORM\Query\UnionBuilder;
+use Espo\ORM\Query\UpdateBuilder;
+use Espo\ORM\Repository\Option\SaveOption;
 
 use DateTime;
+use Exception;
+use ReflectionClass;
+use RuntimeException;
 use stdClass;
 use Throwable;
 
 class BpmnManager
 {
-    private Container $container;
-
+    /** @var string[] */
     private array $conditionalElementTypeList = [
         'eventStartConditional',
         'eventStartConditionalEventSubProcess',
@@ -45,26 +64,22 @@ class BpmnManager
     ];
 
     private const PROCEED_PENDING_MAX_SIZE = 20000;
+    private const PARALLEL_ITERATION_MAX_SIZE = 100;
     private const PENDING_DEFER_PERIOD = '6 hours';
     private const PENDING_DEFER_INTERVAL_PERIOD = '10 minutes';
+    private const PROCESS_UNLOCK_PERIOD = '3 hours';
 
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-    }
+    public function __construct(
+        private Container $container,
+        private EntityManager $entityManager,
+        private Config $config,
+        private Log $log,
+        private JobSchedulerFactory $jobSchedulerFactory,
+    ) {}
 
-    private function getEntityManager(): EntityManager
-    {
-        /** @var EntityManager */
-        return $this->container->get('entityManager');
-    }
-
-    private function getConfig(): Config
-    {
-        /** @var Config */
-        return $this->container->get('config');
-    }
-
+    /**
+     * @throws Error
+     */
     public function startCreatedProcess(BpmnProcess $process, ?BpmnFlowchart $flowchart = null): void
     {
         if ($process->getStatus() !== BpmnProcess::STATUS_CREATED) {
@@ -89,10 +104,12 @@ class BpmnManager
         }
 
         if (!$flowchart) {
-            $flowchart = $this->getEntityManager()->getEntity(BpmnFlowchart::ENTITY_TYPE, $flowchartId);
+            $flowchart = $this->entityManager
+                ->getRDBRepositoryByClass(BpmnFlowchart::class)
+                ->getById($flowchartId);
         }
 
-        $target = $this->getEntityManager()->getEntity($targetType, $targetId);
+        $target = $this->entityManager->getEntityById($targetType, $targetId);
 
         if (!$flowchart) {
             throw new Error("BPM: Could not find flowchart.");
@@ -102,7 +119,12 @@ class BpmnManager
             throw new Error("BPM: Could not find flowchart.");
         }
 
-        $this->startProcess($target, $flowchart, $startElementId, $process);
+        $this->startProcess(
+            target: $target,
+            flowchart: $flowchart,
+            startElementId: $startElementId,
+            process: $process,
+        );
     }
 
     /**
@@ -117,9 +139,13 @@ class BpmnManager
         ?stdClass $signalParams = null
     ): void {
 
+        if (!$target instanceof CoreEntity) {
+            throw new RuntimeException();
+        }
+
         $flowchartId = $flowchart->hasId() ? $flowchart->getId() : null;
 
-        $GLOBALS['log']->debug("BPM: startProcess, flowchart $flowchartId, target {$target->getId()}.");
+        $this->log->debug("BPM: startProcess, flowchart $flowchartId, target {$target->getId()}.");
 
         $elementsDataHash = $flowchart->getElementsDataHash();
 
@@ -158,7 +184,7 @@ class BpmnManager
                 'flowchartId' => $flowchartId,
             ];
 
-            $existingProcess = $this->getEntityManager()
+            $existingProcess = $this->entityManager
                 ->getRDBRepository(BpmnProcess::ENTITY_TYPE)
                 ->where($whereClause)
                 ->findOne();
@@ -186,7 +212,7 @@ class BpmnManager
         }
 
         if (!$process) {
-            $process = $this->getEntityManager()->getEntity('BpmnProcess');
+            $process = $this->entityManager->getRDBRepositoryByClass(BpmnProcess::class)->getNew();
 
             $process->set([
                 'name' => $flowchart->getName(),
@@ -211,7 +237,7 @@ class BpmnManager
             'variables' => $variables,
         ]);
 
-        $this->getEntityManager()->saveEntity($process, [
+        $this->entityManager->saveEntity($process, [
             'createdById' => 'system',
             'skipModifiedBy' => true,
             'skipStartProcessFlow' => true,
@@ -252,12 +278,13 @@ class BpmnManager
         foreach ($flowNodeList as $flowNode) {
             $this->processPreparedFlowNode($target, $flowNode, $process);
 
-            if (method_exists($this->getEntityManager(), 'refreshEntity')) {
-                $this->getEntityManager()->refreshEntity($process);
-            }
+            $this->entityManager->refreshEntity($process);
         }
     }
 
+    /**
+     * @throws Error
+     */
     public function prepareEventSubProcesses(Entity $target, BpmnProcess $process): void
     {
         $standByFlowNodeList = [];
@@ -319,17 +346,17 @@ class BpmnManager
                 $item->type !== 'eventStart' &&
                 (
                     in_array($item->type, ['flow', 'eventIntermediateLinkCatch']) ||
-                    strpos($item->type, 'eventStart') === 0
+                    str_starts_with($item->type, 'eventStart')
                 )
             ) {
                 continue;
             }
 
-            if (substr($item->type, -15) === 'EventSubProcess') {
+            if (str_ends_with($item->type, 'EventSubProcess')) {
                 continue;
             }
 
-            if (substr($item->type, -8) === 'Boundary') {
+            if (str_ends_with($item->type, 'Boundary')) {
                 continue;
             }
 
@@ -353,12 +380,12 @@ class BpmnManager
 
     public function prepareStandbyFlow(Entity $target, BpmnProcess $process, string $elementId): ?BpmnFlowNode
     {
-        $GLOBALS['log']->debug("BPM: prepareStandbyFlow, process {$process->getId()}, element $elementId.");
+        $this->log->debug("BPM: prepareStandbyFlow, process {$process->getId()}, element $elementId.");
 
         if ($process->getStatus() !== BpmnProcess::STATUS_STARTED) {
-            $GLOBALS['log']->info(
+            $this->log->info(
                 "BPM: Process status " . $process->getId() . " is not 'Started' but ".
-                $process->get('status').", hence can't create standby flow."
+                $process->getStatus() . ", hence can't create standby flow."
             );
 
             return null;
@@ -390,7 +417,7 @@ class BpmnManager
         $elementType = $startEventType . 'EventSubProcess';
 
         /** @var BpmnFlowNode */
-        return $this->getEntityManager()->createEntity(BpmnFlowNode::ENTITY_TYPE, [
+        return $this->entityManager->createEntity(BpmnFlowNode::ENTITY_TYPE, [
             'status' => BpmnFlowNode::STATUS_CREATED,
             'elementType' => $elementType,
             'elementData' => $eventStartData,
@@ -417,10 +444,6 @@ class BpmnManager
             throw new Error('No start event element.');
         }
 
-        if (!is_object($elementsDataHash)) {
-            throw new Error();
-        }
-
         if (!isset($elementsDataHash->$elementId) || !is_object($elementsDataHash->$elementId)) {
             throw new Error('Not existing start event element id.');
         }
@@ -445,12 +468,12 @@ class BpmnManager
         bool $allowEndedProcess = false
     ): ?BpmnFlowNode {
 
-        $GLOBALS['log']->debug("BPM: prepareFlow, process {$process->getId()}, element $elementId.");
+        $this->log->debug("BPM: prepareFlow, process {$process->getId()}, element $elementId.");
 
         if (!$allowEndedProcess && $process->getStatus() !== BpmnProcess::STATUS_STARTED) {
-            $GLOBALS['log']->info(
+            $this->log->info(
                 "BPM: Process status ".$process->getId() ." is not 'Started' but ".
-                $process->get('status') . ", hence can't be processed."
+                $process->getStatus() . ", hence can't be processed."
             );
 
             return null;
@@ -472,7 +495,7 @@ class BpmnManager
         $elementType = $item->type;
 
         /** @var BpmnFlowNode $flowNode */
-        $flowNode = $this->getEntityManager()->getEntity(BpmnFlowNode::ENTITY_TYPE);
+        $flowNode = $this->entityManager->getNewEntity(BpmnFlowNode::ENTITY_TYPE);
 
         $flowNode->set([
             'status' => BpmnFlowNode::STATUS_CREATED,
@@ -488,11 +511,14 @@ class BpmnManager
             'targetId' => $target->getId(),
         ]);
 
-        $this->getEntityManager()->saveEntity($flowNode);
+        $this->entityManager->saveEntity($flowNode);
 
         return $flowNode;
     }
 
+    /**
+     * @throws Error
+     */
     public function processPreparedFlowNode(Entity $target, BpmnFlowNode $flowNode, BpmnProcess $process): void
     {
         $impl = $this->getFlowNodeImplementation($target, $flowNode, $process);
@@ -500,7 +526,7 @@ class BpmnManager
         $impl->beforeProcess();
 
         if (!$impl->isProcessable()) {
-            $GLOBALS['log']->info("BPM: Can't process not processable node ". $flowNode->getId() .".");
+            $this->log->info("BPM: Can't process not processable node ". $flowNode->getId() .".");
 
             return;
         }
@@ -508,6 +534,9 @@ class BpmnManager
         $impl->process();
     }
 
+    /**
+     * @throws Error
+     */
     public function processFlow(
         Entity $target,
         BpmnProcess $process,
@@ -533,67 +562,264 @@ class BpmnManager
         return $flowNode;
     }
 
-    public function processPendingFlows(): void
+    public function processParallel(): void
     {
-        $limit = $this->getConfig()->get('bpmnProceedPendingMaxSize', self::PROCEED_PENDING_MAX_SIZE);
+        $this->unlockProcesses();
 
-        $GLOBALS['log']->debug("BPM: processPendingFlows");
+        $limit = $this->config->get('bpmnParallelIterationMaxSize', self::PARALLEL_ITERATION_MAX_SIZE);
 
-        $flowNodeList = $this->getEntityManager()
-            ->getRDBRepository(BpmnFlowNode::ENTITY_TYPE)
-            ->sth()
+        // A bit slower than the group-by variant.
+        /*$query1 = SelectBuilder::create()
+            ->from(BpmnProcess::ENTITY_TYPE, 'rootProcess')
+            ->select('id', 'processId')
+            ->select('visitTimestamp', 'visitTimestamp')
+            ->select('firstFlowNode.number', 'number')
+            ->join(
+                Join::createWithSubQuery(
+                    SelectBuilder::create()
+                        ->from(BpmnFlowNode::ENTITY_TYPE)
+                        ->select([
+                            'number',
+                            'process.rootProcessId',
+                        ])
+                        ->join('process')
+                        ->where($this->getPendingNodeWhereClause())
+                        ->where(
+                            Cond::equal(
+                                Expr::column('process.rootProcessId'),
+                                Expr::column('rootProcess.id'),
+                            )
+                        )
+                        ->order('number')
+                        ->limit(0, 1)
+                        ->build(),
+                    'firstFlowNode'
+                )
+                ->withLateral()
+                ->withConditions(Expr::value(true))
+            )
             ->where([
-                'OR' => [
-                    [
-                        'status' => BpmnFlowNode::STATUS_PENDING,
-                        'elementType' => 'eventIntermediateTimerCatch',
-                        'proceedAt<=' => date('Y-m-d H:i:s'),
-                    ],
-                    [
-                        'status' => BpmnFlowNode::STATUS_PENDING,
-                        'elementType' => 'eventIntermediateConditionalCatch',
-                    ],
-                    [
-                        'status' => BpmnFlowNode::STATUS_PENDING,
-                        'elementType' => 'eventIntermediateMessageCatch',
-                    ],
-                    [
-                        'status' => BpmnFlowNode::STATUS_PENDING,
-                        'elementType' => 'eventIntermediateConditionalBoundary',
-                    ],
-                    [
-                        'status' => BpmnFlowNode::STATUS_PENDING,
-                        'elementType' => 'eventIntermediateTimerBoundary',
-                        'proceedAt<=' => date('Y-m-d H:i:s'),
-                    ],
-                    [
-                        'status' => BpmnFlowNode::STATUS_PENDING,
-                        'elementType' => 'eventIntermediateMessageBoundary',
-                    ],
-                    [
-                        'status' => BpmnFlowNode::STATUS_PENDING,
-                        'elementType' => 'taskSendMessage',
-                    ],
-                    [
-                        'status' => BpmnFlowNode::STATUS_STANDBY,
-                        'elementType' => 'eventStartTimerEventSubProcess',
-                        'proceedAt<=' => date('Y-m-d H:i:s'),
-                    ],
-                    [
-                        'status' => BpmnFlowNode::STATUS_STANDBY,
-                        'elementType' => 'eventStartConditionalEventSubProcess',
-                    ],
-                    [
-                        'status' => BpmnFlowNode::STATUS_PENDING,
-                        'elementType' => 'eventIntermediateCompensationThrow',
-                    ],
-                    [
-                        'status' => BpmnFlowNode::STATUS_PENDING,
-                        'elementType' => 'EventEndCompensation',
-                    ],
-                ],
+                'rootProcess.isLocked' => false,
+                'rootProcess.status' => [BpmnProcess::STATUS_STARTED],
+            ])
+            ->order('rootProcess.visitTimestamp')
+            ->order('firstFlowNode.number')
+            ->limit(0, $limit)
+            ->build();*/
+
+        /*$isLockedExpression =
+            (
+                method_exists(Expr::class, 'anyValue') &&
+                // ANY_VALUE is not supported on earlier MariaDB and MySQL versions.
+                $this->config->get('database.platform') === 'Postgresql'
+            ) ?
+            'ANY_VALUE:(rootProcess.isLocked)' :
+            'MAX:(rootProcess.isLocked)';*/
+
+        $query1 = SelectBuilder::create()
+            ->from(BpmnFlowNode::ENTITY_TYPE)
+            ->select('process.rootProcessId', 'processId')
+            ->select('MAX:(rootProcess.visitTimestamp)', 'visitTimestamp')
+            ->select('MIN:(number)', 'number')
+            ->join('process')
+            ->join(
+                Join::createWithTableTarget(BpmnProcess::ENTITY_TYPE, 'rootProcess')
+                    ->withConditions(
+                        Cond::equal(
+                            Expr::column('process.rootProcessId'),
+                            Expr::column('rootProcess.id'),
+                        )
+                    )
+            )
+            ->where($this->getPendingNodeWhereClause())
+            ->where([
+                'rootProcess.isLocked' => false,
+                'rootProcess.status' => [BpmnProcess::STATUS_STARTED],
+            ])
+            ->group('process.rootProcessId')
+            ->order('MAX:(rootProcess.visitTimestamp)')
+            ->order('MIN:(number)')
+            ->limit(0, $limit)
+            ->build();
+
+        $query2 = SelectBuilder::create()
+            ->from(BpmnSignalListener::ENTITY_TYPE)
+            ->select('process.rootProcessId', 'processId')
+            ->select('MAX:(rootProcess.visitTimestamp)', 'visitTimestamp')
+            ->select('MIN:(number)', 'number')
+            ->join('flowNode')
+            ->join(
+                Join::createWithTableTarget(BpmnProcess::ENTITY_TYPE, 'process')
+                    ->withConditions(
+                        Cond::equal(
+                            Expr::column('flowNode.processId'),
+                            Expr::column('process.id'),
+                        )
+                    )
+            )
+            ->join(
+                Join::createWithTableTarget(BpmnProcess::ENTITY_TYPE, 'rootProcess')
+                    ->withConditions(
+                        Cond::equal(
+                            Expr::column('process.rootProcessId'),
+                            Expr::column('rootProcess.id'),
+                        )
+                    )
+            )
+            ->where([
+                'isTriggered' => true,
+                'rootProcess.isLocked' => false,
+                'rootProcess.status' => [BpmnProcess::STATUS_STARTED],
+            ])
+            ->group('process.rootProcessId')
+            ->order('MAX:(rootProcess.visitTimestamp)')
+            ->order('MIN:(number)')
+            ->limit(0, $limit)
+            ->build();
+
+        $query = UnionBuilder::create()
+            ->query($query1)
+            ->query($query2)
+            ->order('visitTimestamp')
+            ->order('number')
+            ->limit(0, $limit)
+            ->build();
+
+        $sth = $this->entityManager->getQueryExecutor()->execute($query);
+
+        while ($row = $sth->fetch()) {
+            $rootProcessId = $row['processId'] ?? null;
+
+            if (!is_string($rootProcessId)) {
+                throw new RuntimeException("Non-string root process ID.");
+            }
+
+            $process = $this->entityManager->getRDBRepositoryByClass(BpmnProcess::class)->getNew();
+
+            $process->setMultiple([
+                'id' => $rootProcessId,
+                'isLocked' => false,
+                'visitTimestamp' => $row['visitTimestamp'] ?? null,
+            ]);
+
+            $process->setAsFetched();
+
+            $this->prepareRootProcessVisit($process);
+        }
+    }
+
+    private function unlockProcesses(): void
+    {
+        $period = $this->config->get('bpmnProcessUnlockPeriod') ?? self::PROCESS_UNLOCK_PERIOD;
+
+        $from = DateTimeField::createNow()->modify('-' . $period);
+
+        $updateQuery = UpdateBuilder::create()
+            ->in(BpmnProcess::ENTITY_TYPE)
+            ->set([
                 'isLocked' => false,
             ])
+            ->where([
+                'isLocked' => true,
+                'visitTimestamp<' => $from->toTimestamp() * 1000,
+            ])
+            ->build();
+
+        $this->entityManager->getQueryExecutor()->execute($updateQuery);
+    }
+
+    private function prepareRootProcessVisit(BpmnProcess $process): void
+    {
+        $process->setIsLocked(true);
+        $process->setVisitTimestampNow();
+
+        $this->entityManager->saveEntity($process, [SaveOption::SKIP_ALL => true]);
+
+        $queue = (new ReflectionClass(QueueName::class))->hasConstant('M0') ?
+            'M0' : null;
+
+        $this->jobSchedulerFactory
+            ->create()
+            ->setClassName(ProcessRootProcessFlows::class)
+            ->setData(
+                Data::create()
+                    ->withTargetId($process->getId())
+                    ->withTargetType($process->getEntityType())
+            )
+            ->setQueue($queue)
+            ->schedule();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getPendingNodeWhereClause(): array
+    {
+        return [
+            'OR' => [
+                [
+                    'status' => BpmnFlowNode::STATUS_PENDING,
+                    'elementType' => 'eventIntermediateTimerCatch',
+                    'proceedAt<=' => date(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT),
+                ],
+                [
+                    'status' => BpmnFlowNode::STATUS_PENDING,
+                    'elementType' => 'eventIntermediateConditionalCatch',
+                ],
+                [
+                    'status' => BpmnFlowNode::STATUS_PENDING,
+                    'elementType' => 'eventIntermediateMessageCatch',
+                ],
+                [
+                    'status' => BpmnFlowNode::STATUS_PENDING,
+                    'elementType' => 'eventIntermediateConditionalBoundary',
+                ],
+                [
+                    'status' => BpmnFlowNode::STATUS_PENDING,
+                    'elementType' => 'eventIntermediateTimerBoundary',
+                    'proceedAt<=' => date(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT),
+                ],
+                [
+                    'status' => BpmnFlowNode::STATUS_PENDING,
+                    'elementType' => 'eventIntermediateMessageBoundary',
+                ],
+                [
+                    'status' => BpmnFlowNode::STATUS_PENDING,
+                    'elementType' => 'taskSendMessage',
+                ],
+                [
+                    'status' => BpmnFlowNode::STATUS_STANDBY,
+                    'elementType' => 'eventStartTimerEventSubProcess',
+                    'proceedAt<=' => date(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT),
+                ],
+                [
+                    'status' => BpmnFlowNode::STATUS_STANDBY,
+                    'elementType' => 'eventStartConditionalEventSubProcess',
+                ],
+                [
+                    'status' => BpmnFlowNode::STATUS_PENDING,
+                    'elementType' => 'eventIntermediateCompensationThrow',
+                ],
+                [
+                    'status' => BpmnFlowNode::STATUS_PENDING,
+                    'elementType' => 'EventEndCompensation',
+                ],
+            ],
+            'isLocked' => false,
+        ];
+    }
+
+    /**
+     * @return iterable<BpmnFlowNode>
+     */
+    private function getPendingFlowNodes(?string $rootProcessId = null): iterable
+    {
+        $limit = $this->config->get('bpmnProceedPendingMaxSize', self::PROCEED_PENDING_MAX_SIZE);
+
+        $builder = $this->entityManager
+            ->getRDBRepositoryByClass(BpmnFlowNode::class)
+            ->sth()
+            ->where($this->getPendingNodeWhereClause())
             ->select([
                 'id',
                 'elementType',
@@ -603,45 +829,64 @@ class BpmnManager
                 'createdAt',
             ])
             ->order('number', false)
-            ->limit(0, $limit)
-            ->find();
+            ->limit(0, $limit);
 
-        foreach ($flowNodeList as $flowNode) {
-            try {
-                $toProcess = $this->checkPendingFlow($flowNode);
-            } catch (Throwable $e) {
-                $this->logException($e);
-
-                // @todo Destroy item.
-
-                continue;
-            }
-
-            if (!$toProcess) {
-                continue;
-            }
-
-            try {
-                $this->controlDeferPendingFlow($flowNode);
-            } catch (Throwable $e) {
-                $this->logException($e);
-
-                // @todo Destroy item.
-
-                continue;
-            }
-
-            try {
-                $this->proceedPendingFlow($flowNode);
-            } catch (Throwable $e) {
-                $this->logException($e);
-
-                // @todo Destroy item.
-            }
+        if ($rootProcessId) {
+            $builder
+                ->join('process')
+                ->where(['process.rootProcessId' => $rootProcessId]);
         }
 
-        $this->cleanupSignalListeners();
-        $this->processTriggeredSignals();
+        return $builder->find();
+    }
+
+    public function processPendingFlows(?string $rootProcessId = null): void
+    {
+        $this->log->debug("BPM: processPendingFlows " . ($rootProcessId ?? '(all)'));
+
+        $flowNodes = $this->getPendingFlowNodes($rootProcessId);
+
+        foreach ($flowNodes as $flowNode) {
+            $this->processPendingFlowsItem($flowNode);
+        }
+
+        $this->cleanupSignalListeners($rootProcessId);
+        $this->processTriggeredSignals($rootProcessId);
+    }
+
+    private function processPendingFlowsItem(BpmnFlowNode $flowNode): void
+    {
+        try {
+            $toProcess = $this->checkPendingFlow($flowNode);
+        } catch (Throwable $e) {
+            $this->logException($e);
+
+            // @todo Destroy item.
+
+            return;
+        }
+
+        if (!$toProcess) {
+            return;
+        }
+
+        try {
+            $this->controlDeferPendingFlow($flowNode);
+        } catch (Throwable $e) {
+            $this->logException($e);
+
+            // @todo Destroy item.
+
+            return;
+        }
+
+        try {
+            $this->proceedPendingFlow($flowNode);
+        } catch (Throwable $e) {
+            $this->logException($e);
+
+            // @todo Destroy item.
+        }
     }
 
     /**
@@ -657,20 +902,31 @@ class BpmnManager
             return true;
         }
 
-        if (!$flowNode->get('deferredAt')) {
-            return true;
-        }
-
         if (!$flowNode->get('isDeferred')) {
             return true;
         }
 
-        $period = $this->getConfig()->get('bpmnPendingDeferIntervalPeriod', self::PENDING_DEFER_INTERVAL_PERIOD);
+        $deferredAt = $flowNode->get('deferredAt');
 
-        $diff = DateTime::createFromFormat('Y-m-d H:i:s', $flowNode->get('deferredAt'))
-            ->diff(
-                (new DateTime())->modify('-' . $period)
-            );
+        if (!$deferredAt) {
+            return true;
+        }
+
+        $period = $this->config->get('bpmnPendingDeferIntervalPeriod', self::PENDING_DEFER_INTERVAL_PERIOD);
+
+        try {
+            $threshold = (new DateTime())->modify('-' . $period);
+        } catch (Exception $e) {/** @phpstan-ignore-line */
+            throw new RuntimeException($e->getMessage(), 0, $e);
+        }
+
+        $deferredAtDate = DateTime::createFromFormat(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT, $deferredAt);
+
+        if ($deferredAtDate === false || $threshold === false) {
+            return true;
+        }
+
+        $diff = $deferredAtDate->diff($threshold);
 
         if (!$diff->invert) {
             return true;
@@ -693,14 +949,23 @@ class BpmnManager
             return;
         }
 
-        $period = $flowNode->get('deferredAt') ?
-            $this->getConfig()->get('bpmnPendingDeferIntervalPeriod', self::PENDING_DEFER_INTERVAL_PERIOD) :
-            $this->getConfig()->get('bpmnPendingDeferPeriod', self::PENDING_DEFER_PERIOD);
+        $fromDate = DateTime::createFromFormat(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT, $from);
 
-        $diff = DateTime::createFromFormat('Y-m-d H:i:s', $from)
-            ->diff(
-                (new DateTime())->modify('-' . $period)
-            );
+        $period = $flowNode->get('deferredAt') ?
+            $this->config->get('bpmnPendingDeferIntervalPeriod', self::PENDING_DEFER_INTERVAL_PERIOD) :
+            $this->config->get('bpmnPendingDeferPeriod', self::PENDING_DEFER_PERIOD);
+
+        try {
+            $threshold = (new DateTime())->modify('-' . $period);
+        } catch (Exception $e) {/** @phpstan-ignore-line */
+            throw new RuntimeException($e->getMessage(), 0, $e);
+        }
+
+        if ($fromDate === false || $threshold === false) {
+            return;
+        }
+
+        $diff = $fromDate->diff($threshold);
 
         if (
             $diff->invert &&
@@ -709,11 +974,9 @@ class BpmnManager
         ) {
             // If a node was set as not deferred, it should be checked only once.
 
-            $flowNode->set([
-                'isDeferred' => true,
-            ]);
+            $flowNode->set(['isDeferred' => true]);
 
-            $this->getEntityManager()->saveEntity($flowNode);
+            $this->entityManager->saveEntity($flowNode);
 
             return;
         }
@@ -723,19 +986,19 @@ class BpmnManager
         }
 
         $flowNode->set([
-            'deferredAt' => (new DateTime())->format('Y-m-d H:i:s'),
+            'deferredAt' => (new DateTime())->format(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT),
             'isDeferred' => true,
         ]);
 
-        $this->getEntityManager()->saveEntity($flowNode);
+        $this->entityManager->saveEntity($flowNode);
     }
 
-    public function cleanupSignalListeners(): void
+    public function cleanupSignalListeners(?string $rootProcessId = null): void
     {
-        $limit = $this->getConfig()->get('bpmnProceedPendingMaxSize', self::PROCEED_PENDING_MAX_SIZE);
+        $limit = $this->config->get('bpmnProceedPendingMaxSize', self::PROCEED_PENDING_MAX_SIZE);
 
-        $listenerList = $this->getEntityManager()
-            ->getRDBRepository('BpmnSignalListener')
+        $builder = $this->entityManager
+            ->getRDBRepositoryByClass(BpmnSignalListener::class)
             ->select(['id', 'name', 'flowNodeId'])
             ->order('number')
             ->leftJoin(
@@ -754,50 +1017,80 @@ class BpmnManager
                     ],
                 ],
             ])
-            ->limit(0, $limit)
-            ->find();
+            ->limit(0, $limit);
 
-        foreach ($listenerList as $item) {
-            $GLOBALS['log']->debug("BPM: Delete not actual signal listener for flow node " . $item->get('flowNodeId'));
+        if ($rootProcessId) {
+            $builder
+                ->leftJoin(
+                    Join::createWithTableTarget(BpmnProcess::ENTITY_TYPE, 'process')
+                        ->withConditions(
+                            Cond::equal(
+                                Expr::column('flowNode.processId'),
+                                Expr::column('process.id'),
+                            )
+                        )
+                )
+                ->where(['process.rootProcessId' => $rootProcessId]);
+        }
 
-            $this->getEntityManager()
-                ->getRDBRepository('BpmnSignalListener')
+        foreach ($builder->find() as $item) {
+            $this->log->debug("BPM: Delete not actual signal listener for flow node " . $item->getFlowNodeId());
+
+            $this->entityManager
+                ->getRDBRepository(BpmnSignalListener::ENTITY_TYPE)
                 ->deleteFromDb($item->getId());
         }
     }
 
-    public function processTriggeredSignals(): void
+    private function processTriggeredSignals(?string $rootProcessId = null): void
     {
-        $limit = $this->getConfig()->get('bpmnProceedPendingMaxSize', self::PROCEED_PENDING_MAX_SIZE);
+        $limit = $this->config->get('bpmnProceedPendingMaxSize', self::PROCEED_PENDING_MAX_SIZE);
 
-        $GLOBALS['log']->debug("BPM: processTriggeredSignals");
+        $this->log->debug("BPM: processTriggeredSignals");
 
-        $listenerList = $this->getEntityManager()
-            ->getRDBRepository('BpmnSignalListener')
-            ->select(['id', 'name', 'flowNodeId'])
+        $builder = $this->entityManager
+            ->getRDBRepositoryByClass(BpmnSignalListener::class)
+            ->select([
+                'id',
+                'name',
+                'flowNodeId',
+            ])
             ->order('number')
             ->where([
                 'isTriggered' => true,
             ])
-            ->limit(0, $limit)
-            ->find();
+            ->limit(0, $limit);
 
-        foreach ($listenerList as $item) {
-            $this->getEntityManager()
-                ->getRDBRepository('BpmnSignalListener')
+        if ($rootProcessId) {
+            $builder
+                ->leftJoin('flowNode')
+                ->leftJoin(
+                    Join::createWithTableTarget(BpmnProcess::ENTITY_TYPE, 'process')
+                         ->withConditions(
+                             Cond::equal(
+                                 Expr::column('flowNode.processId'),
+                                 Expr::column('process.id'),
+                             )
+                         )
+                )
+                ->where(['process.rootProcessId' => $rootProcessId]);
+        }
+
+        foreach ($builder->find() as $item) {
+            $this->entityManager
+                ->getRDBRepository(BpmnSignalListener::ENTITY_TYPE)
                 ->deleteFromDb($item->getId());
 
-            $flowNodeId = $item->get('flowNodeId');
+            $flowNodeId = $item->getFlowNodeId();
 
             if (!$flowNodeId) {
                 continue;
             }
 
-            /** @var ?BpmnFlowNode $flowNode */
-            $flowNode = $this->getEntityManager()->getEntity(BpmnFlowNode::ENTITY_TYPE, $flowNodeId);
+            $flowNode = $this->entityManager->getRDBRepositoryByClass(BpmnFlowNode::class)->getById($flowNodeId);
 
             if (!$flowNode) {
-                $GLOBALS['log']->notice("BPM: Flow Node $flowNodeId not found.");
+                $this->log->notice("BPM: Flow Node $flowNodeId not found.");
 
                 continue;
             }
@@ -812,12 +1105,13 @@ class BpmnManager
 
     public function setFlowNodeFailed(BpmnFlowNode $flowNode): void
     {
+        $flowNode->setStatus(BpmnFlowNode::STATUS_FAILED);
+
         $flowNode->set([
-            'status' => BpmnFlowNode::STATUS_FAILED,
-            'processedAt' => date('Y-m-d H:i:s'),
+            'processedAt' => date(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT),
         ]);
 
-        $this->getEntityManager()->saveEntity($flowNode);
+        $this->entityManager->saveEntity($flowNode);
     }
 
     /**
@@ -855,14 +1149,17 @@ class BpmnManager
         }
     }
 
+    /**
+     * @throws Error
+     */
     private function getAndLockFlowNodeById(string $id): BpmnFlowNode
     {
-        $transactionManager = $this->getEntityManager()->getTransactionManager();
+        $transactionManager = $this->entityManager->getTransactionManager();
 
         $transactionManager->start();
 
         /** @var ?BpmnFlowNode $flowNode */
-        $flowNode = $this->getEntityManager()
+        $flowNode = $this->entityManager
             ->getRDBRepository('BpmnFlowNode')
             ->forUpdate()
             ->where(['id' => $id])
@@ -871,13 +1168,13 @@ class BpmnManager
         if (!$flowNode) {
             $transactionManager->rollback();
 
-            throw new Error("Can't find Flow Node " . $id . ".");
+            throw new Error("Can't find Flow Node $id.");
         }
 
         if ($flowNode->get('isLocked')) {
             $transactionManager->rollback();
 
-            throw new Error("Can't get locked Flow Node " . $id . ".");
+            throw new Error("Can't get locked Flow Node $id.");
         }
 
         $this->lockFlowNode($flowNode);
@@ -891,14 +1188,14 @@ class BpmnManager
     {
         $flowNode->set('isLocked', true);
 
-        $this->getEntityManager()->saveEntity($flowNode);
+        $this->entityManager->saveEntity($flowNode);
     }
 
     private function unlockFlowNode(BpmnFlowNode $flowNode): void
     {
         $flowNode->set('isLocked', false);
 
-        $this->getEntityManager()->saveEntity($flowNode);
+        $this->entityManager->saveEntity($flowNode);
     }
 
     /**
@@ -906,13 +1203,16 @@ class BpmnManager
      */
     public function proceedPendingFlow(BpmnFlowNode $flowNode): void
     {
-        $GLOBALS['log']->debug("BPM: proceedPendingFlow, node {$flowNode->getId()}.");
+        $this->log->debug("BPM: proceedPendingFlow, node {$flowNode->getId()}.");
 
         $flowNode = $this->getAndLockFlowNodeById($flowNode->getId());
 
         /** @var ?BpmnProcess $process */
-        $process = $this->getEntityManager()->getEntity(BpmnProcess::ENTITY_TYPE, $flowNode->getProcessId());
-        $target = $this->getEntityManager()->getEntity($flowNode->getTargetType(), $flowNode->getTargetId());
+        $process = $this->entityManager
+            ->getEntityById(BpmnProcess::ENTITY_TYPE, $flowNode->getProcessId());
+
+        $target = $this->entityManager
+            ->getEntityById($flowNode->getTargetType(), $flowNode->getTargetId());
 
         if (
             $flowNode->getStatus() !== BpmnFlowNode::STATUS_PENDING &&
@@ -920,7 +1220,7 @@ class BpmnManager
         ) {
             $this->unlockFlowNode($flowNode);
 
-            $GLOBALS['log']->info(
+            $this->log->info(
                 "BPM: Can not proceed not pending or standby (". $flowNode->getStatus() .") flow node in process " .
                 $process->getId() . "."
             );
@@ -941,17 +1241,24 @@ class BpmnManager
      */
     public function completeFlow(BpmnFlowNode $flowNode): void
     {
-        $GLOBALS['log']->debug("BPM: completeFlow, node {$flowNode->getId()}");
+        $this->log->debug("BPM: completeFlow, node {$flowNode->getId()}");
 
         $flowNode = $this->getAndLockFlowNodeById($flowNode->getId());
-        $target = $this->getEntityManager()->getEntity($flowNode->getTargetType(), $flowNode->getTargetId());
+
+        $target = $this->entityManager
+            ->getEntityById($flowNode->getTargetType(), $flowNode->getTargetId());
+
         /** @var ?BpmnProcess $process */
-        $process = $this->getEntityManager()->getEntity(BpmnProcess::ENTITY_TYPE, $flowNode->getProcessId());
+        $process = $this->entityManager
+            ->getEntityById(BpmnProcess::ENTITY_TYPE, $flowNode->getProcessId());
 
         if ($flowNode->getStatus() !== BpmnFlowNode::STATUS_IN_PROCESS) {
             $this->unlockFlowNode($flowNode);
 
-            throw new Error("BPM: Can not complete not 'In Process' flow node in process " . $process->getId() . ".");
+            $message =
+                "BPM: Cannot complete flow node with status '{$flowNode->getStatus()}' in process {$process->getId()}.";
+
+            throw new Error($message);
         }
 
         if ($flowNode->getElementType() !== 'eventSubProcess') {
@@ -972,7 +1279,8 @@ class BpmnManager
             // A sub-process interrupted by interrupting event is complete.
 
             $parentFlowNode = $this->getAndLockFlowNodeById($process->getParentProcessFlowNodeId());
-            $parentFlowNode->set('status', BpmnFlowNode::STATUS_INTERRUPTED);
+
+            $parentFlowNode->setStatus(BpmnFlowNode::STATUS_INTERRUPTED);
 
             $this->saveFlowNode($parentFlowNode);
             $this->unlockFlowNode($parentFlowNode);
@@ -990,12 +1298,12 @@ class BpmnManager
     {
         $id = $flowNode->getId();
 
-        $GLOBALS['log']->debug("BPM: failFlow, node $id");
+        $this->log->debug("BPM: failFlow, node $id");
 
         $flowNode = $this->getAndLockFlowNodeById($id);
         /** @var ?BpmnProcess $process */
-        $process = $this->getEntityManager()->getEntityById(BpmnProcess::ENTITY_TYPE, $flowNode->getProcessId());
-        $target = $this->getEntityManager()->getEntityById($flowNode->getTargetType(), $flowNode->getTargetId());
+        $process = $this->entityManager->getEntityById(BpmnProcess::ENTITY_TYPE, $flowNode->getProcessId());
+        $target = $this->entityManager->getEntityById($flowNode->getTargetType(), $flowNode->getTargetId());
 
         if (!$this->isFlowNodeIsActual($flowNode)) {
             $this->unlockFlowNode($flowNode);
@@ -1009,15 +1317,18 @@ class BpmnManager
         $this->unlockFlowNode($flowNode);
     }
 
+    /**
+     * @throws Error
+     */
     public function cancelActivityByBoundaryEvent(BpmnFlowNode $flowNode): void
     {
-        $GLOBALS['log']->debug("BPM: cancelActivityByBoundaryEvent, node {$flowNode->getId()}");
+        $this->log->debug("BPM: cancelActivityByBoundaryEvent, node {$flowNode->getId()}");
 
-        $activityFlowNode = $this->getAndLockFlowNodeById($flowNode->get('previousFlowNodeId'));
+        $activityFlowNode = $this->getAndLockFlowNodeById($flowNode->getPreviousFlowNodeId());
 
         /** @var ?BpmnProcess $process */
-        $process = $this->getEntityManager()->getEntityById(BpmnProcess::ENTITY_TYPE, $flowNode->getProcessId());
-        $target = $this->getEntityManager()->getEntityById($flowNode->getTargetType(), $flowNode->getTargetId());
+        $process = $this->entityManager->getEntityById(BpmnProcess::ENTITY_TYPE, $flowNode->getProcessId());
+        $target = $this->entityManager->getEntityById($flowNode->getTargetType(), $flowNode->getTargetId());
 
         if (!$this->isFlowNodeIsActual($activityFlowNode)) {
             $this->unlockFlowNode($activityFlowNode);
@@ -1031,20 +1342,19 @@ class BpmnManager
 
         $impl->interrupt();
 
-        if (in_array($activityFlowNode->get('elementType'), ['callActivity', 'subProcess', 'eventSubProcess'])) {
-            $subProcess = $this->getEntityManager()
-                ->getRDBRepository(BpmnProcess::ENTITY_TYPE)
-                ->where([
-                    'parentProcessFlowNodeId' => $activityFlowNode->getId(),
-                ])
+        if (in_array($activityFlowNode->getElementType(), ['callActivity', 'subProcess', 'eventSubProcess'])) {
+            $subProcess = $this->entityManager
+                ->getRDBRepositoryByClass(BpmnProcess::class)
+                ->where(['parentProcessFlowNodeId' => $activityFlowNode->getId()])
                 ->findOne();
 
             if ($subProcess) {
                 try {
                     $this->interruptProcess($subProcess);
-                }
-                catch (Throwable $e) {
-                    $GLOBALS['log']->error("BPM: Fail when tried to interrupt sub-process; " . $e->getMessage());
+                } catch (Throwable $e) {
+                    $message = "BPM: Fail when tried to interrupt sub-process; " . $e->getMessage();
+
+                    $this->log->error($message, ['exception' => $e]);
                 }
             }
         }
@@ -1065,29 +1375,31 @@ class BpmnManager
         );
     }
 
-    private function failProcessFlow(Entity $target, BpmnFlowNode $flowNode, BpmnProcess $process): void
+    /*private function failProcessFlow(Entity $target, BpmnFlowNode $flowNode, BpmnProcess $process): void
     {
         $this->getFlowNodeImplementation($target, $flowNode, $process)->fail();
-    }
+    }*/
 
     public function getFlowNodeImplementation(Entity $target, BpmnFlowNode $flowNode, BpmnProcess $process): Base
     {
         $elementType = $flowNode->get('elementType');
 
+        /** @var class-string<Base> $className */
         $className = 'Espo\\Modules\\Advanced\\Core\\Bpmn\\Elements\\' . ucfirst($elementType);
 
-        return new $className(
-            $this->container,
-            $this,
-            $target,
-            $flowNode,
-            $process
-        );
+        return $this->container
+            ->getByClass(InjectableFactory::class)
+            ->createWith($className, [
+                'manager' => $this,
+                'target' => $target,
+                'flowNode' => $flowNode,
+                'process' => $process,
+            ]);
     }
 
     private function getActiveFlowCount(BpmnProcess $process): int
     {
-        return $this->getEntityManager()
+        return $this->entityManager
             ->getRDBRepository(BpmnFlowNode::ENTITY_TYPE)
             ->where([
                 'status!=' => [
@@ -1105,7 +1417,7 @@ class BpmnManager
 
     private function getActiveEventSubProcessCount(BpmnProcess $process): int
     {
-        return $this->getEntityManager()
+        return $this->entityManager
             ->getRDBRepository(BpmnFlowNode::ENTITY_TYPE)
             ->where([
                 'status' => [BpmnFlowNode::STATUS_IN_PROCESS],
@@ -1115,14 +1427,17 @@ class BpmnManager
             ->count();
     }
 
+    /**
+     * @throws Error
+     */
     public function endProcessFlow(BpmnFlowNode $flowNode, BpmnProcess $process): void
     {
-        $GLOBALS['log']->debug("BPM: endProcessFlow, node {$flowNode->getId()}.");
+        $this->log->debug("BPM: endProcessFlow, node {$flowNode->getId()}.");
 
         if ($this->isFlowNodeIsActual($flowNode)) {
-            $flowNode->set('status', BpmnFlowNode::STATUS_REJECTED);
+            $flowNode->setStatus(BpmnFlowNode::STATUS_REJECTED);
 
-            $this->getEntityManager()->saveEntity($flowNode);
+            $this->entityManager->saveEntity($flowNode);
         }
 
         $this->tryToEndProcess($process);
@@ -1133,7 +1448,11 @@ class BpmnManager
      */
     public function tryToEndProcess(BpmnProcess $process): void
     {
-        $GLOBALS['log']->debug("BPM: tryToEndProcess, process {$process->getId()}.");
+        $this->log->debug("BPM: tryToEndProcess, process {$process->getId()}.");
+
+        if (!$process->get('deleted')) { // @todo Change to const when v9.0 is min supported.
+            $this->entityManager->refreshEntity($process);
+        }
 
         if (
             !$this->getActiveFlowCount($process) &&
@@ -1160,7 +1479,7 @@ class BpmnManager
      */
     public function endProcess(BpmnProcess $process, bool $interruptSubProcesses = false): void
     {
-        $GLOBALS['log']->debug("BPM: endProcess, process {$process->getId()}.");
+        $this->log->debug("BPM: endProcess, process {$process->getId()}.");
 
         $this->rejectActiveFlows($process);
 
@@ -1177,20 +1496,21 @@ class BpmnManager
             $this->interruptSubProcesses($process);
         }
 
+        $process->setStatus(BpmnProcess::STATUS_ENDED);
+
         $process->set([
-            'status' => BpmnProcess::STATUS_ENDED,
-            'endedAt' => date('Y-m-d H:i:s'),
+            'endedAt' => date(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT),
         ]);
 
-        $this->getEntityManager()->saveEntity($process, ['modifiedById' => 'system']);
+        $this->entityManager->saveEntity($process, ['modifiedById' => 'system']);
 
         if (!$process->hasParentProcess()) {
             return;
         }
 
         /** @var ?BpmnFlowNode $parentFlowNode */
-        $parentFlowNode = $this->getEntityManager()
-            ->getEntity(BpmnFlowNode::ENTITY_TYPE, $process->getParentProcessFlowNodeId());
+        $parentFlowNode = $this->entityManager
+            ->getEntityById(BpmnFlowNode::ENTITY_TYPE, $process->getParentProcessFlowNodeId());
 
         if (!$parentFlowNode) {
             return;
@@ -1204,7 +1524,7 @@ class BpmnManager
      */
     public function escalate(BpmnProcess $process, ?string $escalationCode = null): void
     {
-        $GLOBALS['log']->debug("BPM: escalate, process {$process->getId()}.");
+        $this->log->debug("BPM: escalate, process {$process->getId()}.");
 
         if (
             !in_array($process->getStatus(), [
@@ -1221,9 +1541,9 @@ class BpmnManager
         $targetId = $process->getTargetId();
 
         if ($escalationEventSubProcessFlowNode) {
-            $GLOBALS['log']->info("BPM: escalation event sub-process found");
+            $this->log->info("BPM: escalation event sub-process found");
 
-            $target = $this->getEntityManager()->getEntity($targetType, $targetId);
+            $target = $this->entityManager->getEntityById($targetType, $targetId);
 
             if (!$target) {
                 return;
@@ -1245,18 +1565,19 @@ class BpmnManager
         }
 
         /** @var ?BpmnProcess $parentProcess */
-        $parentProcess = $this->getEntityManager()->getEntity(BpmnProcess::ENTITY_TYPE, $process->getParentProcessId());
+        $parentProcess = $this->entityManager
+            ->getEntityById(BpmnProcess::ENTITY_TYPE, $process->getParentProcessId());
 
         /** @var ?BpmnFlowNode $parentFlowNode */
-        $parentFlowNode = $this->getEntityManager()
-            ->getEntity(BpmnFlowNode::ENTITY_TYPE, $process->getParentProcessFlowNodeId());
+        $parentFlowNode = $this->entityManager
+            ->getEntityById(BpmnFlowNode::ENTITY_TYPE, $process->getParentProcessFlowNodeId());
 
         if (!$parentProcess || !$parentFlowNode) {
             return;
         }
 
-        $target = $this->getEntityManager()
-            ->getEntity($parentFlowNode->getTargetType(), $parentFlowNode->getTargetId());
+        $target = $this->entityManager
+            ->getEntityById($parentFlowNode->getTargetType(), $parentFlowNode->getTargetId());
 
         $boundaryFlowNode = $this->prepareBoundaryEscalationFlowNode(
             $parentFlowNode,
@@ -1283,10 +1604,10 @@ class BpmnManager
 
     public function broadcastSignal(string $signal): void
     {
-        $GLOBALS['log']->debug("BPM: broadcastSignal");
+        $this->log->debug("BPM: broadcastSignal");
 
-        $itemList = $this->getEntityManager()
-            ->getRDBRepository('BpmnSignalListener')
+        $itemList = $this->entityManager
+            ->getRDBRepositoryByClass(BpmnSignalListener::class)
             ->select(['id', 'flowNodeId'])
             ->where([
                 'name' => $signal,
@@ -1296,27 +1617,26 @@ class BpmnManager
             ->find();
 
         foreach ($itemList as $item) {
-            $this->getEntityManager()
-                ->getRDBRepository('BpmnSignalListener')
+            $this->entityManager
+                ->getRDBRepositoryByClass(BpmnSignalListener::class)
                 ->deleteFromDb($item->getId());
         }
 
         foreach ($itemList as $item) {
-            $flowNodeId = $item->get('flowNodeId');
+            $flowNodeId = $item->getFlowNodeId();
 
             /** @var ?BpmnFlowNode $flowNode */
-            $flowNode = $this->getEntityManager()->getEntityById(BpmnFlowNode::ENTITY_TYPE, $flowNodeId);
+            $flowNode = $this->entityManager->getEntityById(BpmnFlowNode::ENTITY_TYPE, $flowNodeId);
 
             if (!$flowNode) {
-                $GLOBALS['log']->notice("BPM: broadcastSignal, flow node $flowNodeId not found.");
+                $this->log->notice("BPM: broadcastSignal, flow node $flowNodeId not found.");
 
                 continue;
             }
 
             try {
                 $this->proceedPendingFlow($flowNode);
-            }
-            catch (Throwable $e) {
+            } catch (Throwable $e) {
                 $this->logException($e);
             }
         }
@@ -1374,7 +1694,8 @@ class BpmnManager
             return null;
         }
 
-        $target = $this->getEntityManager()->getEntity($flowNode->getTargetType(), $flowNode->getTargetId());
+        $target = $this->entityManager
+            ->getEntityById($flowNode->getTargetType(), $flowNode->getTargetId());
 
         if (!$target) {
             return null;
@@ -1398,7 +1719,7 @@ class BpmnManager
         ?string $errorMessage = null
     ): void {
 
-        $GLOBALS['log']->debug("BPM: endProcessWithError, process {$process->getId()}.");
+        $this->log->debug("BPM: endProcessWithError, process {$process->getId()}.");
 
         $this->rejectActiveFlows($process);
 
@@ -1413,12 +1734,13 @@ class BpmnManager
 
         $this->interruptSubProcesses($process);
 
+        $process->setStatus(BpmnProcess::STATUS_ENDED);
+
         $process->set([
-            'status' => BpmnProcess::STATUS_ENDED,
-            'endedAt' => date('Y-m-d H:i:s'),
+            'endedAt' => date(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT),
         ]);
 
-        $this->getEntityManager()->saveEntity($process, ['modifiedById' => 'system']);
+        $this->entityManager->saveEntity($process, ['modifiedById' => 'system']);
 
         $this->triggerError($process, $errorCode, $errorMessage);
     }
@@ -1433,21 +1755,21 @@ class BpmnManager
         bool $skipHandler = false
     ): void {
 
-        $GLOBALS['log']->info("BPM: triggerError");
+        $this->log->info("BPM: triggerError");
 
         $errorEventSubProcessFlowNode = !$skipHandler ?
             $this->prepareErrorEventSubProcessFlowNode($process, $errorCode) :
             null;
 
         if ($errorEventSubProcessFlowNode) {
-            $GLOBALS['log']->info("BPM: error event sub-process found");
+            $this->log->info("BPM: error event sub-process found");
 
             $errorEventSubProcessFlowNode->setDataItemValue('caughtErrorCode', $errorCode);
             $errorEventSubProcessFlowNode->setDataItemValue('caughtErrorMessage', $errorMessage);
 
-            $this->getEntityManager()->saveEntity($errorEventSubProcessFlowNode);
+            $this->entityManager->saveEntity($errorEventSubProcessFlowNode);
 
-            $target = $this->getEntityManager()->getEntity($process->getTargetType(), $process->getTargetId());
+            $target = $this->entityManager->getEntityById($process->getTargetType(), $process->getTargetId());
 
             if ($target) {
                 $this->processPreparedFlowNode($target, $errorEventSubProcessFlowNode, $process);
@@ -1461,12 +1783,12 @@ class BpmnManager
         }
 
         /** @var ?BpmnProcess $parentProcess */
-        $parentProcess = $this->getEntityManager()
-            ->getEntity(BpmnProcess::ENTITY_TYPE, $process->getParentProcessId());
+        $parentProcess = $this->entityManager
+            ->getEntityById(BpmnProcess::ENTITY_TYPE, $process->getParentProcessId());
 
         /** @var ?BpmnFlowNode $parentFlowNode */
-        $parentFlowNode = $this->getEntityManager()
-            ->getEntity(BpmnFlowNode::ENTITY_TYPE, $process->getParentProcessFlowNodeId());
+        $parentFlowNode = $this->entityManager
+            ->getEntityById(BpmnFlowNode::ENTITY_TYPE, $process->getParentProcessFlowNodeId());
 
         if (!$parentProcess || !$parentFlowNode) {
             return;
@@ -1476,7 +1798,7 @@ class BpmnManager
         $parentFlowNode->setDataItemValue('errorMessage', $errorMessage);
         $parentFlowNode->setDataItemValue('errorTriggered', true);
 
-        $this->getEntityManager()->saveEntity($parentFlowNode);
+        $this->entityManager->saveEntity($parentFlowNode);
 
         $isInterruptingSubProcess =
             $parentFlowNode->getElementType() === 'eventSubProcess' &&
@@ -1486,8 +1808,8 @@ class BpmnManager
             );
 
         if ($isInterruptingSubProcess) {
-            $parentFlowNode->set('status', BpmnFlowNode::STATUS_PROCESSED);
-            $this->getEntityManager()->saveEntity($parentFlowNode);
+            $parentFlowNode->setStatus(BpmnFlowNode::STATUS_PROCESSED);
+            $this->entityManager->saveEntity($parentFlowNode);
 
             $this->triggerError($parentProcess, $errorCode, $errorMessage, true);
 
@@ -1499,8 +1821,8 @@ class BpmnManager
 
     private function interruptSubProcesses(BpmnProcess $process): void
     {
-        $subProcessList = $this->getEntityManager()
-            ->getRDBRepository(BpmnProcess::ENTITY_TYPE)
+        $subProcesses = $this->entityManager
+            ->getRDBRepositoryByClass(BpmnProcess::class)
             ->where([
                 'parentProcessId' => $process->getId(),
                 'status' => [
@@ -1510,21 +1832,28 @@ class BpmnManager
             ])
             ->find();
 
-        foreach ($subProcessList as $subProcess) {
+        foreach ($subProcesses as $subProcess) {
             try {
                 $this->interruptProcess($subProcess);
             } catch (Throwable $e) {
-                $GLOBALS['log']->error($e->getMessage());
+                $this->log->error($e->getMessage(), [
+                    'exception' => $e,
+                    'subProcessId' => $subProcess->getId(),
+                    'processId' => $process->getId(),
+                ]);
             }
         }
     }
 
+    /**
+     * @throws Error
+     */
     public function interruptProcess(BpmnProcess $process): void
     {
-        $GLOBALS['log']->debug("BPM: interruptProcess, process {$process->getId()}.");
+        $this->log->debug("BPM: interruptProcess, process {$process->getId()}.");
 
         /** @var ?BpmnProcess $process */
-        $process = $this->getEntityManager()->getEntity(BpmnProcess::ENTITY_TYPE, $process->getId());
+        $process = $this->entityManager->getEntityById(BpmnProcess::ENTITY_TYPE, $process->getId());
 
         if (
             !$process ||
@@ -1533,13 +1862,14 @@ class BpmnManager
                 BpmnProcess::STATUS_PAUSED,
             ])
         ) {
-            throw new Error('Process ' . $process->getId() . " can't be interrupted because it's not active.");
+            throw new Error("Process {$process->getId()} can't be interrupted because it's not active.");
         }
 
         $this->rejectActiveFlows($process);
 
-        $process->set(['status' => BpmnProcess::STATUS_INTERRUPTED]);
-        $this->getEntityManager()->saveEntity($process, ['skipModifiedBy' => true]);
+        $process->setStatus(BpmnProcess::STATUS_INTERRUPTED);
+
+        $this->entityManager->saveEntity($process, ['skipModifiedBy' => true]);
 
         $this->interruptSubProcesses($process);
     }
@@ -1549,10 +1879,11 @@ class BpmnManager
      */
     public function interruptProcessByEventSubProcess(BpmnProcess $process, BpmnFlowNode $interruptingFlowNode): void
     {
-        $GLOBALS['log']->debug("BPM: interruptProcessByEventSubProcess, process {$process->getId()}.");
+        $this->log->debug("BPM: interruptProcessByEventSubProcess, process {$process->getId()}.");
 
         /** @var ?BpmnProcess $process */
-        $process = $this->getEntityManager()->getEntity(BpmnProcess::ENTITY_TYPE, $process->getId());
+        $process = $this->entityManager
+            ->getEntityById(BpmnProcess::ENTITY_TYPE, $process->getId());
 
         if (
             !$process ||
@@ -1566,12 +1897,16 @@ class BpmnManager
 
         $this->rejectActiveFlows($process, $interruptingFlowNode->getId());
 
-        $process->set(['status' => BpmnProcess::STATUS_INTERRUPTED]);
-        $this->getEntityManager()->saveEntity($process, ['skipModifiedBy' => true]);
+        $process->setStatus(BpmnProcess::STATUS_INTERRUPTED);
+
+        $this->entityManager->saveEntity($process, ['skipModifiedBy' => true]);
 
         $this->interruptSubProcesses($process);
     }
 
+    /**
+     * @throws Error
+     */
     public function prepareEscalationEventSubProcessFlowNode(
         BpmnProcess $process,
         ?string $escalationCode = null
@@ -1620,7 +1955,7 @@ class BpmnManager
             return null;
         }
 
-        $target = $this->getEntityManager()->getEntity($process->getTargetType(), $process->getTargetId());
+        $target = $this->entityManager->getEntityById($process->getTargetType(), $process->getTargetId());
 
         if (!$target) {
             return null;
@@ -1637,6 +1972,9 @@ class BpmnManager
         );
     }
 
+    /**
+     * @throws Error
+     */
     public function prepareErrorEventSubProcessFlowNode(
         BpmnProcess $process,
         ?string $errorCode = null
@@ -1685,7 +2023,7 @@ class BpmnManager
             return null;
         }
 
-        $target = $this->getEntityManager()->getEntity($process->getTargetType(), $process->getTargetId());
+        $target = $this->entityManager->getEntityById($process->getTargetType(), $process->getTargetId());
 
         if (!$target) {
             return null;
@@ -1706,7 +2044,7 @@ class BpmnManager
         }
 
         $flowNode->setDataItemValue('isErrorHandler', true);
-        $this->getEntityManager()->saveEntity($flowNode);
+        $this->entityManager->saveEntity($flowNode);
 
         return $flowNode;
     }
@@ -1761,7 +2099,7 @@ class BpmnManager
             return null;
         }
 
-        $target = $this->getEntityManager()->getEntity($flowNode->getTargetType(), $flowNode->getTargetId());
+        $target = $this->entityManager->getEntityById($flowNode->getTargetType(), $flowNode->getTargetId());
 
         if (!$target) {
             return null;
@@ -1778,22 +2116,20 @@ class BpmnManager
 
     public function stopProcess(BpmnProcess $process): void
     {
-        $GLOBALS['log']->debug("BPM: stopProcess, process {$process->getId()}.");
+        $this->log->debug("BPM: stopProcess, process {$process->getId()}.");
 
         $this->rejectActiveFlows($process);
         $this->interruptSubProcesses($process);
 
         $process->set([
-            'endedAt' => date('Y-m-d H:i:s'),
+            'endedAt' => date(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT),
         ]);
 
         if ($process->getStatus() !== BpmnProcess::STATUS_STOPPED) {
-            $process->set([
-                'status' => BpmnProcess::STATUS_STOPPED,
-            ]);
+            $process->setStatus(BpmnProcess::STATUS_STOPPED);
         }
 
-        $this->getEntityManager()->saveEntity($process, [
+        $this->entityManager->saveEntity($process, [
             'modifiedById' => 'system',
             'skipStopProcess' => true,
         ]);
@@ -1801,7 +2137,7 @@ class BpmnManager
 
     private function rejectActiveFlows(BpmnProcess $process, ?string $exclusionFlowNodeId = null): void
     {
-        $GLOBALS['log']->debug("BPM: rejectActiveFlows, process {$process->getId()}.");
+        $this->log->debug("BPM: rejectActiveFlows, process {$process->getId()}.");
 
         $where = [
             'status!=' => [
@@ -1818,23 +2154,22 @@ class BpmnManager
             $where['id!='] = $exclusionFlowNodeId;
         }
 
-        /** @var Collection<BpmnFlowNode> $flowNodeList */
-        $flowNodeList = $this->getEntityManager()
-            ->getRDBRepository(BpmnFlowNode::ENTITY_TYPE)
+        $flowNodeList = $this->entityManager
+            ->getRDBRepositoryByClass(BpmnFlowNode::class)
             ->where($where)
             ->find();
 
         foreach ($flowNodeList as $flowNode) {
             if ($flowNode->getStatus() === BpmnFlowNode::STATUS_IN_PROCESS) {
-                $flowNode->set('status', BpmnFlowNode::STATUS_INTERRUPTED);
+                $flowNode->setStatus(BpmnFlowNode::STATUS_INTERRUPTED);
             } else {
-                $flowNode->set('status', BpmnFlowNode::STATUS_REJECTED);
+                $flowNode->setStatus(BpmnFlowNode::STATUS_REJECTED);
             }
 
-            $this->getEntityManager()->saveEntity($flowNode);
+            $this->entityManager->saveEntity($flowNode);
         }
 
-        $target = $this->getEntityManager()->getEntity($process->getTargetType(), $process->getTargetId());
+        $target = $this->entityManager->getEntityById($process->getTargetType(), $process->getTargetId());
 
         if ($target) {
             foreach ($flowNodeList as $flowNode) {
@@ -1849,16 +2184,12 @@ class BpmnManager
 
     private function logException(Throwable $e): void
     {
-        $GLOBALS['log']->error($e->getMessage());
-
-        if ($this->getConfig()->get('logger.printTrace')) {
-            $GLOBALS['log']->error($e->getTraceAsString());
-        }
+        $this->log->error($e->getMessage(), ['exception' => $e]);
     }
 
     private function saveFlowNode(BpmnFlowNode $flowNode): void
     {
-        $this->getEntityManager()->saveEntity($flowNode);
+        $this->entityManager->saveEntity($flowNode);
     }
 
     /**
@@ -1867,7 +2198,7 @@ class BpmnManager
     private function getProcessById(string $id): BpmnProcess
     {
         /** @var ?BpmnProcess $process */
-        $process = $this->getEntityManager()->getEntityById(BpmnProcess::ENTITY_TYPE, $id);
+        $process = $this->entityManager->getEntityById(BpmnProcess::ENTITY_TYPE, $id);
 
         if (!$process) {
             throw new Error("Could not get process $id.");
@@ -1882,7 +2213,7 @@ class BpmnManager
      */
     public function compensate(BpmnProcess $process, ?string $activityId): array
     {
-        $builder = $this->getEntityManager()
+        $builder = $this->entityManager
             ->getRDBRepository(BpmnFlowNode::ENTITY_TYPE)
             ->where([
                 'processId' => $process->getId(),
@@ -1915,7 +2246,7 @@ class BpmnManager
         foreach ($activityNodes as $activityNode) {
             $compensationNode =
                 $this->prepareBoundaryCompensation($process, $activityNode) ??
-                $this->prepareSubProcessCompensation($process, $activityNode);
+                $this->prepareSubProcessCompensation($activityNode);
 
             if (!$compensationNode) {
                 continue;
@@ -1929,16 +2260,16 @@ class BpmnManager
             $itemProcess = $process;
 
             if ($node->getElementType() === 'eventSubProcess') {
-                $itemProcess = $this->getEntityManager()
-                    ->getEntityById(BpmnProcess::ENTITY_TYPE, $node->getProcessId());
+                $itemProcess = $this->entityManager
+                    ->getRDBRepositoryByClass(BpmnProcess::class)
+                    ->getById($node->getProcessId());
 
                 if (!$itemProcess) {
                     throw new Error("No process.");
                 }
             }
 
-            $target = $this->getEntityManager()
-                ->getEntity($node->getTargetType(), $node->getTargetId());
+            $target = $this->entityManager->getEntityById($node->getTargetType(), $node->getTargetId());
 
             if (!$target) {
                 throw new Error("No target {$node->getTargetType()} {$node->getTargetId()}.");
@@ -1978,7 +2309,7 @@ class BpmnManager
             return null;
         }
 
-        $target = $this->getEntityManager()->getEntity($process->getTargetType(), $process->getTargetId());
+        $target = $this->entityManager->getEntityById($process->getTargetType(), $process->getTargetId());
 
         if (!$target) {
             return null;
@@ -1999,7 +2330,7 @@ class BpmnManager
         }
 
         $node->setDataItemValue('compensatedFlowNodeId', $activityNode->getId());
-        $this->getEntityManager()->saveEntity($node);
+        $this->entityManager->saveEntity($node);
 
         return $node;
     }
@@ -2007,14 +2338,14 @@ class BpmnManager
     /**
      * @throws Error
      */
-    private function prepareSubProcessCompensation(BpmnProcess $process, BpmnFlowNode $activityNode): ?BpmnFlowNode
+    private function prepareSubProcessCompensation(BpmnFlowNode $activityNode): ?BpmnFlowNode
     {
         if ($activityNode->getElementType() !== 'subProcess') {
             return null;
         }
 
         /** @var ?BpmnProcess $subProcess */
-        $subProcess = $this->getEntityManager()
+        $subProcess = $this->entityManager
             ->getRDBRepository(BpmnProcess::ENTITY_TYPE)
             ->where([
                 'parentProcessFlowNodeId' => $activityNode->getId()
@@ -2049,20 +2380,17 @@ class BpmnManager
             return null;
         }
 
-        $target = $this->getEntityManager()->getEntityById($subProcess->getTargetType(), $subProcess->getTargetId());
+        $target = $this->entityManager->getEntityById($subProcess->getTargetType(), $subProcess->getTargetId());
 
         if (!$target) {
             return null;
         }
 
         return $this->prepareFlow(
-            $target,
-            $subProcess,
-            $elementId,
-            null,
-            null,
-            null,
-            true
+            target: $target,
+            process: $subProcess,
+            elementId: $elementId,
+            allowEndedProcess: true,
         );
     }
 }

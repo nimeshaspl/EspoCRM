@@ -11,19 +11,29 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
+use Espo\Core\ORM\Entity as CoreEntity;
+use Espo\Core\ORM\Repository\Option\SaveOption;
 use Espo\ORM\Entity;
 use stdClass;
 
+/**
+ * @noinspection PhpUnused
+ */
 class UpdateCreatedEntity extends BaseEntity
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    /**
+     * @inheritDoc
+     */
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         if (empty($actionData->target)) {
             return false;
@@ -38,24 +48,36 @@ class UpdateCreatedEntity extends BaseEntity
         }
 
         if (property_exists($actionData, 'fields')) {
-            $data = $this->getDataToFill($targetEntity, $actionData->fields);
-            $targetEntity->set($data);
+            $data = $this->getEntityValuesToSet($targetEntity, $actionData->fields);
+            $targetEntity->setMultiple($data);
         }
 
-        if (!empty($actionData->formula)) {
-            $this->getFormulaManager()->run(
-                $actionData->formula,
-                $targetEntity,
-                $this->getFormulaVariables()
-            );
-        }
+        $this->processFormula($actionData, $targetEntity);
 
         if (!$targetEntity->has('modifiedById')) {
             $targetEntity->set('modifiedByName', 'System');
         }
 
-        $this->getEntityManager()->saveEntity($targetEntity, ['modifiedById' => 'system']);
+        $this->entityManager->saveEntity($targetEntity, [SaveOption::MODIFIED_BY_ID => 'system']);
 
         return true;
+    }
+
+    /**
+     * @throws Error
+     */
+    private function processFormula(stdClass $actionData, Entity $targetEntity): void
+    {
+        if (empty($actionData->formula)) {
+            return;
+        }
+
+        $script = $actionData->formula;
+
+        try {
+            $this->formulaManager->run($script, $targetEntity, $this->getFormulaVariables());
+        } catch (FormulaError $e) {
+            throw new Error($e->getMessage(), previous: $e);
+        }
     }
 }

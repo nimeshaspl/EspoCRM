@@ -11,13 +11,15 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\GridType;
 
+use Espo\Core\Exceptions\BadRequest;
+use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Select\SelectBuilderFactory;
 use Espo\Core\Select\Where\Item as WhereItem;
 use Espo\Entities\User;
@@ -31,20 +33,16 @@ class QueryPreparator
 {
     private const WHERE_TYPE_AND = 'and';
 
-    private SelectHelper $selectHelper;
-    private SelectBuilderFactory $selectBuilderFactory;
-    private Helper $helper;
-
     public function __construct(
-        SelectHelper $selectHelper,
-        SelectBuilderFactory $selectBuilderFactory,
-        Helper $helper
-    ) {
-        $this->selectHelper = $selectHelper;
-        $this->selectBuilderFactory = $selectBuilderFactory;
-        $this->helper = $helper;
-    }
+        private SelectHelper $selectHelper,
+        private SelectBuilderFactory $selectBuilderFactory,
+        private Helper $helper
+    ) {}
 
+    /**
+     * @throws Forbidden
+     * @throws BadRequest
+     */
     public function prepare(Data $data, ?WhereItem $where, ?User $user): Select
     {
         [$whereItem, $havingItem] = $this->obtainWhereAndHavingItems($data);
@@ -61,13 +59,14 @@ class QueryPreparator
 
         $queryBuilder = $this->cloneWithAccessControlAndWhere($data, $where, $user, $preFilterQuery);
 
-        $this->selectHelper->handleFiltersWhere($whereItem, $queryBuilder, true);
+        $this->selectHelper->handleFiltersWhere($whereItem, $queryBuilder/*, true*/);
         $this->handleAdditional($queryBuilder);
 
         if (!$this->useSubQuery($queryBuilder)) {
             return $queryBuilder->build();
         }
 
+        // @todo Remove when v8.5 is min. supported.
         $subQuery = $queryBuilder
             ->select(['id'])
             ->group([])
@@ -83,6 +82,10 @@ class QueryPreparator
             ->build();
     }
 
+    /**
+     * @throws BadRequest
+     * @throws Forbidden
+     */
     private function cloneWithAccessControlAndWhere(
         Data $data,
         ?WhereItem $where,
@@ -104,18 +107,20 @@ class QueryPreparator
             $selectBuilder->withAccessControlFilter();
         }
 
+        // @todo Revise.
         $selectBuilder->buildQueryBuilder();
 
         if ($where) {
             $selectBuilder->withWhere($where);
         }
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $queryBuilder = $selectBuilder->buildQueryBuilder();
 
-        if ($where) {
+        /*if ($where) {
             // Supposed to be already applied by the scanner.
             $this->selectHelper->applyLeftJoinsFromWhere($where, $queryBuilder);
-        }
+        }*/
 
         return $queryBuilder;
     }
@@ -152,8 +157,8 @@ class QueryPreparator
             $itemExpr = $selectItem->getExpression()->getValue();
 
             if (
-                strpos($itemExpr, 'SUM:') === 0 ||
-                strpos($itemExpr, 'AVG:') === 0
+                str_starts_with($itemExpr, 'SUM:') ||
+                str_starts_with($itemExpr, 'AVG:')
             ) {
                 return true;
             }

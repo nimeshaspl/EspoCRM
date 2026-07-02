@@ -7,13 +7,18 @@
     "Report Panels": "Berichtspanel"
   },
   "descriptions": {
-    "workflowManager": "Workflow Regeln konfigurieren",
+    "workflowManager": "Workflow Regeln konfigurieren.",
     "bpmnFlowcharts": "Definitionen von Geschäftsprozessen.",
     "bpmnProcesses": "Instanzen von Geschäftsprozessen.",
-    "reportFilters": "Benutzerdefinierter Listenansichtsfilter basierend auf Berichten",
+    "reportFilters": "Benutzerdefinierter Listenansichtsfilter basierend auf Berichten.",
     "reportPanels": "Detailansicht-Panels mit Berichtsergebnissen."
   },
   "messages": {
     "newAdvancedPackVersionIsAvailable": "Die neue Advanced Pack-Version {latestVersion} ist verfügbar. Es kann im Kundenportal heruntergeladen werden."
+  },
+  "templates": {
+    "reportSendingGrid1": "Berichtsmatrix-1",
+    "reportSendingGrid2": "Berichtsmatrix-2",
+    "reportSendingList": "Bericht Liste"
   }
 }

@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Services;
@@ -25,25 +25,25 @@ use Espo\Modules\Advanced\Core\Bpmn\BpmnManager;
 use Espo\Modules\Advanced\Core\Bpmn\Elements\Activity;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode as BpmnFlowNodeEntity;
 use Espo\Modules\Advanced\Entities\BpmnProcess as BpmnProcessEntity;
+use Espo\ORM\Repository\Option\SaveOption;
 use Espo\Services\Record;
 use LogicException;
 
+/**
+ * @extends Record<BpmnProcessEntity>
+ */
 class BpmnProcess extends Record
 {
-    /**
-     * @todo Remove.
-     */
-    protected $linkParams = [
-        'flowNodes' => [
-            'skipAcl' => true,
-        ],
-    ];
-
     private function createBpmnManager(): BpmnManager
     {
         return $this->injectableFactory->create(BpmnManager::class);
     }
 
+    /**
+     * @throws Error
+     * @throws Forbidden
+     * @throws NotFound
+     */
     public function reactivateProcess(string $id): void
     {
         /** @var ?BpmnProcessEntity $process */
@@ -156,7 +156,7 @@ class BpmnProcess extends Record
             $parentElement->prepareBoundary();
         }
 
-        $process->set('status', BpmnProcessEntity::STATUS_STARTED);
+        $process->setStatus(BpmnProcessEntity::STATUS_STARTED);
         /** @noinspection PhpRedundantOptionalArgumentInspection */
         $process->set('endedAt', null);
 
@@ -165,6 +165,11 @@ class BpmnProcess extends Record
         $manager->prepareEventSubProcesses($target, $process);
     }
 
+    /**
+     * @throws Forbidden
+     * @throws Error
+     * @throws NotFound
+     */
     public function stopProcess(string $id): void
     {
         /** @var ?BpmnProcessEntity $process */
@@ -189,15 +194,23 @@ class BpmnProcess extends Record
             throw new Error("BPM: Can't stop not started process.");
         }
 
-        $process->set('status', BpmnProcessEntity::STATUS_STOPPED);
+        if ($process->isLocked()) {
+            $process->setIsLocked(false);
+        }
+
+        $process->setStatus(BpmnProcessEntity::STATUS_STOPPED);
 
         $this->entityManager->saveEntity($process);
     }
 
+    /**
+     * @throws Forbidden
+     * @throws Error
+     * @throws NotFound
+     */
     public function startFlowFromElement(string $processId, string $elementId): void
     {
-        /** @var ?BpmnProcessEntity $process */
-        $process = $this->entityManager->getEntityById(BpmnProcessEntity::ENTITY_TYPE, $processId);
+        $process = $this->entityManager->getRDBRepositoryByClass(BpmnProcessEntity::class)->getById($processId);
 
         if (!$process) {
             throw new NotFound();
@@ -222,6 +235,11 @@ class BpmnProcess extends Record
         $manager->processFlow($target, $process, $elementId);
     }
 
+    /**
+     * @throws Forbidden
+     * @throws Error
+     * @throws NotFound
+     */
     public function rejectFlowNode(string $flowNodeId): void
     {
         /** @var ?BpmnFlowNodeEntity $flowNode */
@@ -258,7 +276,7 @@ class BpmnProcess extends Record
         $manager = $this->createBpmnManager();
 
         if ($flowNode->getStatus() === BpmnFlowNodeEntity::STATUS_IN_PROCESS) {
-            $flowNode->set('status', BpmnFlowNodeEntity::STATUS_INTERRUPTED);
+            $flowNode->setStatus(BpmnFlowNodeEntity::STATUS_INTERRUPTED);
 
             $this->entityManager->saveEntity($flowNode);
 
@@ -271,7 +289,7 @@ class BpmnProcess extends Record
                     ])
             ) {
                 $subProcess = $this->entityManager
-                    ->getRDBRepository(BpmnProcessEntity::ENTITY_TYPE)
+                    ->getRDBRepositoryByClass(BpmnProcessEntity::class)
                     ->where([
                         'parentProcessFlowNodeId' => $flowNode->getId(),
                     ])
@@ -283,7 +301,7 @@ class BpmnProcess extends Record
             }
         }
         else {
-            $flowNode->set('status', BpmnFlowNodeEntity::STATUS_REJECTED);
+            $flowNode->setStatus(BpmnFlowNodeEntity::STATUS_REJECTED);
 
             $this->entityManager->saveEntity($flowNode);
         }

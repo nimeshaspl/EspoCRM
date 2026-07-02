@@ -11,20 +11,22 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Conditions;
 
-use Espo\Modules\Advanced\Core\Workflow\Utils;
-use Espo\ORM\Entity;
+use Espo\Core\Exceptions\Error;
+use Espo\Core\ORM\Entity as CoreEntity;
+use stdClass;
 
 class Equals extends Base
 {
     /**
      * @param mixed $fieldValue
+     * @throws Error
      */
     protected function compare($fieldValue): bool
     {
@@ -33,7 +35,7 @@ class Equals extends Base
         return ($fieldValue == $subjectValue);
     }
 
-    protected function compareComplex(Entity $entity, \stdClass $condition): bool
+    protected function compareComplex(CoreEntity $entity, stdClass $condition): bool
     {
         if (empty($condition->fieldValueMap)) {
             return false;
@@ -42,9 +44,14 @@ class Equals extends Base
         $fieldValueMap = $condition->fieldValueMap;
 
         foreach ($fieldValueMap as $field => $value) {
-            $v = Utils::getFieldValue($entity, $field, false, $this->getEntityManager(), $this->createdEntitiesData);
+            $itemValue = $this->fieldValueHelper->getValue(
+                entity: $entity,
+                path: $field,
+                createdEntitiesData: $this->createdEntitiesData,
+                workflowId: $this->getWorkflowId(),
+            );
 
-            if ($v !== $value) {
+            if ($itemValue !== $value) {
                 return false;
             }
         }

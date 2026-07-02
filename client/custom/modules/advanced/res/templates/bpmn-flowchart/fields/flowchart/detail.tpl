@@ -1,7 +1,20 @@
+<style>
+    .flowchart-group-container.fullscreen {
+        > .button-container {
+            margin: var(--4px) var(--6px);
+        }
+    }
+</style>
+
 <div class="flowchart-group-container">
     <div class="button-container clearfix">
         <div class="btn-group pull-right">
-            <button type="button" class="btn btn-text action" data-action="switchFullScreenMode" title="{{translate 'Full Screen' scope='BpmnFlowchart'}}"><i class="fas fa-arrows-alt"></i></button>
+            <button
+                type="button"
+                class="btn btn-text action"
+                data-action="switchFullScreenMode"
+                title="{{translate 'Full Screen' scope='BpmnFlowchart'}}"
+            ><i class="fas fa-maximize"></i></button>
         </div>
         <div class="btn-group pull-right">
             <button type="button" class="btn btn-text action" data-action="zoomOut" title="{{translate 'Zoom Out' scope='BpmnFlowchart'}}"><span class="fas fa-minus"></span></button>

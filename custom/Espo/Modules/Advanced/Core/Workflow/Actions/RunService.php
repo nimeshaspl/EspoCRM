@@ -11,17 +11,19 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Modules\Advanced\Tools\Workflow\Action\RunAction\ServiceAction;
 use Espo\ORM\Entity;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Utils\Json;
+use JsonException;
 use stdClass;
 
 /**
@@ -29,7 +31,11 @@ use stdClass;
  */
 class RunService extends Base
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    /**
+     * @throws Error
+     * @throws JsonException
+     */
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         if (empty($actionData->methodName)) {
             throw new Error("No service action name.");
@@ -41,52 +47,16 @@ class RunService extends Base
             throw new Error("Bad service action name.");
         }
 
-        $target = 'targetEntity';
+        $target = $actionData->target ?? 'targetEntity';
 
-        if (!empty($actionData->target)) {
-            $target = $actionData->target;
-        }
-
-        $targetEntity = null;
-
-        if ($target === 'targetEntity') {
-            $targetEntity = $entity;
-        }
-        else if (strpos($target, 'created:') === 0) {
-            $targetEntity = $this->getCreatedEntity($target);
-        }
-        else if (strpos($target, 'link:') === 0) {
-            $link = substr($target, 5);
-
-            $type = $this->getMetadata()
-                ->get(['entityDefs', $entity->getEntityType(), 'links', $link, 'type']);
-
-            if (empty($type)) {
-                return false;
-            }
-
-            $idField = $link . 'Id';
-
-            if ($type === Entity::BELONGS_TO) {
-                if (!$entity->get($idField)) {
-                    return false;
-                }
-
-                $foreignEntityType = $this->getMetadata()
-                    ->get(['entityDefs', $entity->getEntityType(), 'links', $link, 'entity']);
-
-                if (empty($foreignEntityType)) {
-                    return false;
-                }
-
-                $targetEntity = $this->getEntityManager()->getEntity($foreignEntityType, $entity->get($idField));
-            }
-            else {
-                return false;
-            }
-        }
+        $targetEntity = $this->getFirstTargetFromTargetItem($entity, $target);
 
         if (!$targetEntity) {
+            $this->log->notice("Workflow {id}, Run Service Action: No target {target} found.", [
+                'target' => $target,
+                'id' => $this->getWorkflowId(),
+            ]);
+
             return false;
         }
 
@@ -106,15 +76,12 @@ class RunService extends Base
 
         $targetEntityType = $targetEntity->getEntityType();
 
-        /** @var ?class-string<ServiceAction> $className */
-        $className = $this->getMetadata()->get("app.workflow.serviceActions.$targetEntityType.$name.className") ??
-            $this->getMetadata()->get("app.workflow.serviceActions.Global.$name.className");
+        $className = $this->getClassName($targetEntityType, $name);
 
         if ($className) {
-            /** @var ServiceAction $serviceAction */
             $serviceAction = $this->injectableFactory->create($className);
 
-            $output = $serviceAction->run($entity, $data);
+            $output = $serviceAction->run($targetEntity, $data);
         }
 
         // Legacy.
@@ -135,6 +102,7 @@ class RunService extends Base
 
     /**
      * @param mixed $data
+     * @throws Error
      */
     private function runLegacy(
         string $targetEntityType,
@@ -144,10 +112,10 @@ class RunService extends Base
         ?stdClass $variables
     ): void {
 
-        $serviceName = $this->getMetadata()
+        $serviceName = $this->metadata
             ->get(['entityDefs', 'Workflow', 'serviceActions', $targetEntityType, $name, 'serviceName']);
 
-        $methodName = $this->getMetadata()
+        $methodName = $this->metadata
             ->get(['entityDefs', 'Workflow', 'serviceActions', $targetEntityType, $name, 'methodName']);
 
         if (!$serviceName || !$methodName) {
@@ -155,7 +123,7 @@ class RunService extends Base
             $serviceName = $targetEntity->getEntityType();
         }
 
-        $serviceFactory = $this->getServiceFactory();
+        $serviceFactory = $this->serviceFactory;
 
         if (!$serviceFactory->checkExists($serviceName)) {
             throw new Error("No service $serviceName.");
@@ -174,5 +142,18 @@ class RunService extends Base
             $this->bpmnProcess,
             $variables ?? (object)[]
         );
+    }
+
+    /**
+     * @return ?class-string<ServiceAction<CoreEntity>>
+     */
+    private function getClassName(string $targetEntityType, string $name): ?string
+    {
+        /** @var ?class-string<ServiceAction<CoreEntity>> $className */
+        $className =
+            $this->metadata->get("app.workflow.serviceActions.$targetEntityType.$name.className") ??
+            $this->metadata->get("app.workflow.serviceActions.Global.$name.className");
+
+        return $className;
     }
 }

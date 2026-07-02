@@ -9,24 +9,55 @@
     "Erase tool": "Strumento Cancella",
     "Full Screen": "Schermo Intero",
     "Processes": "Processi",
-    "data": "Dati"
+    "data": "Dati",
+    "Error": "Errore",
+    "Events": "Eventi",
+    "Activities": "Attività",
+    "Move to Center": "Sposta al Centro",
+    "Undo": "Annulla",
+    "Redo": "Ripristina"
   },
   "fields": {
     "isActive": "È Attivo",
     "targetType": "Tipo di entità di destinazione",
-    "hasNoneStartEvent": "Ha un evento Start di tipo None"
+    "hasNoneStartEvent": "Ha un evento Start di tipo None",
+    "category": "Categoria"
   },
   "links": {
-    "processes": "Processi"
+    "processes": "Processi",
+    "category": "Categoria"
   },
   "elements": {
     "eventStartConditional": "Evento di avvio condizionale",
     "eventStartTimer": "Evento di avvio timer",
+    "eventStartError": "Errore di avvio Evento",
+    "eventStartEscalation": "Evento di inizio dell'escalation",
+    "eventStartSignal": "Evento di avvio del segnale",
     "eventStart": "Inizio Evento",
-    "eventIntermediateTimerCatch": "Evento intermedio timer (catching)",
-    "eventIntermediateConditionalCatch": "Evento intermedio condizionale (catching)",
+    "eventStartCompensation": "Evento di inizio della compensazione",
+    "eventStartConditionalEventSubProcess": "Evento di avvio condizionale del sotto-processo",
+    "eventStartTimerEventSubProcess": "Evento di avvio del timer di sotto-processo",
+    "eventStartSignalEventSubProcess": "Evento di avvio del segnale di sotto-processo",
+    "eventIntermediateTimerCatch": "Evento intermedio temporizzato (cattura)",
+    "eventIntermediateConditionalCatch": "Evento intermedio condizionale (cattura)",
+    "eventIntermediateEscalationThrow": "Evento intermedio che lancia un'escalation",
+    "eventIntermediateSignalThrow": "Evento Intermedio di Segnale · Lancio",
+    "eventIntermediateCompensationThrow": "Evento intermedio di compensazione · Lancio",
+    "eventIntermediateSignalCatch": "Segnale Evento Intermedio · Cattura",
+    "eventIntermediateMessageCatch": "Messaggio Evento Intermedio · Cattura",
     "eventEnd": "Fine Evento",
     "eventEndTerminate": "Termina evento End",
+    "eventEndError": "Evento di fine errore",
+    "eventEndEscalation": "Evento di fine dell'escalation",
+    "eventEndSignal": "Evento di fine segnale",
+    "eventEndCompensation": "Evento finale di compensazione",
+    "eventIntermediateErrorBoundary": "\"Evento Intermedio di Errore · Collegato all’attività",
+    "eventIntermediateTimerBoundary": "Timer Evento Intermedio · Collegato all’attività",
+    "eventIntermediateConditionalBoundary": "Evento Intermedio Condizionale · Collegato all’attività",
+    "eventIntermediateEscalationBoundary": "Evento intermedio di escalation · Collegato all’attività",
+    "eventIntermediateSignalBoundary": "Segnale Evento Intermedio · Collegato all’attività",
+    "eventIntermediateMessageBoundary": "Messaggio Evento Intermedio · Collegato all’attività",
+    "eventIntermediateCompensationBoundary": "Evento intermedio di compensazione · Collegato all’attività",
     "gatewayExclusive": "Gateway esclusivo",
     "gatewayInclusive": "Gateway inclusivo",
     "gatewayParallel": "Gateway parallelo",
@@ -36,11 +67,14 @@
     "taskBusinessRule": "Attività regola di business",
     "taskUser": "Attività utente",
     "task": "Attività",
+    "callActivity": "Attività di chiamata",
+    "subProcess": "Sottoprocesso",
+    "eventSubProcess": "Sotto-processo evento",
     "flow": "Sequenza di flusso"
   },
   "presetFilters": {
     "isManuallyStartable": "Avviabile manualmente",
-    "activeHasNoneStartEvent": "Evento di avvio attivo w/None",
+    "activeHasNoneStartEvent": "Attivo con evento di inizio - nessuno",
     "active": "Attivo"
   }
 }

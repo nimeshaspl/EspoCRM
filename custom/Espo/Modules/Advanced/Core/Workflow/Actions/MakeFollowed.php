@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
@@ -23,9 +23,12 @@ use Espo\ORM\Entity;
 use Espo\Tools\Stream\Service as StreamService;
 use stdClass;
 
+/**
+ * @noinspection PhpUnused
+ */
 class MakeFollowed extends BaseEntity
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         if (empty($actionData->whatToFollow)) {
             $actionData->whatToFollow = 'targetEntity';
@@ -37,19 +40,17 @@ class MakeFollowed extends BaseEntity
 
         if ($target === 'targetEntity') {
             $targetEntity = $entity;
-        }
-        else if (str_starts_with($target, 'created:')) {
+        } else if (str_starts_with($target, 'created:')) {
             $targetEntity = $this->getCreatedEntity($target);
-        }
-        else {
+        } else {
             $link = $target;
 
             if (str_starts_with($target, 'link:')) {
                 $link = substr($target, 5);
             }
 
-            $type = $this->getMetadata()
-                ->get('entityDefs.' . $entity->getEntityType() . '.links.' . $link . '.type');
+            $type = $this->metadata
+                ->get("entityDefs.{$entity->getEntityType()}.links.$link.type");
 
             if (empty($type)) {
                 return false;
@@ -62,14 +63,14 @@ class MakeFollowed extends BaseEntity
                     return false;
                 }
 
-                $foreignEntityType = $this->getMetadata()
-                    ->get('entityDefs.' . $entity->getEntityType() . '.links.' . $link . '.entity');
+                $foreignEntityType = $this->metadata
+                    ->get("entityDefs.{$entity->getEntityType()}.links.$link.entity");
 
                 if (empty($foreignEntityType)) {
                     return false;
                 }
 
-                $targetEntity = $this->getEntityManager()
+                $targetEntity = $this->entityManager
                     ->getEntityById($foreignEntityType, $entity->get($idField));
             }
             else if ($type === Entity::BELONGS_TO_PARENT) {
@@ -83,7 +84,7 @@ class MakeFollowed extends BaseEntity
                     return false;
                 }
 
-                $targetEntity = $this->getEntityManager()
+                $targetEntity = $this->entityManager
                     ->getEntityById($entity->get($typeField), $entity->get($idField));
             }
         }
@@ -94,17 +95,8 @@ class MakeFollowed extends BaseEntity
 
         $userIdList = $this->getUserIdList($actionData);
 
-        if (class_exists("Espo\\Tools\\Stream\\Service")) {
-            /** @var StreamService $streamService */
-            $streamService = $this->injectableFactory
-                ->create("Espo\\Tools\\Stream\\Service");
+        $streamService = $this->injectableFactory->create(StreamService::class);
 
-            $streamService->followEntityMass($targetEntity, $userIdList);
-
-            return true;
-        }
-
-        $streamService = $this->getServiceFactory()->create('Stream');
         $streamService->followEntityMass($targetEntity, $userIdList);
 
         return true;
@@ -117,14 +109,9 @@ class MakeFollowed extends BaseEntity
     {
         $entity = $this->getEntity();
 
-        if (!$entity instanceof CoreEntity) {
-            return [];
-        }
-
         if (!empty($actionData->recipient)) {
             $recipient = $actionData->recipient;
-        }
-        else {
+        } else {
             $recipient = 'specifiedUsers';
         }
 
@@ -142,10 +129,10 @@ class MakeFollowed extends BaseEntity
 
         return match ($recipient) {
             'specifiedUsers' => $userIdList,
-            'specifiedTeams' => $this->getHelper()->getUserIdsByTeamIds($teamIdList),
-            'currentUser' => [$this->getUser()->get('id')],
-            'teamUsers' => $this->getHelper()->getUserIdsByTeamIds($entity->getLinkMultipleIdList('teams')),
-            'followers' => $this->getHelper()->getFollowerUserIds($entity),
+            'specifiedTeams' => $this->workflowHelper->getUserIdsByTeamIds($teamIdList),
+            'currentUser' => [$this->user->getId()],
+            'teamUsers' => $this->workflowHelper->getUserIdsByTeamIds($entity->getLinkMultipleIdList('teams')),
+            'followers' => $this->workflowHelper->getFollowerUserIds($entity),
             default => $this->getRecipients($this->getEntity(), $actionData->recipient)->getIds(),
         };
     }

@@ -11,13 +11,14 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\GridType;
 
+use Espo\Core\ORM\Type\FieldType;
 use Espo\Modules\Advanced\Tools\Report\GridType\Data as GridData;
 use stdClass;
 
@@ -26,19 +27,17 @@ class GridBuilder
     private const ROUND_PRECISION = 4;
     private const STUB_KEY = '__STUB__';
 
-    private Util $util;
-    private Helper $helper;
-
     public function __construct(
-        Util $util,
-        Helper $helper
-    ) {
-        $this->util = $util;
-        $this->helper = $helper;
-    }
+        private Util $util,
+        private Helper $helper
+    ) {}
 
     /**
+     * @param array<string, mixed>[] $rows
      * @param string[] $groupList
+     * @param string[] $columns
+     * @param array<string, numeric> $sums
+     * @param string[] $groups
      */
     public function build(
         Data $data,
@@ -46,24 +45,28 @@ class GridBuilder
         array $groupList,
         array $columns,
         array &$sums,
-        stdClass $cellValueMaps,
+        ?stdClass $cellValueMaps = null,
         array $groups = [],
         int $number = 0
     ): stdClass {
 
+        $cellValueMaps ??= (object) [];
+
         $gridData = $this->buildInternal(
-            $data,
-            $rows,
-            $groupList,
-            $columns,
-            $sums,
-            $cellValueMaps,
-            $groups,
-            $number
+            data: $data,
+            rows: $rows,
+            groupList: $groupList,
+            columns: $columns,
+            sums: $sums,
+            cellValueMaps: $cellValueMaps,
+            groups: $groups,
+            number: $number,
         );
 
         foreach ($gridData as $k => $v) {
             $gridData[$k] = (object) $v;
+
+            /** @var array<string, mixed> $v */
 
             foreach ($v as $k1 => $v1) {
                 if (is_array($v1)) {
@@ -76,7 +79,12 @@ class GridBuilder
     }
 
     /**
+     * @param array<string, mixed>[] $rows
      * @param string[] $groupList
+     * @param string[] $columns
+     * @param array<string, numeric> $sums
+     * @param string[] $groups
+     * @return array<string|int, array<string|int, mixed>|numeric>
      */
     public function buildInternal(
         Data $data,
@@ -144,6 +152,8 @@ class GridBuilder
         $s = &$sums;
 
         for ($i = 0; $i < count($groups) - 1; $i++) {
+            /** @var array<string, mixed> $s */
+
             $group = $groups[$i];
 
             if (!array_key_exists($group, $s)) {
@@ -221,7 +231,7 @@ class GridBuilder
                     $value = $row[$selectAlias];
                 }
 
-                if ($fieldType === 'link') {
+                if ($fieldType === FieldType::LINK) {
                     $selectAlias = $this->util->sanitizeSelectAlias($column . 'Id');
 
                     $value = $row[$selectAlias];
@@ -243,6 +253,9 @@ class GridBuilder
     }
 
     /**
+     * @param string[] $columnList
+     * @param string[] $summaryColumnList
+     * @param array<string, array<string, mixed>> $rows
      * @param string[] $groupList
      */
     public function buildNonSummary(
@@ -285,7 +298,7 @@ class GridBuilder
 
                 $columnKey = $column;
 
-                if ($columnData->fieldType === 'link') {
+                if ($columnData->fieldType === FieldType::LINK) {
                     $columnKey .= 'Id';
                 }
 

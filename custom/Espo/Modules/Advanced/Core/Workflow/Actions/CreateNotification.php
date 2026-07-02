@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
@@ -21,22 +21,20 @@ namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Entities\Notification;
 use Espo\Entities\User;
-use Espo\ORM\Entity;
 use stdClass;
 
+/**
+ * @noinspection PhpUnused
+ */
 class CreateNotification extends Base
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         if (empty($actionData->recipient)) {
             return false;
         }
 
         if (empty($actionData->messageTemplate)) {
-            return false;
-        }
-
-        if (!$entity instanceof CoreEntity) {
             return false;
         }
 
@@ -53,27 +51,27 @@ class CreateNotification extends Base
                 break;
 
             case 'specifiedTeams':
-                $userIds = $this->getHelper()->getUserIdsByTeamIds($actionData->specifiedTeamsIds);
+                $userIds = $this->workflowHelper->getUserIdsByTeamIds($actionData->specifiedTeamsIds);
 
                 break;
 
             case 'teamUsers':
                 $entity->loadLinkMultipleField('teams');
-                $userIds = $this->getHelper()->getUserIdsByTeamIds($entity->get('teamsIds'));
+                $userIds = $this->workflowHelper->getUserIdsByTeamIds($entity->get('teamsIds'));
 
                 break;
 
             case 'followers':
-                $userIds = $this->getHelper()->getFollowerUserIds($entity);
+                $userIds = $this->workflowHelper->getFollowerUserIds($entity);
 
                 break;
 
             case 'followersExcludingAssignedUser':
-                $userIds = $this->getHelper()->getFollowerUserIdsExcludingAssignedUser($entity);
+                $userIds = $this->workflowHelper->getFollowerUserIdsExcludingAssignedUser($entity);
                 break;
 
             case 'currentUser':
-                $userIds = [$this->getUser()->getId()];
+                $userIds = [$this->user->getId()];
 
                 break;
 
@@ -84,42 +82,40 @@ class CreateNotification extends Base
         }
 
         foreach ($userIds as $userId) {
-            $user = $this->getEntityManager()->getEntityById(User::ENTITY_TYPE, $userId);
+            $user = $this->entityManager->getEntityById(User::ENTITY_TYPE, $userId);
 
             $userList[] = $user;
         }
 
         $message = $actionData->messageTemplate;
 
-        $variables = $this->getVariables() ?? (object) [];
+        $variables = $this->getVariables();
 
-        if ($variables) {
-            foreach (get_object_vars($variables) as $key => $value) {
-                if (is_string($value) || is_int($value) || is_float($value)) {
-                    if (is_int($value) || is_float($value)) {
-                        $value = strval($value);
-                    } else {
-                        if (!$value) {
-                            continue;
-                        }
+        foreach (get_object_vars($variables) as $key => $value) {
+            if (is_string($value) || is_int($value) || is_float($value)) {
+                if (is_int($value) || is_float($value)) {
+                    $value = strval($value);
+                } else {
+                    if (!$value) {
+                        continue;
                     }
-
-                    $message = str_replace('{$$' . $key . '}', $value, $message);
                 }
+
+                $message = str_replace('{$$' . $key . '}', $value, $message);
             }
         }
 
         foreach ($userList as $user) {
-            $notification = $this->getEntityManager()->getNewEntity(Notification::ENTITY_TYPE);
+            $notification = $this->entityManager->getNewEntity(Notification::ENTITY_TYPE);
 
-            $notification->set([
+            $notification->setMultiple([
                 'type' => Notification::TYPE_MESSAGE,
                 'data' => [
                     'entityId' => $entity->getId(),
                     'entityType' => $entity->getEntityType(),
                     'entityName' => $entity->get('name'),
-                    'userId' => $this->getUser()->getId(),
-                    'userName' => $this->getUser()->getName(),
+                    'userId' => $this->user->getId(),
+                    'userName' => $this->user->getName(),
                 ],
                 'userId' => $user->getId(),
                 'message' => $message,
@@ -127,7 +123,7 @@ class CreateNotification extends Base
                 'relatedType' => $entity->getEntityType(),
             ]);
 
-            $this->getEntityManager()->saveEntity($notification);
+            $this->entityManager->saveEntity($notification);
         }
 
         return true;

@@ -11,169 +11,74 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
 use Espo\Core\Exceptions\Error;
+use Espo\Core\Exceptions\Forbidden;
+use Espo\Core\Field\LinkMultiple;
+use Espo\Core\Field\LinkParent;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
 use Espo\Core\InjectableFactory;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Core\Utils\Language;
+use Espo\Modules\Advanced\Business\Workflow\AssignmentRules\LeastBusy;
+use Espo\Modules\Advanced\Business\Workflow\AssignmentRules\RoundRobin;
 use Espo\Modules\Advanced\Core\Bpmn\Utils\Helper;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 use Espo\Modules\Advanced\Entities\BpmnUserTask;
 use Espo\ORM\Entity;
+use stdClass;
 
+/**
+ * @noinspection PhpUnused
+ */
 class TaskUser extends Activity
 {
+    private const ASSIGNMENT_SPECIFIED_USER = 'specifiedUser';
+    private const ASSIGNMENT_PROCESS_ASSIGNED_USER = 'processAssignedUser';
+
+    /**
+     * @throws FormulaError
+     * @throws Error
+     */
     public function process(): void
     {
-        $flowNode = $this->getFlowNode();
-
-        $flowNode->set([
-            'status' => BpmnFlowNode::STATUS_IN_PROCESS,
-        ]);
-
+        $this->getFlowNode()->setStatus(BpmnFlowNode::STATUS_IN_PROCESS);
         $this->saveFlowNode();
 
-        $targetString = $this->getAttributeValue('target');
-        $target = $this->getSpecificTarget($targetString);
+        $target = $this->getSpecificTarget($this->getAttributeValue('target'));
 
         if (!$target) {
-            $GLOBALS['log']->info("BPM TaskUser: Could not get target.");
+            $this->getLog()->info("BPM TaskUser: Could not get target.");
 
             $this->fail();
 
             return;
         }
 
-        $userTask = $this->getEntityManager()->getEntity('BpmnUserTask');
+        $userTask = $this->createUserTask($target);
 
-        $userTask->set([
-            'flowNodeId' => $this->getFlowNode()->get('id'),
-            'actionType' => $this->getAttributeValue('actionType'),
-            'processId' => $this->getProcess()->get('id'),
-            'targetId' => $target->get('id'),
-            'targetType' => $target->getEntityType(),
-            'description' => $this->getAttributeValue('description'),
-            'instructions' => $this->getInstructionsText(),
-        ]);
+        $this->getFlowNode()->setDataItemValue('userTaskId', $userTask->getId());
+        $this->saveFlowNode();
 
-        $name = $this->getTaskName();
+        $createdEntitiesData = $this->getPreparedCreatedEntitiesData($userTask);
 
-        if (empty($name)) {
-            $name = $this->getLanguage()
-                ->translateOption($this->getAttributeValue('actionType'), 'actionType', 'BpmnUserTask');
-        }
-
-        $teamIdList = $this->getProcess()->getLinkMultipleIdList('teams');
-
-        $assignmentType = $this->getAttributeValue('assignmentType');
-        $targetTeamId = $this->getAttributeValue('targetTeamId');
-
-        $targetUserPosition = $this->getAttributeValue('targetUserPosition');
-        if (!$targetUserPosition) {
-            $targetUserPosition = null;
-        }
-
-        if ($targetTeamId && !in_array($targetTeamId, $teamIdList)) {
-            $teamIdList[] = $targetTeamId;
-        }
-
-        $assignmentAttributes = null;
-
-        if (strpos($assignmentType, 'rule:') === 0) {
-            $assignmentRule = substr($assignmentType, 5);
-            $ruleImpl = $this->getAssignmentRuleImplementation($assignmentRule);
-
-            $whereClause = null;
-
-            if ($assignmentRule === 'Least-Busy') {
-                $whereClause = ['isResolved' => false];
-            }
-
-            $assignmentAttributes = $ruleImpl->getAssignmentAttributes(
-                $userTask,
-                $targetTeamId,
-                $targetUserPosition,
-                null,
-                $whereClause
-            );
-
-        } else if (strpos($assignmentType, 'link:') === 0) {
-            $link = substr($assignmentType, 5);
-            $e = $this->getTarget();
-
-            if (strpos($link, '.') !== false) {
-                [$firstLink, $link] = explode('.', $link);
-
-                $target = $this->getTarget();
-
-                $e = method_exists($this->getEntityManager(), 'getRDBRepository') ?
-                    $this->getEntityManager()
-                        ->getRDBRepository($target->getEntityType())
-                        ->getRelation($target, $firstLink)
-                        ->findOne() :
-                    $target->get($firstLink);
-            }
-
-            if ($e instanceof Entity) {
-                $field = $link . 'Id';
-                $userId = $e->get($field);
-
-                if ($userId) {
-                    $assignmentAttributes['assignedUserId'] = $userId;
-                }
-            }
-        }
-        else if ($assignmentType === 'processAssignedUser') {
-            $userId = $this->getProcess()->get('assignedUserId');
-
-            if ($userId) {
-                $assignmentAttributes['assignedUserId'] = $userId;
-            }
-        }
-        else if ($assignmentType === 'specifiedUser') {
-            $userId = $this->getAttributeValue('targetUserId');
-
-            if ($userId) {
-                $assignmentAttributes['assignedUserId'] = $userId;
-            }
-        }
-
-        if ($assignmentAttributes) {
-            $userTask->set($assignmentAttributes);
-        }
-
-        $userTask->set([
-            'name' => $name,
-            'teamsIds' => $teamIdList
-        ]);
-
-        $this->getEntityManager()->saveEntity($userTask, ['createdById' => 'system']);
-
-        $flowNode->setDataItemValue('userTaskId', $userTask->get('id'));
-
-        $this->getEntityManager()->saveEntity($flowNode);
-
-        $createdEntitiesData = $this->getCreatedEntitiesData();
-
-        $alias = $this->getFlowNode()->get('elementId');
-
-        $createdEntitiesData->$alias = (object) [
-            'entityId' => $userTask->get('id'),
-            'entityType' => $userTask->getEntityType(),
-        ];
-
-        $this->getProcess()->set('createdEntitiesData', $createdEntitiesData);
-
-        $this->getEntityManager()->saveEntity($this->getProcess(), ['silent' => true]);
+        $this->getProcess()->setCreatedEntitiesData($createdEntitiesData);
+        $this->saveProcess();
     }
 
+    /**
+     * @return LeastBusy|RoundRobin
+     * @throws Error
+     */
     private function getAssignmentRuleImplementation(string $assignmentRule)
     {
+        /** @var class-string<LeastBusy|RoundRobin> $className */
         $className = 'Espo\\Modules\\Advanced\\Business\\Workflow\\AssignmentRules\\' .
             str_replace('-', '', $assignmentRule);
 
@@ -181,13 +86,12 @@ class TaskUser extends Activity
             throw new Error('Process TaskUser, Class ' . $className . ' not found.');
         }
 
-        /** @var InjectableFactory $injectableFactory */
-        $injectableFactory = $this->getContainer()->get('injectableFactory');
+        $injectableFactory = $this->getContainer()->getByClass(InjectableFactory::class);
 
         return $injectableFactory->createWith($className, [
             'entityType' => BpmnUserTask::ENTITY_TYPE,
             'actionId' => $this->getElementId(),
-            'flowchartId' => $this->getFlowNode()->get('flowchartId'),
+            'flowchartId' => $this->getFlowNode()->getFlowchartId(),
         ]);
     }
 
@@ -222,17 +126,16 @@ class TaskUser extends Activity
         $this->cancelUserTask();
     }
 
-    private function cancelUserTask()
+    private function cancelUserTask(): void
     {
         $userTaskId = $this->getFlowNode()->getDataItemValue('userTaskId');
 
         if ($userTaskId) {
-            $userTask = $this->getEntityManager()->getEntity('BpmnUserTask', $userTaskId);
+            /** @var ?BpmnUserTask $userTask */
+            $userTask = $this->getEntityManager()->getEntityById(BpmnUserTask::ENTITY_TYPE, $userTaskId);
 
             if ($userTask && !$userTask->get('isResolved')) {
-                $userTask->set([
-                    'isCanceled' => true,
-                ]);
+                $userTask->set(['isCanceled' => true]);
 
                 $this->getEntityManager()->saveEntity($userTask);
             }
@@ -243,21 +146,166 @@ class TaskUser extends Activity
     {
         $name = $this->getAttributeValue('name');
 
-        if (!$name) {
-            return $name;
+        if (!is_string($name)) {
+            return null;
         }
 
-        return Helper::applyPlaceholders($name, $this->getTarget(), $this->getVariables());
+        if (!$name) {
+            return null;
+        }
+
+        return $this->placeholderHelper->apply($name, $this->getTarget(), $this->getVariables());
     }
 
     private function getInstructionsText(): ?string
     {
         $text = $this->getAttributeValue('instructions');
 
-        if (!$text) {
-            return $text;
+        if (!is_string($text)) {
+            return null;
         }
 
-        return Helper::applyPlaceholders($text, $this->getTarget(), $this->getVariables());
+        if (!$text) {
+            return null;
+        }
+
+        return $this->placeholderHelper->apply($text, $this->getTarget(), $this->getVariables());
+    }
+
+    /**
+     * @return array<string, mixed>
+     * @throws Error
+     * @throws Forbidden
+     */
+    private function getAssignmentAttributes(BpmnUserTask $userTask): array
+    {
+        $assignmentType = $this->getAttributeValue('assignmentType');
+        $targetTeamId = $this->getAttributeValue('targetTeamId');
+        $targetUserPosition = $this->getAttributeValue('targetUserPosition') ?: null;
+
+        $assignmentAttributes = [];
+
+        if (str_starts_with($assignmentType, 'rule:')) {
+            $assignmentRule = substr($assignmentType, 5);
+            $ruleImpl = $this->getAssignmentRuleImplementation($assignmentRule);
+
+            $whereClause = null;
+
+            if ($assignmentRule === 'Least-Busy') {
+                $whereClause = ['isResolved' => false];
+            }
+
+            $assignmentAttributes = $ruleImpl->getAssignmentAttributes(
+                $userTask,
+                $targetTeamId,
+                $targetUserPosition,
+                null,
+                $whereClause
+            );
+        } else if (str_starts_with($assignmentType, 'link:')) {
+            $link = substr($assignmentType, 5);
+            $e = $this->getTarget();
+
+            if (str_contains($link, '.')) {
+                [$firstLink, $link] = explode('.', $link);
+
+                $target = $this->getTarget();
+
+                $e = $this->getEntityManager()
+                    ->getRDBRepository($target->getEntityType())
+                    ->getRelation($target, $firstLink)
+                    ->findOne();
+            }
+
+            if ($e instanceof Entity) {
+                $field = $link . 'Id';
+                $userId = $e->get($field);
+
+                if ($userId) {
+                    $assignmentAttributes['assignedUserId'] = $userId;
+                }
+            }
+        } else if ($assignmentType === self::ASSIGNMENT_PROCESS_ASSIGNED_USER) {
+            $userId = $this->getProcess()->getAssignedUser()?->getId();
+
+            if ($userId) {
+                $assignmentAttributes['assignedUserId'] = $userId;
+            }
+        } else if ($assignmentType === self::ASSIGNMENT_SPECIFIED_USER) {
+            $userId = $this->getAttributeValue('targetUserId');
+
+            if ($userId) {
+                $assignmentAttributes['assignedUserId'] = $userId;
+            }
+        }
+
+        return $assignmentAttributes;
+    }
+
+    private function getTaskNameFinal(): string
+    {
+        $name = $this->getTaskName();
+
+        $actionType = $this->getAttributeValue('actionType');
+
+        if (!$name) {
+            $name = $this->getLanguage()->translateOption($actionType, 'actionType', BpmnUserTask::ENTITY_TYPE);
+        }
+
+        return $name;
+    }
+
+    private function getPreparedCreatedEntitiesData(BpmnUserTask $userTask): stdClass
+    {
+        $createdEntitiesData = $this->getCreatedEntitiesData();
+
+        $alias = $this->getFlowNode()->getElementId();
+
+        if ($alias) {
+            $createdEntitiesData->$alias = (object)[
+                'entityId' => $userTask->getId(),
+                'entityType' => $userTask->getEntityType(),
+            ];
+        }
+
+        return $createdEntitiesData;
+    }
+
+    private function createUserTask(CoreEntity $target): BpmnUserTask
+    {
+        $userTask = $this->getEntityManager()->getRDBRepositoryByClass(BpmnUserTask::class)->getNew();
+
+        $userTask
+            ->setProcessId($this->getProcess()->getId())
+            ->setActionType($this->getAttributeValue('actionType'))
+            ->setFlowNodeId($this->getFlowNode()->getId())
+            ->setTarget(LinkParent::create($target->getEntityType(), $target->getId()))
+            ->setDescription($this->getAttributeValue('description'))
+            ->setInstructions($this->getInstructionsText());
+
+        $userTask->set($this->getAssignmentAttributes($userTask));
+
+        $userTask
+            ->setName($this->getTaskNameFinal())
+            ->setTeams(LinkMultiple::create()->withAddedIdList($this->getTeamIdList()));
+
+        $this->getEntityManager()->saveEntity($userTask, ['createdById' => 'system']);
+
+        return $userTask;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getTeamIdList(): array
+    {
+        $teamIdList = $this->getProcess()->getTeams()->getIdList();
+        $targetTeamId = $this->getAttributeValue('targetTeamId');
+
+        if ($targetTeamId && !in_array($targetTeamId, $teamIdList)) {
+            $teamIdList[] = $targetTeamId;
+        }
+
+        return $teamIdList;
     }
 }

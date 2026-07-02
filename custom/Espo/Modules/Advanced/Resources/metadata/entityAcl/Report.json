@@ -1,7 +1,10 @@
 {
     "fields": {
         "internalClassName": {
-            "internal": true
+            "nonAdminReadOnly": true
+        },
+        "internalParams": {
+            "onlyAdmin": true
         }
     },
     "links": {

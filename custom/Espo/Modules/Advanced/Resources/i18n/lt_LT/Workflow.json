@@ -35,7 +35,7 @@
     },
     "tooltips": {
         "requestUrl": "Galimos vietos žymos:\n* `{$attribute}`\n* `{$$ kintamasis}`",
-        "requestHeaders": "Papildomos antraštės.\n\nFormatas:\n```key: value`````\n\nGalimos žymos:\n* `{$attribute}``\n* `{$$ kintamasis}`",
+        "requestHeaders": "Papildomos antraštės.\n\nFormatas:\n```key: value`````\n\nGalimos žymos:\n* `{$attribute}``\n* `{$$variable}`\n* `{#secrets.name}`",
         "requestContent": "JSON formatu.\n\nGalimos vietos žymos:\n* `{$attribute}`\n* `{$$ kintamasis}`",
         "portalOnly": "Jei pažymėta, darbo eiga bus paleista tik portale.",
         "portal": "Konkretus portalas, kuriame bus paleista darbo eiga. Palikite tuščią, jei reikia, kad jis veiktų bet kuriame portale.",
@@ -190,8 +190,8 @@
         "optOut": "Neprivalomas parametras: targetListId. Jei nenurodyta, tuomet pažymimas el. pašto adreso atsisakymas.\n\n Pavyzdys:\n```{{\"targetListId\": \"TARGET_LIST_ID\"}`````",
         "convertCurrency": "Neprivalomas parametras: targetCurrency. Jei nenurodyta, konvertuojama į numatytąją valiutą.",
         "sendInEmail": "Parametrai:\n* šablonoId - PDF šablono ID\n* emailTemplateId - el. pašto šablono ID\n* to - gavėjas (neprivalomas parametras); pagal numatytuosius nustatymus bus siunčiama atsiskaitymo kontaktui arba paskyrai; pavyzdys: `link:account.assignedUser`\n\nPavyzdys: - jei norite, kad būtų naudojamasi sąskaitos numeriu, naudokite šią nuorodą, pvz:\n\n```{\n    \"templateId\": \"TEMPLATE_ID\",\n    \"emailTemplateId\": \"EMAIL_TEMPLATE_ID\",\n    \"to\": \"link:billingContact\"\n}```",
-        "addQuoteItemList": "Pavyzdys\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
-        "addInvoiceItemList": "Pavyzdys\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
-        "addSalesOrderItemList": "Pavyzdys\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```"
+        "addQuoteItemList": "Pavyzdys\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
+        "addInvoiceItemList": "Pavyzdys\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
+        "addSalesOrderItemList": "Pavyzdys\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```"
     }
 }

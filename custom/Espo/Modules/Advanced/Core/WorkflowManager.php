@@ -11,37 +11,41 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core;
 
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
+use Espo\Core\ORM\Entity as CoreEntity;
+use Espo\Core\ORM\Repository\Option\SaveContext;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\File\Manager as FileManager;
 use Espo\Core\Utils\Log;
+use Espo\Core\Utils\Metadata;
 use Espo\Entities\User;
 use Espo\Modules\Advanced\Core\Workflow\ConditionManager;
 use Espo\Modules\Advanced\Core\Workflow\ActionManager;
 use Espo\Modules\Advanced\Entities\Workflow;
+use Espo\Modules\Advanced\Entities\WorkflowLogRecord;
 use Espo\ORM\Entity;
-use Espo\Core\Container;
 use Espo\ORM\EntityManager;
 
 use Exception;
+use RuntimeException;
+use stdClass;
 
 class WorkflowManager
 {
-    private Container $container;
-    private ConditionManager $conditionManager;
-    private ActionManager $actionManager;
+    /** @var ?array<string, array<string, array<string, mixed>[]>> */
     private ?array $data = null;
-
-    private Log $log;
 
     private string $cacheFile = 'data/cache/advanced/workflows.php';
 
+    /** @var string[] */
     private array $cacheFields = [
         'conditionsAll',
         'conditionsAny',
@@ -56,45 +60,23 @@ class WorkflowManager
     /** @var string[] */
     private array $entityListToIgnore;
 
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-        $this->conditionManager = new ConditionManager($this->container);
-        $this->actionManager = new ActionManager($this->container);
-
-        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
-        $this->log = $container->get('log');
-
-        $this->entityListToIgnore = $this->container
-            ->get('metadata')
-            ->get('entityDefs.Workflow.entityListToIgnore') ?? [];
+    public function __construct(
+        private ConditionManager $conditionManager,
+        private ActionManager $actionManager,
+        private Log $log,
+        private Config $config,
+        private User $user,
+        private EntityManager $entityManager,
+        private FileManager $fileManager,
+        Metadata $metadata,
+    ) {
+        $this->entityListToIgnore = $metadata->get('entityDefs.Workflow.entityListToIgnore') ?? [];
     }
 
-    private function getConfig(): Config
-    {
-        /** @var Config */
-        return $this->container->get('config');
-    }
-
-    private function getUser(): User
-    {
-        /** @var User */
-        return $this->container->get('user');
-    }
-
-    private function getEntityManager(): EntityManager
-    {
-        /** @var EntityManager */
-        return $this->container->get('entityManager');
-    }
-
-    private function getFileManager(): FileManager
-    {
-        /** @var FileManager */
-        return $this->container->get('fileManager');
-    }
-
-    private function getData(string $entityType, string $trigger) : ?array
+    /**
+     * @return ?array<string, mixed>
+     */
+    private function getData(string $entityType, string $trigger): ?array
     {
         if (!isset($this->data)) {
             $this->loadWorkflows();
@@ -126,9 +108,15 @@ class WorkflowManager
      * @param string $signal A signal.
      * @param ?array<string, mixed> $params Signal params.
      * @param array<string, mixed> $options Save options.
+     * @throws Error
+     * @throws FormulaError
      */
     public function processSignal(Entity $entity, string $signal, ?array $params = null, array $options = []): void
     {
+        if (!$entity instanceof CoreEntity) {
+            throw new RuntimeException();
+        }
+
         $this->processInternal($entity, '$' . $signal, $options, $params);
     }
 
@@ -138,17 +126,26 @@ class WorkflowManager
      * @param Entity $entity An entity.
      * @param string $trigger A trigger.
      * @param array<string, mixed> $options Save options.
+     * @throws Error
+     * @throws FormulaError
      */
     public function process(Entity $entity, string $trigger, array $options = []): void
     {
+        if (!$entity instanceof CoreEntity) {
+            throw new RuntimeException();
+        }
+
         $this->processInternal($entity, $trigger, $options);
     }
 
     /**
      * @param array<string, mixed> $options
+     * @param array<string, mixed>|null $signalParams
+     * @throws Error
+     * @throws FormulaError
      */
     private function processInternal(
-        Entity $entity,
+        CoreEntity $entity,
         string $trigger,
         array $options = [],
         ?array $signalParams = null
@@ -177,16 +174,22 @@ class WorkflowManager
             $variables['__signalParams'] = (object) $signalParams;
         }
 
-        foreach ($data as $workflowId => $workflowData) {
+        foreach ($data as $workflowData) {
+            $workflowId = $workflowData['id'] ?? null;
+
+            if (!$workflowId) {
+                continue;
+            }
+
             $this->log->debug("Start workflow rule [$workflowId].");
 
             if ($workflowData['portalOnly']) {
-                if (!$this->getUser()->getPortalId()) {
+                if (!$this->user->getPortalId()) {
                     continue;
                 }
 
                 if (!empty($workflowData['portalId'])) {
-                    if ($this->getUser()->get('portalId') !== $workflowData['portalId']) {
+                    if ($this->user->getPortalId() !== $workflowData['portalId']) {
                         continue;
                     }
                 }
@@ -215,7 +218,7 @@ class WorkflowManager
             $this->log->debug("Condition result [$result] for workflow rule [$workflowId].");
 
             if ($result) {
-                $workflowLogRecord = $this->getEntityManager()->getEntity('WorkflowLogRecord');
+                $workflowLogRecord = $this->entityManager->getNewEntity(WorkflowLogRecord::ENTITY_TYPE);
 
                 $workflowLogRecord->set([
                     'workflowId' => $workflowId,
@@ -223,19 +226,27 @@ class WorkflowManager
                     'targetType' => $entity->getEntityType(),
                 ]);
 
-                $this->getEntityManager()->saveEntity($workflowLogRecord);
+                $this->entityManager->saveEntity($workflowLogRecord);
             }
 
             if ($result && isset($workflowData['actions'])) {
+                /** @var stdClass[] $actions */
+                $actions = $workflowData['actions'];
+
                 $this->log->debug("Start actions for workflow rule [$workflowId].");
 
                 $actionManager->setInitData($workflowId, $entity);
 
                 try {
-                    $actionManager->runActions($workflowData['actions'], $variables);
-                }
-                catch (Exception $e) {
-                    $this->log->notice("Failed action execution for workflow [$workflowId]. {$e->getMessage()}");
+                    $actionManager->runActions($actions, $variables, $options);
+
+                    $this->afterActions($actions, $options);
+                } catch (Exception $e) {
+                    $this->log->notice("Failed action execution for workflow {workflowId}. {message}", [
+                        'workflowId' => $workflowId,
+                        'message' => $e->getMessage(),
+                        'exception' => $e,
+                    ]);
                 }
 
                 $this->log->debug("End running actions for workflow rule [$workflowId].");
@@ -247,8 +258,15 @@ class WorkflowManager
         $this->log->debug("End workflow [$trigger] for [$entityType, {$entity->get('id')}].");
     }
 
+    /**
+     * @throws Error
+     */
     public function checkConditions(Workflow $workflow, Entity $entity): bool
     {
+        if (!$entity instanceof CoreEntity) {
+            throw new RuntimeException();
+        }
+
         $result = true;
 
         $conditionsAll = $workflow->get('conditionsAll');
@@ -266,59 +284,71 @@ class WorkflowManager
             $result &= $conditionManager->checkConditionsAny($conditionsAny);
         }
 
-        if ($conditionsFormula && $conditionsFormula !== '') {
+        if ($conditionsFormula) {
             $result &= $conditionManager->checkConditionsFormula($conditionsFormula);
         }
 
-        return $result;
+        return (bool) $result;
     }
 
-    public function runActions(Workflow $workflow, Entity $entity): void
+    /**
+     * @param array<string, mixed> $variables Formula variables to pass.
+     * @throws Error
+     */
+    public function runActions(Workflow $workflow, Entity $entity, array $variables = []): void
     {
+        if (!$entity instanceof CoreEntity) {
+            throw new RuntimeException();
+        }
+
         $actions = $workflow->get('actions');
 
         $actionManager = $this->actionManager;
 
         $actionManager->setInitData($workflow->getId(), $entity);
-        $actionManager->runActions($actions);
+        $actionManager->runActions($actions, $variables);
     }
 
     public function loadWorkflows(bool $reload = false): void
     {
         if (
             !$reload &&
-            $this->getConfig()->get('useCache') &&
-            $this->getFileManager()->exists($this->cacheFile)
+            $this->config->get('useCache') &&
+            $this->fileManager->exists($this->cacheFile)
         ) {
-            $this->data = $this->getFileManager()->getPhpContents($this->cacheFile);
+            $this->data = $this->fileManager->getPhpContents($this->cacheFile);
 
             return;
         }
 
         $this->data = $this->getWorkflowData();
 
-        if ($this->getConfig()->get('useCache')) {
-            $this->getFileManager()->putPhpContents($this->cacheFile, $this->data, true);
+        if ($this->config->get('useCache')) {
+            $this->fileManager->putPhpContents($this->cacheFile, $this->data, true);
         }
     }
 
     /**
      * Get all workflows from database and save into cache.
      *
-     * @return array<string, mixed>
+     * @return array<string, array<string, array<string, mixed>[]>>
      */
     private function getWorkflowData(): array
     {
         $data = [];
 
         /** @var iterable<Workflow> $workflowList */
-        $workflowList = $this->getEntityManager()
+        $workflowList = $this->entityManager
             ->getRDBRepository(Workflow::ENTITY_TYPE)
             ->where(['isActive' => true])
+            ->order('processOrder')
+            ->order('id')
             ->find();
 
         foreach ($workflowList as $workflow) {
             $rowData = [];
+
+            $rowData['id'] = $workflow->getId();
 
             foreach ($this->cacheFields as $fieldName) {
                 if ($workflow->get($fieldName) === null) {
@@ -340,15 +370,61 @@ class WorkflowManager
 
             $entityType = $workflow->getTargetEntityType();
 
-            $id = $workflow->getId();
-
             $trigger = $workflow->getType() === Workflow::TYPE_SIGNAL ?
-                '$' . $workflow->get('signalName') :
+                '$' . $workflow->getSignalName() :
                 $workflow->getType();
 
-            $data[$trigger][$entityType][$id] = $rowData;
+            $data[$trigger][$entityType] ??= [];
+
+            $data[$trigger][$entityType][] = $rowData;
         }
 
         return $data;
+    }
+
+    /**
+     * @param stdClass[] $actions
+     * @param array<string, mixed> $options
+     */
+    private function afterActions(array $actions, array $options): void
+    {
+        if (
+            $this->toUpdateLinks($actions) &&
+            class_exists("Espo\\Core\\ORM\\Repository\\Option\\SaveContext") &&
+            isset($options[SaveContext::NAME])
+        ) {
+            $context = $options[SaveContext::NAME];
+
+            if ($context instanceof SaveContext) {
+                $context->setLinkUpdated();
+            }
+        }
+    }
+
+    /**
+     * @param stdClass[] $actions
+     */
+    private function toUpdateLinks(array $actions): bool
+    {
+        $hasLinkUpdate = false;
+
+        foreach ($actions as $action) {
+            $type = $action->type ?? null;
+
+            if (
+                in_array($type, [
+                    'createEntity',
+                    'createRelatedEntity',
+                    'updateRelatedEntity',
+                    'startBpmnProcess'
+                ])
+            ) {
+                $hasLinkUpdate = true;
+
+                break;
+            }
+        }
+
+        return $hasLinkUpdate;
     }
 }

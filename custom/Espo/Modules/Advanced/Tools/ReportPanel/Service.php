@@ -11,15 +11,16 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\ReportPanel;
 
 use Espo\Core\Acl;
 use Espo\Core\DataManager;
+use Espo\Core\Utils\Config;
 use Espo\Core\Utils\Metadata;
 use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
@@ -41,6 +42,8 @@ use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
 use LogicException;
+use RuntimeException;
+use stdClass;
 
 class Service
 {
@@ -48,32 +51,16 @@ class Service
     private const TYPE_GRID = 'Grid';
     private const TYPE_SUB_REPORT_LIST = 'SubReportList';
 
-    private Metadata $metadata;
-    private Acl $acl;
-    private User $user;
-    private EntityManager $entityManager;
-    private InjectableFactory $injectableFactory;
-    private DataManager $dataManager;
-
     public function __construct(
-        Metadata $metadata,
-        Acl $acl,
-        User $user,
-        EntityManager $entityManager,
-        InjectableFactory $injectableFactory,
-        DataManager $dataManager
-    ) {
-        $this->metadata = $metadata;
-        $this->acl = $acl;
-        $this->user = $user;
-        $this->entityManager = $entityManager;
-        $this->injectableFactory = $injectableFactory;
-        $this->dataManager = $dataManager;
-    }
+        private Metadata $metadata,
+        private Acl $acl,
+        private User $user,
+        private EntityManager $entityManager,
+        private InjectableFactory $injectableFactory,
+        private DataManager $dataManager,
+        private Config $config,
+    ) {}
 
-    /**
-     * @throws Error
-     */
     public function rebuild(?string $specificEntityType = null): void
     {
         $scopeData = $this->metadata->get(['scopes'], []);
@@ -150,8 +137,8 @@ class Service
 
                 $panelListData[$type] = array_values($panelListData[$type]);
 
-                $reportPanelList = $this->entityManager
-                    ->getRDBRepository(ReportPanel::ENTITY_TYPE)
+                $reportPanels = $this->entityManager
+                    ->getRDBRepositoryByClass(ReportPanel::class)
                     ->where([
                         'isActive' => true,
                         'entityType' => $entityType,
@@ -160,13 +147,16 @@ class Service
                     ->order('name')
                     ->find();
 
-                foreach ($reportPanelList as $reportPanel) {
-                    if (!$reportPanel->get('reportId')) {
+                foreach ($reportPanels as $reportPanel) {
+                    $reportId = $reportPanel->get('reportId');
+
+                    if (!$reportId) {
                         continue;
                     }
 
-                    /** @var ?Report $report */
-                    $report = $this->entityManager->getEntityById(Report::ENTITY_TYPE, $reportPanel->get('reportId'));
+                    $report = $this->entityManager
+                        ->getRDBRepositoryByClass(Report::class)
+                        ->getById($reportId);
 
                     if (!$report) {
                         continue;
@@ -225,23 +215,25 @@ class Service
 
                     $clientDefs = $this->metadata->getCustom('clientDefs', $entityType, (object) []);
 
-                    foreach ($dynamicLogicToRemoveHash as $name => $h) {
-                        if (isset($clientDefs->dynamicLogic->panels)) {
-                            unset($clientDefs->dynamicLogic->panels->$name);
+                    if ($this->hasLogicDefs()) {
+                        $logicDefs = $this->metadata->getCustom('logicDefs', $entityType, (object) []);
+                    } else {
+                        $clientDefs->dynamicLogic ??= (object) [];
+
+                        $logicDefs = $clientDefs->dynamicLogic;
+                    }
+
+                    foreach (array_keys($dynamicLogicToRemoveHash) as $name) {
+                        if (isset($logicDefs->panels)) {
+                            unset($logicDefs->panels->$name);
                         }
                     }
 
-                    if (!empty($dynamicLogicHash)) {
-                        if (!isset($clientDefs->dynamicLogic)) {
-                            $clientDefs->dynamicLogic = (object) [];
-                        }
-
-                        if (!isset($clientDefs->dynamicLogic->panels)) {
-                            $clientDefs->dynamicLogic->panels = (object) [];
-                        }
+                    if ($dynamicLogicHash) {
+                        $logicDefs->panels ??= (object) [];
 
                         foreach ($dynamicLogicHash as $name => $item) {
-                            $clientDefs->dynamicLogic->panels->$name = $item;
+                            $logicDefs->panels->$name = $item;
                         }
                     }
 
@@ -262,12 +254,20 @@ class Service
                     }
 
                     $this->metadata->saveCustom('clientDefs', $entityType, $clientDefs);
+
+                    if ($this->hasLogicDefs()) {
+                        $this->metadata->saveCustom('logicDefs', $entityType, $logicDefs);
+                    }
                 }
             }
         }
 
         if ($isAnythingChanged) {
-            $this->dataManager->clearCache();
+            try {
+                $this->dataManager->clearCache();
+            } catch (Error $e) {
+                throw new RuntimeException(previous: $e);
+            }
         }
     }
 
@@ -333,7 +333,13 @@ class Service
      */
     public function runGrid(string $id, ?string $parentType, ?string $parentId): GridResult
     {
-        return $this->run(self::TYPE_GRID, $id, $parentType, $parentId);
+        $result = $this->run(self::TYPE_GRID, $id, $parentType, $parentId);
+
+        if (!$result instanceof GridResult) {
+            throw new LogicException("Bad report result.");
+        }
+
+        return $result;
     }
 
     /**
@@ -353,8 +359,9 @@ class Service
         ?SubReportParams $subReportParams = null,
         ?string $subReportId = null
     ) {
-        /** @var ?ReportPanel $reportPanel */
-        $reportPanel = $this->entityManager->getEntityById(ReportPanel::ENTITY_TYPE, $id);
+        $reportPanel = $this->entityManager
+            ->getRDBRepositoryByClass(ReportPanel::class)
+            ->getById($id);
 
         if (!$reportPanel) {
             throw new NotFound('Report Panel not found.');
@@ -368,7 +375,7 @@ class Service
             throw new BadRequest();
         }
 
-        $parent = $this->entityManager->getEntity($parentType, $parentId);
+        $parent = $this->entityManager->getEntityById($parentType, $parentId);
 
         if (!$parent) {
             throw new NotFound();
@@ -406,8 +413,9 @@ class Service
             }
         }
 
-        /** @var ?Report $report */
-        $report = $this->entityManager->getEntityById(Report::ENTITY_TYPE, $reportPanel->getReportId());
+        $report = $this->entityManager
+            ->getRDBRepositoryByClass(Report::class)
+            ->getById($reportPanel->getReportId());
 
         if (!$report) {
             throw new NotFound("Report not found.");
@@ -431,7 +439,9 @@ class Service
 
             foreach ($joinedReportDataList as $subReportItem) {
                 if ($subReportId === $subReportItem->id) {
-                    $subReport = $this->entityManager->getEntityById(Report::ENTITY_TYPE, $subReportItem->id);
+                    $subReport = $this->entityManager
+                        ->getRDBRepositoryByClass(Report::class)
+                        ->getById($subReportItem->id);
 
                     break;
                 }
@@ -450,18 +460,26 @@ class Service
         if ($report->getType() === Report::TYPE_JOINT_GRID) {
             $idWhereMap = [];
 
-            foreach ($report->get('joinedReportDataList') as $subReportItem) {
-                /** @var ?Report $subReport */
-                $subReport = $this->entityManager->getEntityById(Report::ENTITY_TYPE, $subReportItem->id);
+            /** @var stdClass[] $joinedReportDataList */
+            $joinedReportDataList = $report->get('joinedReportDataList') ?? [];
+
+            foreach ($joinedReportDataList as $subReportItem) {
+                /** @var ?string $subReportId */
+                $subReportId = $subReportItem->id ?? null;
+
+                if (!is_string($subReportId)) {
+                    continue;
+                }
+
+                $subReport = $this->entityManager->getRDBRepositoryByClass(Report::class)->getById($subReportId);
 
                 if (!$subReport) {
                     throw new Error('Sub report not found.');
                 }
 
-                $idWhereMap[$subReportItem->id] = $this->getWhere($parent, $subReport);
+                $idWhereMap[$subReportId] = $this->getWhere($parent, $subReport);
             }
-        }
-        else {
+        } else {
             $where = $this->getWhere($parent, $report);
         }
 
@@ -469,7 +487,7 @@ class Service
 
         if ($type === self::TYPE_GRID) {
             return $service->runGrid(
-                $report->get('id'),
+                $report->getId(),
                 $where,
                 $this->user,
                 GridRunParams::create()->withSkipRuntimeFiltersCheck(),
@@ -505,13 +523,11 @@ class Service
         throw new Error("Not supported panel type.");
     }
 
-    private function getWhere(Entity $parent, Report $report): ?WhereItem
+    private function getWhere(Entity $parent, Report $report): WhereItem
     {
         $where = null;
 
         foreach ($report->getRuntimeFilters() as $item) {
-            $link = null;
-
             $field = $item;
 
             $entityType = $report->getTargetEntityType();
@@ -528,7 +544,7 @@ class Service
 
             $linkType = $this->metadata->get(['entityDefs', $entityType, 'links', $field, 'type']);
 
-            if ($linkType === Entity::BELONGS_TO || $linkType === Entity::HAS_MANY) {
+            if ($linkType === Entity::BELONGS_TO || $linkType === Entity::HAS_MANY || $linkType === Entity::HAS_ONE) {
                 $foreignEntityType = $this->metadata
                     ->get(['entityDefs', $entityType, 'links', $field, 'entity']);
 
@@ -582,6 +598,8 @@ class Service
         }
 
         $entityType = $report->getTargetEntityType();
+
+        /** @var string[] $linkList */
         $linkList = array_keys($this->metadata->get(['entityDefs', $entityType, 'links'], []));
 
         $foundBelongsToList = [];
@@ -592,9 +610,8 @@ class Service
         foreach ($linkList as $link) {
             $linkType = $this->metadata->get(['entityDefs', $entityType, 'links', $link, 'type']);
 
-            if ($linkType === Entity::BELONGS_TO || $linkType === Entity::HAS_MANY) {
-                $foreignEntityType = $this->metadata
-                    ->get(['entityDefs', $entityType, 'links', $link, 'entity']);
+            if ($linkType === Entity::BELONGS_TO || $linkType === Entity::HAS_MANY || $linkType === Entity::HAS_ONE) {
+                $foreignEntityType = $this->metadata->get(['entityDefs', $entityType, 'links', $link, 'entity']);
 
                 if ($foreignEntityType !== $parent->getEntityType()) {
                     continue;
@@ -610,8 +627,7 @@ class Service
             }
 
             if ($linkType === Entity::BELONGS_TO_PARENT) {
-                $entityTypeList = $this->metadata
-                    ->get(['entityDefs', $entityType, 'fields', $link, 'entityList'], []);
+                $entityTypeList = $this->metadata->get(['entityDefs', $entityType, 'fields', $link, 'entityList'], []);
 
                 if (!in_array($parent->getEntityType(), $entityTypeList)) {
                     if (empty($entityTypeList)) {
@@ -690,5 +706,16 @@ class Service
             ->setType('equals')
             ->setValue(null)
             ->build();
+    }
+
+    private function hasLogicDefs(): bool
+    {
+        $version = $this->config->get('version');
+
+        if ($version === '@@version') {
+            return true;
+        }
+
+        return version_compare($version, '9.1.0') >= 0;
     }
 }

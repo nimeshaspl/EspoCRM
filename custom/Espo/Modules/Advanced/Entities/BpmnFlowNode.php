@@ -11,14 +11,15 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Entities;
 
 use Espo\Core\ORM\Entity;
+use stdClass;
 
 class BpmnFlowNode extends Entity
 {
@@ -32,6 +33,8 @@ class BpmnFlowNode extends Entity
     public const STATUS_PROCESSED = 'Processed';
     public const STATUS_REJECTED = 'Rejected';
     public const STATUS_INTERRUPTED = 'Interrupted';
+
+    public const ATTR_PROCESS_ID = 'processId';
 
     public function getStatus(): ?string
     {
@@ -66,6 +69,26 @@ class BpmnFlowNode extends Entity
     public function getFlowchartId(): ?string
     {
         return $this->get('flowchartId');
+    }
+
+    public function getElementData(): stdClass
+    {
+        return $this->get('elementData') ?? (object) [];
+    }
+
+    public function getDivergentFlowNodeId(): ?string
+    {
+        return $this->get('divergentFlowNodeId');
+    }
+
+    public function getPreviousFlowNodeId(): ?string
+    {
+        return $this->get('previousFlowNodeId');
+    }
+
+    public function getPreviousFlowNodeElementType(): ?string
+    {
+        return $this->get('previousFlowNodeElementType');
     }
 
     /**
@@ -104,6 +127,9 @@ class BpmnFlowNode extends Entity
         return $data->$name;
     }
 
+    /**
+     * @param mixed $value
+     */
     public function setDataItemValue(string $name, $value): void
     {
         $data = $this->get('data');
@@ -115,5 +141,17 @@ class BpmnFlowNode extends Entity
         $data->$name = $value;
 
         $this->set('data', $data);
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->set('status', $status);
+
+        return $this;
+    }
+
+    public function getData(): stdClass
+    {
+        return $this->get('data') ?? (object) [];
     }
 }

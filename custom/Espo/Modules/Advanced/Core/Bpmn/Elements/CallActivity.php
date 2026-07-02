@@ -11,31 +11,37 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
 use Espo\Core\Exceptions\Error;
+use Espo\Core\Formula\Exceptions\Error as FormulaException;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\ObjectUtil;
 use Espo\Core\Utils\Util;
 use Espo\Modules\Advanced\Entities\BpmnFlowchart;
 use Espo\Modules\Advanced\Core\Bpmn\Utils\Helper;
-
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 use Espo\Modules\Advanced\Entities\BpmnProcess;
 use Espo\ORM\Entity;
 
 use Throwable;
 use stdClass;
+use Traversable;
 
 class CallActivity extends Activity
 {
     protected const MAX_INSTANCE_COUNT = 20;
+    protected const CALLABLE_TYPE_PROCESS = 'Process';
 
+    /**
+     * @throws FormulaException
+     * @throws Error
+     */
     public function process(): void
     {
         if ($this->isMultiInstance()) {
@@ -52,7 +58,7 @@ class CallActivity extends Activity
             return;
         }
 
-        if ($callableType === 'Process') {
+        if ($callableType === self::CALLABLE_TYPE_PROCESS) {
             $this->processProcess();
 
             return;
@@ -61,12 +67,20 @@ class CallActivity extends Activity
         $this->fail();
     }
 
+    /**
+     * @throws FormulaException
+     * @throws Error
+     */
     protected function processProcess(): void
     {
         $target = $this->getNewTargetEntity();
 
         if (!$target) {
-            $GLOBALS['log']->info("BPM Call Activity: Could not get target for sub-process.");
+            $message = "Process {processId}; CallActivity: Could not get target for sub-process.";
+
+            $this->getLog()->notice($message, [
+                'processId' => $this->getProcess()->getId()
+            ]);
 
             $this->fail();
 
@@ -83,13 +97,13 @@ class CallActivity extends Activity
         $subProcess = $this->getEntityManager()->createEntity(BpmnProcess::ENTITY_TYPE, [
             'status' => BpmnProcess::STATUS_CREATED,
             'flowchartId' => $flowchartId,
-            'targetId' => $target->get('id'),
+            'targetId' => $target->getId(),
             'targetType' => $target->getEntityType(),
-            'parentProcessId' => $this->getProcess()->get('id'),
-            'parentProcessFlowNodeId' => $flowNode->get('id'),
+            'parentProcessId' => $this->getProcess()->getId(),
+            'parentProcessFlowNodeId' => $flowNode->getId(),
             'rootProcessId' => $this->getProcess()->getRootProcessId(),
-            'assignedUserId' => $this->getProcess()->get('assignedUserId'),
-            'teamsIds' => $this->getProcess()->getLinkMultipleIdList('teams'),
+            'assignedUserId' => $this->getProcess()->getAssignedUser()?->getId(),
+            'teamsIds' => $this->getProcess()->getTeams()->getIdList(),
             'variables' => $variables,
         ], [
             'skipCreatedBy' => true,
@@ -97,20 +111,21 @@ class CallActivity extends Activity
             'skipStartProcessFlow' => true,
         ]);
 
-        $flowNode->set([
-            'status' => BpmnFlowNode::STATUS_IN_PROCESS,
-        ]);
-
-        $flowNode->setDataItemValue('subProcessId', $subProcess->get('id'));
+        $flowNode->setStatus(BpmnFlowNode::STATUS_IN_PROCESS);
+        $flowNode->setDataItemValue('subProcessId', $subProcess->getId());
 
         $this->getEntityManager()->saveEntity($flowNode);
 
         try {
             $this->getManager()->startCreatedProcess($subProcess);
-        }
-        catch (Throwable $e) {
-            $GLOBALS['log']->error("BPM Call Activity: Starting sub-process failure, {$subProcess->get('id')}. " .
-                $e->getMessage());
+        } catch (Throwable $e) {
+            $message = "CallActivity: Starting sub-process failure, sub-process: {subProcessId}; {message}";
+
+            $this->getLog()->error($message, [
+                'exception' => $e,
+                'subProcessId' => $subProcess->getId(),
+                'message' => $e->getMessage(),
+            ]);
 
             $this->fail();
 
@@ -134,7 +149,7 @@ class CallActivity extends Activity
             return;
         }
 
-        $subProcess = $this->getEntityManager()->getEntity(BpmnProcess::ENTITY_TYPE, $subProcessId);
+        $subProcess = $this->getEntityManager()->getEntityById(BpmnProcess::ENTITY_TYPE, $subProcessId);
 
         if (!$subProcess) {
             $this->processNextElement();
@@ -205,29 +220,9 @@ class CallActivity extends Activity
     }
 
     /**
-     * @return string[]
+     * @throws FormulaException
+     * @throws Error
      */
-    protected function getReturnVariableList(): array
-    {
-        $newVariableList = [];
-
-        $variableList = $this->getAttributeValue('returnVariableList') ?? [];
-
-        foreach ($variableList as $variable) {
-            if (!$variable) {
-                continue;
-            }
-
-            if ($variable[0] === '$') {
-                $variable = substr($variable, 1);
-            }
-
-            $newVariableList[] = $variable;
-        }
-
-        return $newVariableList;
-    }
-
     protected function getNewTargetEntity(): ?Entity
     {
         $target = $this->getAttributeValue('target');
@@ -255,7 +250,7 @@ class CallActivity extends Activity
 
         $expression = trim($expression, " \t\n\r");
 
-        if (substr($expression, -1) === ';') {
+        if (str_ends_with($expression, ';')) {
             $expression = substr($expression, 0, -1);
         }
 
@@ -264,8 +259,7 @@ class CallActivity extends Activity
 
     protected function getConfig(): Config
     {
-        /** @var Config */
-        return $this->getContainer()->get('config');
+        return $this->getContainer()->getByClass(Config::class);
     }
 
     protected function getMaxInstanceCount(): int
@@ -273,6 +267,10 @@ class CallActivity extends Activity
         return $this->getConfig()->get('bpmnSubProcessInstanceMaxCount', self::MAX_INSTANCE_COUNT);
     }
 
+    /**
+     * @throws FormulaException
+     * @throws Error
+     */
     protected function processMultiInstance(): void
     {
         $loopCollectionExpression = $this->getLoopCollectionExpression();
@@ -288,10 +286,10 @@ class CallActivity extends Activity
         );
 
         if (!is_iterable($loopCollection)) {
-            throw new Error("BPM Sub-Process: Loop-collection-expression evaluaded to a non-iterable value.");
+            throw new Error("BPM Sub-Process: Loop-collection-expression evaluated to a non-iterable value.");
         }
 
-        if ($loopCollection instanceof \Traversable) {
+        if ($loopCollection instanceof Traversable) {
             $loopCollection = iterator_to_array($loopCollection);
         }
 
@@ -330,13 +328,13 @@ class CallActivity extends Activity
         /** @var BpmnProcess $subProcess */
         $subProcess = $this->getEntityManager()->createEntity(BpmnProcess::ENTITY_TYPE, [
             'status' => BpmnFlowNode::STATUS_CREATED,
-            'targetId' => $this->getTarget()->get('id'),
+            'targetId' => $this->getTarget()->getId(),
             'targetType' => $this->getTarget()->getEntityType(),
-            'parentProcessId' => $this->getProcess()->get('id'),
-            'parentProcessFlowNodeId' => $flowNode->get('id'),
+            'parentProcessId' => $this->getProcess()->getId(),
+            'parentProcessFlowNodeId' => $flowNode->getId(),
             'rootProcessId' => $this->getProcess()->getRootProcessId(),
-            'assignedUserId' => $this->getProcess()->get('assignedUserId'),
-            'teamsIds' => $this->getProcess()->getLinkMultipleIdList('teams'),
+            'assignedUserId' => $this->getProcess()->getAssignedUser()?->getId(),
+            'teamsIds' => $this->getProcess()->getTeams()->getIdList(),
             'variables' => $variables,
             'createdEntitiesData' => clone $this->getCreatedEntitiesData(),
         ],
@@ -346,20 +344,17 @@ class CallActivity extends Activity
             'skipStartProcessFlow' => true,
         ]);
 
-        $flowNode->set([
-            'status' => BpmnFlowNode::STATUS_IN_PROCESS,
-        ]);
-
-        $flowNode->setDataItemValue('subProcessId', $subProcess->get('id'));
+        $flowNode->setStatus(BpmnFlowNode::STATUS_IN_PROCESS);
+        $flowNode->setDataItemValue('subProcessId', $subProcess->getId());
 
         $this->getEntityManager()->saveEntity($flowNode);
 
         try {
             $this->getManager()->startCreatedProcess($subProcess, $flowchart);
-        }
-        catch (Throwable $e) {
-            $GLOBALS['log']->error("BPM Sub-Process: Starting sub-process failure, {$subProcess->get('id')}." .
-                $e->getMessage());
+        } catch (Throwable $e) {
+            $message = "BPM Sub-Process: Starting sub-process failure, {$subProcess->getId()}. {$e->getMessage()}";
+
+            $this->getLog()->error($message, ['exception' => $e]);
 
             $this->fail();
 
@@ -370,7 +365,7 @@ class CallActivity extends Activity
     protected function createMultiInstanceFlowchart(int $count): BpmnFlowchart
     {
         /** @var BpmnFlowchart $flowchart */
-        $flowchart = $this->getEntityManager()->getEntity(BpmnFlowchart::ENTITY_TYPE);
+        $flowchart = $this->getEntityManager()->getNewEntity(BpmnFlowchart::ENTITY_TYPE);
 
         $dataList = $this->isSequential() ?
             $this->generateSequentialMultiInstanceDataList($count) :
@@ -465,8 +460,8 @@ class CallActivity extends Activity
             'type' => 'taskScript',
             'id' => self::generateElementId(),
             'formula' =>
-                "\$loopCounter = {$loopCounter};\n" .
-                "\$inputItem = array\\at(\$inputCollection, {$loopCounter});\n",
+                "\$loopCounter = $loopCounter;\n" .
+                "\$inputItem = array\\at(\$inputCollection, $loopCounter);\n",
             'center' => (object) [
                 'x' => $x,
                 'y' => $y,
@@ -476,12 +471,10 @@ class CallActivity extends Activity
 
         $subProcessElement = $this->generateSubProcessMultiInstance($loopCounter, $x, $y);
 
-        $endScript = "\$outputItem = array\\at(\$outputCollection, {$loopCounter});\n";
+        $endScript = "\$outputItem = array\\at(\$outputCollection, $loopCounter);\n";
 
-        if (version_compare($this->getConfig()->get('version'), '7.1.0') > 0) {
-            foreach ($this->getReturnVariableList() as $variable) {
-                $endScript .= "object\set(\$outputItem, '{$variable}', \${$variable});\n";
-            }
+        foreach ($this->getReturnVariableList() as $variable) {
+            $endScript .= "object\set(\$outputItem, '$variable', \$$variable);\n";
         }
 
         $endElement = (object) [

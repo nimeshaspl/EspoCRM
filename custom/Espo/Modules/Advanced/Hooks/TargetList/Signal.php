@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Hooks\TargetList;
@@ -24,19 +24,18 @@ use Espo\ORM\EntityManager;
 
 class Signal
 {
+    /** @var int */
     public static $order = 100;
 
-    private SignalManager $signalManager;
-    private EntityManager $entityManager;
-
     public function __construct(
-        SignalManager $signalManager,
-        EntityManager $entityManager
-    ) {
-        $this->signalManager = $signalManager;
-        $this->entityManager = $entityManager;
-    }
+        private SignalManager $signalManager,
+        private EntityManager $entityManager
+    ) {}
 
+    /**
+     * @param array<string, mixed> $options
+     * @param array<string, mixed> $hookData
+     */
     public function afterOptOut(Entity $entity, array $options, array $hookData): void
     {
         if (!empty($options['skipWorkflow'])) {
@@ -65,6 +64,10 @@ class Signal
             implode('.', ['optOut', $target->getEntityType(), $target->getId(), $entity->getId()]));
     }
 
+    /**
+     * @param array<string, mixed> $options
+     * @param array<string, mixed> $hookData
+     */
     public function afterCancelOptOut(Entity $entity, array $options, array $hookData): void
     {
         if (!empty($options['skipWorkflow'])) {

@@ -176,6 +176,14 @@
             "entity": "CEmployee",
             "audited": false,
             "isCustom": true
+        },
+        "employees": {
+            "type": "hasMany",
+            "relationName": "cPayrollEmployee",
+            "foreign": "payrolls",
+            "entity": "CEmployee",
+            "audited": false,
+            "isCustom": true
         }
     },
     "collection": {

@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Classes\FieldProcessing\BpmnProcess;
@@ -32,13 +32,9 @@ use stdClass;
  */
 class FlowchartDataLoader implements Loader
 {
-    private EntityManager $entityManager;
-
     public function __construct(
-        EntityManager $entityManager
-    ) {
-        $this->entityManager = $entityManager;
-    }
+        private EntityManager $entityManager
+    ) {}
 
     public function process(Entity $entity, Params $params): void
     {
@@ -46,15 +42,15 @@ class FlowchartDataLoader implements Loader
 
         $list = $flowchartData->list ?? [];
 
-        $flowNodeList = $this->entityManager
-            ->getRDBRepository(BpmnFlowNode::ENTITY_TYPE)
+        $flowNodes = $this->entityManager
+            ->getRDBRepositoryByClass(BpmnFlowNode::class)
             ->where(['processId' => $entity->getId()])
             ->order('number', true)
             ->limit(0, 400)
             ->find();
 
         foreach ($list as $item) {
-            $this->loadOutlineData($item, $flowNodeList);
+            $this->loadOutlineData($item, $flowNodes);
         }
 
         $entity->set('flowchartData', $flowchartData);
@@ -64,7 +60,7 @@ class FlowchartDataLoader implements Loader
      * @param stdClass $item
      * @param Collection<BpmnFlowNode> $flowNodeList
      */
-    private function loadOutlineData($item, $flowNodeList)
+    private function loadOutlineData($item, $flowNodeList): void
     {
         $type = $item->type ?? null;
         $id = $item->id ?? null;
@@ -85,7 +81,7 @@ class FlowchartDataLoader implements Loader
                     $subProcessId = $flowNode->getDataItemValue('subProcessId');
 
                     $spFlowNodeList = $this->entityManager
-                        ->getRDBRepository(BpmnFlowNode::ENTITY_TYPE)
+                        ->getRDBRepositoryByClass(BpmnFlowNode::class)
                         ->where(['processId' => $subProcessId])
                         ->order('number', true)
                         ->limit(0, 400)

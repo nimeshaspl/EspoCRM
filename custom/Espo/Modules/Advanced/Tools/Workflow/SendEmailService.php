@@ -11,14 +11,19 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Workflow;
 
+use Espo\Core\Mail\Exceptions\NoSmtp;
+use Espo\Core\Mail\Sender;
+use Espo\Core\Mail\SenderParams;
+use Espo\Core\Mail\SmtpParams;
 use Espo\Core\ORM\Entity as CoreEntity;
+use Espo\Tools\EmailTemplate\Result;
 use Laminas\Mail\Message;
 
 use Espo\Core\Mail\Account\GroupAccount\AccountFactory as GroupAccountFactory;
@@ -27,9 +32,7 @@ use Espo\Core\InjectableFactory;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Mail\EmailSender;
 use Espo\Core\Record\ServiceContainer;
-use Espo\Core\ServiceFactory;
 use Espo\Core\Utils\Config;
-use Espo\Core\Utils\Crypt;
 use Espo\Core\Utils\Hasher;
 use Espo\Core\Utils\Language;
 use Espo\Entities\Attachment;
@@ -43,8 +46,6 @@ use Espo\Modules\Advanced\Entities\BpmnProcess as BpmnProcessEntity;
 use Espo\Modules\Advanced\Entities\Workflow as WorkflowEntity;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
-use Espo\Services\EmailAccount as EmailAccountService;
-use Espo\Services\InboundEmail as InboundEmailService;
 use Espo\Tools\EmailTemplate\Processor as EmailTemplateProcessor;
 use Espo\Tools\EmailTemplate\Data as EmailTemplateData;
 use Espo\Tools\EmailTemplate\Params as EmailTemplateParams;
@@ -59,21 +60,20 @@ class SendEmailService
         private EntityManager $entityManager,
         private ServiceContainer $recordServiceContainer,
         private Config $config,
-        private ServiceFactory $serviceFactory,
         private Helper $workflowHelper,
         private EmailSender $emailSender,
         private Hasher $hasher,
         private Language $defaultLanguage,
-        private Crypt $crypt,
         private EmailTemplateProcessor $emailTemplateProcessor,
         private InjectableFactory $injectableFactory
     ) {}
 
     /**
      * Send email for a workflow.
-     * @todo Introduce SendEmailData class.
-     *
      * @return bool|string
+     * @throws Error
+     * @throws NoSmtp
+     * @todo Introduce SendEmailData class.
      */
     public function send(stdClass $data)
     {
@@ -83,15 +83,34 @@ class SendEmailService
             throw new Error("Workflow[$workflowId][sendEmail]: Email data is invalid.");
         }
 
+        $data->doNotStore ??= false;
+        $data->returnEmailId ??= false;
+        $data->from ??= (object) [];
+        $data->to ??= (object) [];
+        $data->cc ??= null;
+        $data->replyTo ??= null;
+        $data->attachmentIds ??= [];
+
+        /**
+         * @var object{
+         *     variables?: stdClass,
+         *     optOutLink?: bool,
+         *     attachmentIds: string[],
+         *     entityType?: string|null,
+         *     entityId?: string|null,
+         *     from: stdClass,
+         *     to: stdClass,
+         *     cc: stdClass|null,
+         *     replyTo: stdClass|null,
+         *     doNotStore: bool,
+         *     returnEmailId: bool,
+         * } & stdClass $data
+         */
+
         if ($workflowId) {
-            /** @var ?WorkflowEntity $workflow */
-            $workflow = $this->entityManager->getEntityById(WorkflowEntity::ENTITY_TYPE, $workflowId);
+            $workflow = $this->entityManager->getRDBRepositoryByClass(WorkflowEntity::class)->getById($workflowId);
 
-            if (!$workflow) {
-                return false;
-            }
-
-            if (!$workflow->isActive()) {
+            if (!$workflow || !$workflow->isActive()) {
                 return false;
             }
         }
@@ -106,27 +125,23 @@ class SendEmailService
             throw new Error("Workflow[$workflowId][sendEmail]: Target Entity is not found.");
         }
 
-        $entityService = $this->recordServiceContainer->get($entity->getEntityType());
+        $this->recordServiceContainer->get($entity->getEntityType())
+            ->loadAdditionalFields($entity);
 
-        $entityService->loadAdditionalFields($entity);
+        $fromAddress = $this->getEmailAddress($data->from);
+        $toAddress = $this->getEmailAddress($data->to);
+        $replyToAddress = !empty($data->replyTo) ? $this->getEmailAddress($data->replyTo) : null;
+        $ccAddress = !empty($data->cc) ? $this->getEmailAddress($data->cc) : null;
 
-        $toEmailAddress = $this->getEmailAddress($data->to);
-        $fromEmailAddress = $this->getEmailAddress($data->from);
-
-        $replyToEmail = null;
-
-        if (!empty($data->replyTo)) {
-            $replyToEmail = $this->getEmailAddress($data->replyTo);
-        }
-
-        if (empty($toEmailAddress)) {
-            throw new Error("Workflow[$workflowId][sendEmail]: To email address is empty.");
-        }
-
-        if (empty($fromEmailAddress)) {
+        if (!$fromAddress) {
             throw new Error("Workflow[$workflowId][sendEmail]: From email address is empty or could not be obtained.");
         }
 
+        if (!$toAddress) {
+            throw new Error("Workflow[$workflowId][sendEmail]: To email address is empty.");
+        }
+
+        /** @var array<string, Entity> $entityHash */
         $entityHash = [$data->entityType => $entity];
 
         if (
@@ -134,106 +149,53 @@ class SendEmailService
             isset($data->to->entityId) &&
             $data->to->entityType !== $data->entityType
         ) {
+            /** @var string $toEntityType */
             $toEntityType = $data->to->entityType;
 
-            $entityHash[$toEntityType] = $this->entityManager->getEntityById($toEntityType, $data->to->entityId);
+            $toEntity = $this->entityManager->getEntityById($toEntityType, $data->to->entityId);
+
+            if ($toEntity) {
+                $entityHash[$toEntityType] = $toEntity;
+            }
         }
+
+        $fromName = null;
 
         if (
             isset($data->from->entityType) &&
+            isset($data->from->entityId) &&
             $data->from->entityType === User::ENTITY_TYPE
         ) {
-            $entityHash[User::ENTITY_TYPE] =
-                $this->entityManager->getEntityById(User::ENTITY_TYPE, $data->from->entityId);
+            $user = $this->entityManager->getRDBRepositoryByClass(User::class)->getById($data->from->entityId);
 
-            $fromName = $entityHash[User::ENTITY_TYPE]->get('name');
+            if ($user) {
+                $entityHash[User::ENTITY_TYPE] = $user;
+
+                $fromName = $user->getName();
+            }
         }
 
-        $emailTemplateId = $data->emailTemplateId;
+        $sender = $this->emailSender->create();
 
-        /** @var ?EmailTemplate $emailTemplate */
-        $emailTemplate = $this->entityManager->getEntityById(EmailTemplate::ENTITY_TYPE, $emailTemplateId);
-
-        if (!$emailTemplate) {
-            throw new RuntimeException("Email template $emailTemplateId not found.");
-        }
-
-        $emailTemplateData = EmailTemplateData::create()
-            ->withEntityHash($entityHash)
-            ->withEmailAddress($toEmailAddress)
-            ->withParentId($entity->getId())
-            ->withParentType($entity->getEntityType());
-
-        if (
-            $entity->hasAttribute('parentId') &&
-            $entity->hasAttribute('parentType')
-        ) {
-            $emailTemplateData = $emailTemplateData
-                ->withRelatedId($entity->get('parentId'))
-                ->withRelatedType($entity->get('parentType'));
-        }
-
-        $templateResult = $this->emailTemplateProcessor->process(
-            $emailTemplate,
-            EmailTemplateParams::create()->withCopyAttachments(),
-            $emailTemplateData
+        $templateResult = $this->getTemplateResult(
+            data: $data,
+            entityHash: $entityHash,
+            toEmailAddress: $toAddress,
+            entity: $entity,
         );
 
-        $subject = $templateResult->getSubject();
-        $body = $templateResult->getBody();
-
-        if (isset($data->variables)) {
-            foreach (get_object_vars($data->variables) as $key => $value) {
-                if (is_string($value) || is_int($value) || is_float($value)) {
-                    if (is_int($value) || is_float($value)) {
-                        $value = strval($value);
-                    }
-                    else {
-                        if (!$value) {
-                            continue;
-                        }
-                    }
-
-                    $subject = str_replace('{$$' . $key . '}', $value, $subject);
-                    $body = str_replace('{$$' . $key . '}', $value, $body);
-                }
-            }
-        }
-
-        $siteUrl = $this->config->get('siteUrl');
-
-        $body = $this->applyTrackingUrlsToEmailBody($body, $toEmailAddress);
-
-        $hasOptOutLink = $data->optOutLink ?? false;
-
-        $message = new Message();
-
-        if ($hasOptOutLink) {
-            $hash = $this->hasher->hash($toEmailAddress);
-
-            $optOutUrl = $siteUrl .
-                '?entryPoint=unsubscribe&emailAddress=' . $toEmailAddress . '&hash=' . $hash;
-
-            $optOutLink = '<a href="'.$optOutUrl.'">' .
-                $this->defaultLanguage->translate('Unsubscribe', 'labels', 'Campaign').'</a>';
-
-            $body = str_replace('{optOutUrl}', $optOutUrl, $body);
-            $body = str_replace('{optOutLink}', $optOutLink, $body);
-
-            if (stripos($body, '?entryPoint=unsubscribe') === false) {
-                if ($templateResult->isHtml()) {
-                    $body .= "<br><br>" . $optOutLink;
-                } else {
-                    $body .= "\n\n" . $optOutUrl;
-                }
-            }
-
-            $message->getHeaders()->addHeaderLine('List-Unsubscribe', '<' . $optOutUrl . '>');
-        }
+        [$subject, $body] = $this->prepareSubjectBody(
+            templateResult: $templateResult,
+            data: $data,
+            toEmailAddress: $toAddress,
+            sender: $sender,
+        );
 
         $emailData = [
-            'from' => $fromEmailAddress,
-            'to' => $toEmailAddress,
+            'from' => $fromAddress,
+            'to' => $toAddress,
+            'cc' => $ccAddress,
+            'replyTo' => $replyToAddress,
             'subject' => $subject,
             'body' => $body,
             'isHtml' => $templateResult->isHtml(),
@@ -241,101 +203,51 @@ class SendEmailService
             'parentType' => $entity->getEntityType(),
         ];
 
-        if ($replyToEmail) {
-            $emailData['replyTo'] = $replyToEmail;
-        }
-
-        if (isset($fromName)) {
+        if ($fromName !== null) {
             $emailData['fromName'] = $fromName;
         }
 
-        /** @var Email $email */
-        $email = $this->entityManager->getNewEntity(Email::ENTITY_TYPE);
+        $email = $this->entityManager->getRDBRepositoryByClass(Email::class)->getNew();
 
-        $email->set($emailData);
+        $email->setMultiple($emailData);
 
-        $attachmentList = [];
-
-        foreach ($templateResult->getAttachmentIdList() as $attachmentId) {
-            /** @var ?Attachment $attachment */
-            $attachment = $this->entityManager->getEntityById(Attachment::ENTITY_TYPE, $attachmentId);
-
-            if (isset($attachment)) {
-                $attachmentList[] = $attachment;
-            }
-        }
+        $attachmentList = $this->getAttachmentList($templateResult, $data->attachmentIds);
 
         if (!$data->doNotStore) {
+            // Additional attachments not added intentionally?
             $email->set('attachmentsIds', $templateResult->getAttachmentIdList());
         }
 
-        $sender = $this->emailSender->create();
-
-        $smtpParams = null;
-
-        if (
-            isset($data->from->entityType) &&
-            $data->from->entityType == User::ENTITY_TYPE &&
-            isset($data->from->entityId)
-        ) {
-            $smtpParams = $this->getUserSmtpParams($fromEmailAddress, $data->from->entityId);
-        } else {
-            if (isset($data->from->email)) {
-                $smtpParams = $this->getGroupSmtpParams($fromEmailAddress);
-            }
-        }
+        $smtpParams = $this->prepareSmtpParams($data, $fromAddress);
 
         if ($smtpParams) {
             $sender->withSmtpParams($smtpParams);
         }
 
         $sender->withAttachments($attachmentList);
-        $sender->withMessage($message);
 
-        $sendExceptionMessage = null;
+        if ($replyToAddress) {
+            $senderParams = SenderParams::create()->withReplyToAddress($replyToAddress);
+
+            $sender->withParams($senderParams);
+        }
 
         try {
             $sender->send($email);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $sendExceptionMessage = $e->getMessage();
+
+            throw new Error("Workflow[$workflowId][sendEmail]: $sendExceptionMessage.", 0, $e);
         }
 
-        if (isset($sendExceptionMessage)) {
-            throw new Error("Workflow[$workflowId][sendEmail]: $sendExceptionMessage.");
+        if ($data->doNotStore) {
+            return true;
         }
 
-        if (!$data->doNotStore) {
-            $processId = $data->processId ?? null;
+        $this->storeEmail($email, $data);
 
-            $teamsIds = [];
-
-            if ($processId) {
-                /** @var ?BpmnProcessEntity $process */
-                $process = $this->entityManager->getEntityById(BpmnProcessEntity::ENTITY_TYPE, $processId);
-
-                if ($process) {
-                    $teamsIds = $process->getLinkMultipleIdList('teams');
-                }
-            } else {
-                /** @var ?EmailTemplate $emailTemplate */
-                $emailTemplate = $this->entityManager
-                    ->getEntityById(EmailTemplate::ENTITY_TYPE, $data->emailTemplateId);
-
-                if ($emailTemplate) {
-                    $teamsIds = $emailTemplate->getLinkMultipleIdList('teams');
-                }
-            }
-
-            if (count($teamsIds)) {
-                $email->set('teamsIds', $teamsIds);
-            }
-
-            $this->entityManager->saveEntity($email, ['createdById' => 'system']);
-
-            if (!empty($data->returnEmailId)) {
-                return $email->getId();
-            }
+        if ($data->returnEmailId) {
+            return $email->getId();
         }
 
         return true;
@@ -436,7 +348,7 @@ class SendEmailService
 
     private function applyTrackingUrlsToEmailBody(string $body, string $toEmailAddress): string
     {
-        $siteUrl = $this->config->get('siteUrl');
+        $siteUrl = $this->getSiteUrl();
 
         if (!str_contains($body, '{trackingUrl:')) {
             return $body;
@@ -446,6 +358,7 @@ class SendEmailService
 
         preg_match_all('/\{trackingUrl:(.*?)}/', $body, $matches);
 
+        /** @phpstan-ignore-next-line */
         if (!$matches || !count($matches)) {
             return $body;
         }
@@ -473,18 +386,20 @@ class SendEmailService
         return $body;
     }
 
-    private function getUserSmtpParams(string $emailAddress, string $userId): ?array
+    /**
+     * @throws Error
+     * @throws NoSmtp
+     */
+    private function getUserSmtpParams(string $emailAddress, string $userId): ?SmtpParams
     {
-        $rawSmtpParams = null;
+        $user = $this->entityManager->getRDBRepositoryByClass(User::class)->getById($userId);
 
-        $user = $this->entityManager->getEntityById(User::ENTITY_TYPE, $userId);
-
-        if (!$user || !$user->get('isActive')) {
+        if (!$user || !$user->isActive()) {
             return null;
         }
 
         $emailAccount = $this->entityManager
-            ->getRDBRepository(EmailAccount::ENTITY_TYPE)
+            ->getRDBRepositoryByClass(EmailAccount::class)
             ->where([
                 'emailAddress' => $emailAddress,
                 'assignedUserId' => $userId,
@@ -493,35 +408,30 @@ class SendEmailService
             ])
             ->findOne();
 
-        if ($emailAccount) {
-            if (class_exists("Espo\\Core\\Mail\\Account\\PersonalAccount\\AccountFactory")) {
-                $factory = $this->injectableFactory->create(PersonalAccountFactory::class);
-
-                $params = $factory->create($emailAccount->getId())
-                    ->getSmtpParams();
-
-                if ($params) {
-                    $rawSmtpParams = $params->toArray();
-                }
-            } else {
-                /** @var EmailAccountService $service */
-                $service = $this->serviceFactory->create(EmailAccount::ENTITY_TYPE);
-
-                $rawSmtpParams = $service->getSmtpParamsFromAccount($emailAccount);
-            }
+        if (!$emailAccount) {
+            return null;
         }
 
-        if ($rawSmtpParams) {
-            $rawSmtpParams['fromName'] = $user->get('name');
+        $factory = $this->injectableFactory->create(PersonalAccountFactory::class);
+
+        $params = $factory->create($emailAccount->getId())
+            ->getSmtpParams();
+
+        if (!$params) {
+            return null;
         }
 
-        return $rawSmtpParams ?? null;
+        return $params->withFromName($user->getName());
     }
 
-    private function getGroupSmtpParams(string $emailAddress): ?array
+    /**
+     * @throws Error
+     * @throws NoSmtp
+     */
+    private function getGroupSmtpParams(string $emailAddress): ?SmtpParams
     {
         $inboundEmail = $this->entityManager
-            ->getRDBRepository(InboundEmail::ENTITY_TYPE)
+            ->getRDBRepositoryByClass(InboundEmail::class)
             ->where([
                 'status' => InboundEmail::STATUS_ACTIVE,
                 'useSmtp' => true,
@@ -534,24 +444,226 @@ class SendEmailService
             return null;
         }
 
-        $rawSmtpParams = null;
+        return $this->injectableFactory
+            ->create(GroupAccountFactory::class)
+            ->create($inboundEmail->getId())
+            ->getSmtpParams();
+    }
 
-        if (class_exists("Espo\\Core\\Mail\\Account\\GroupAccount\\AccountFactory")) {
-            $params = $this->injectableFactory
-                ->create(GroupAccountFactory::class)
-                ->create($inboundEmail->getId())
-                ->getSmtpParams();
+    /**
+     * @param Result $templateResult
+     * @param string[] $attachmentIds
+     * @return Attachment[]
+     */
+    private function getAttachmentList(Result $templateResult, array $attachmentIds): array
+    {
+        $attachmentList = [];
 
-            if ($params) {
-                $rawSmtpParams = $params->toArray();
+        foreach (array_merge($templateResult->getAttachmentIdList(), $attachmentIds) as $attachmentId) {
+            $attachment = $this->entityManager
+                ->getRDBRepositoryByClass(Attachment::class)
+                ->getById($attachmentId);
+
+            if ($attachment) {
+                $attachmentList[] = $attachment;
             }
-
-            return $rawSmtpParams;
         }
 
-        /** @var InboundEmailService $service */
-        $service = $this->serviceFactory->create(InboundEmail::ENTITY_TYPE);
+        return $attachmentList;
+    }
 
-        return $service->getSmtpParamsFromAccount($inboundEmail);
+    private function storeEmail(Email $email, stdClass $data): void
+    {
+        $processId = $data->processId ?? null;
+        $emailTemplateId = $data->emailTemplateId ?? null;
+
+        $teamsIds = [];
+
+        if ($processId) {
+            $process = $this->entityManager
+                ->getRDBRepositoryByClass(BpmnProcessEntity::class)
+                ->getById($processId);
+
+            if ($process) {
+                $teamsIds = $process->getLinkMultipleIdList('teams');
+            }
+        } else if ($emailTemplateId) {
+            $emailTemplate = $this->entityManager
+                ->getRDBRepositoryByClass(EmailTemplate::class)
+                ->getById($emailTemplateId);
+
+            if ($emailTemplate) {
+                $teamsIds = $emailTemplate->getLinkMultipleIdList('teams');
+            }
+        }
+
+        if (count($teamsIds)) {
+            $email->set('teamsIds', $teamsIds);
+        }
+
+        $this->entityManager->saveEntity($email, ['createdById' => 'system']);
+    }
+
+    /**
+     * @throws Error
+     * @throws NoSmtp
+     */
+    private function prepareSmtpParams(stdClass $data, string $fromEmailAddress): ?SmtpParams
+    {
+        if (
+            isset($data->from->entityType) &&
+            $data->from->entityType === User::ENTITY_TYPE &&
+            isset($data->from->entityId)
+        ) {
+            return $this->getUserSmtpParams($fromEmailAddress, $data->from->entityId);
+        }
+
+        if (isset($data->from->email)) {
+            return $this->getGroupSmtpParams($fromEmailAddress);
+        }
+
+        return null;
+    }
+
+    private function getEmailTemplate(stdClass $data): EmailTemplate
+    {
+        $emailTemplateId = $data->emailTemplateId ?? null;
+
+        if (!$emailTemplateId) {
+            throw new RuntimeException("No email template.");
+        }
+
+        $emailTemplate = $this->entityManager
+            ->getRDBRepositoryByClass(EmailTemplate::class)
+            ->getById($emailTemplateId);
+
+        if (!$emailTemplate) {
+            throw new RuntimeException("Email template $emailTemplateId not found.");
+        }
+
+        return $emailTemplate;
+    }
+
+    /**
+     * @param array<string, Entity> $entityHash
+     * @return Result
+     */
+    private function getTemplateResult(
+        stdClass $data,
+        array $entityHash,
+        string $toEmailAddress,
+        Entity $entity
+    ): Result {
+
+        $emailTemplate = $this->getEmailTemplate($data);
+
+        $emailTemplateData = EmailTemplateData::create()
+            ->withEntityHash($entityHash)
+            ->withEmailAddress($toEmailAddress)
+            ->withParentId($entity->getId())
+            ->withParentType($entity->getEntityType());
+
+        if (
+            $entity->hasAttribute('parentId') &&
+            $entity->hasAttribute('parentType')
+        ) {
+            $emailTemplateData = $emailTemplateData
+                ->withRelatedId($entity->get('parentId'))
+                ->withRelatedType($entity->get('parentType'));
+        }
+
+        return $this->emailTemplateProcessor->process(
+            $emailTemplate,
+            EmailTemplateParams::create()->withCopyAttachments(),
+            $emailTemplateData
+        );
+    }
+
+    private function applyOptOutLink(
+        string $toEmailAddress,
+        string $body,
+        Result $templateResult,
+        Sender $sender,
+    ): string {
+
+        $siteUrl = $this->getSiteUrl();
+
+        $hash = $this->hasher->hash($toEmailAddress);
+
+        $optOutUrl = "$siteUrl?entryPoint=unsubscribe&emailAddress=$toEmailAddress&hash=$hash";
+
+        $optOutLink = "<a href=\"$optOutUrl\">" .
+            "{$this->defaultLanguage->translateLabel('Unsubscribe', 'labels', 'Campaign')}</a>";
+
+        $body = str_replace('{optOutUrl}', $optOutUrl, $body);
+        $body = str_replace('{optOutLink}', $optOutLink, $body);
+
+        if (stripos($body, '?entryPoint=unsubscribe') === false) {
+            if ($templateResult->isHtml()) {
+                $body .= "<br><br>" . $optOutLink;
+            } else {
+                $body .= "\n\n" . $optOutUrl;
+            }
+        }
+
+        if (method_exists($sender, 'withAddedHeader')) { /** @phpstan-ignore-line */
+            $sender->withAddedHeader('List-Unsubscribe', '<' . $optOutUrl . '>');
+        } else {
+            $message = new Message();
+            $message->getHeaders()->addHeaderLine('List-Unsubscribe', '<' . $optOutUrl . '>');
+
+            if (method_exists($sender, 'withMessage')) {
+                $sender->withMessage($message);
+            }
+        }
+
+        return $body;
+    }
+
+    /**
+     * @param Result $templateResult
+     * @param object{variables?: stdClass, optOutLink?: bool}&stdClass $data
+     * @return array{?string, ?string}
+     */
+    private function prepareSubjectBody(
+        Result $templateResult,
+        stdClass $data,
+        string $toEmailAddress,
+        Sender $sender
+    ): array {
+
+        $subject = $templateResult->getSubject();
+        $body = $templateResult->getBody();
+
+        if (isset($data->variables)) {
+            foreach (get_object_vars($data->variables) as $key => $value) {
+                if (!is_string($value) && !is_int($value) && !is_float($value)) {
+                    continue;
+                }
+
+                if (is_int($value) || is_float($value)) {
+                    $value = strval($value);
+                } else if (!$value) {
+                    continue;
+                }
+
+                $subject = str_replace('{$$' . $key . '}', $value, $subject);
+                $body = str_replace('{$$' . $key . '}', $value, $body);
+            }
+        }
+
+        $body = $this->applyTrackingUrlsToEmailBody($body, $toEmailAddress);
+
+        if ($data->optOutLink ?? false) {
+            $body = $this->applyOptOutLink($toEmailAddress, $body, $templateResult, $sender);
+        }
+
+        return [$subject, $body];
+    }
+
+
+    private function getSiteUrl(): ?string
+    {
+        return $this->config->get('workflowEmailSiteUrl') ?? $this->config->get('siteUrl');
     }
 }

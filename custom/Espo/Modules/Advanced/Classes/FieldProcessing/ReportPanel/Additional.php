@@ -11,37 +11,39 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Classes\FieldProcessing\ReportPanel;
 
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\FieldProcessing\Loader;
 use Espo\Core\FieldProcessing\Loader\Params;
 use Espo\Modules\Advanced\Entities\Report as ReportEntity;
+use Espo\Modules\Advanced\Entities\ReportPanel;
 use Espo\Modules\Advanced\Tools\Report\GridType\Helper;
 use Espo\Modules\Advanced\Tools\Report\ReportHelper;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
+/**
+ * @implements Loader<ReportPanel>
+ */
 class Additional implements Loader
 {
-    private Helper $helper;
-    private EntityManager $entityManager;
-    private ReportHelper $reportHelper;
-
     public function __construct(
-        Helper $helper,
-        EntityManager $entityManager,
-        ReportHelper $reportHelper
-    ) {
-        $this->helper = $helper;
-        $this->entityManager = $entityManager;
-        $this->reportHelper = $reportHelper;
-    }
+        private Helper $helper,
+        private EntityManager $entityManager,
+        private ReportHelper $reportHelper
+    ) {}
 
+    /**
+     * @throws Forbidden
+     * @throws Error
+     */
     public function process(Entity $entity, Params $params): void
     {
         if (
@@ -52,7 +54,7 @@ class Additional implements Loader
             $report = $this->entityManager->getEntityById(ReportEntity::ENTITY_TYPE, $entity->get('reportId'));
 
             if ($report) {
-                $columnList = $report->get('columns');
+                $columnList = $report->getColumns();
 
                 $numericColumnList = [];
 
@@ -65,10 +67,9 @@ class Additional implements Loader
                 }
 
                 if (
-                    is_array($report->get('groupBy')) &&
                     (
-                        count($report->get('groupBy')) === 1 ||
-                        count($report->get('groupBy')) === 0
+                        count($report->getGroupBy()) === 1 ||
+                        count($report->getGroupBy()) === 0
                     ) &&
                     count($numericColumnList) > 1
                 ) {
@@ -78,7 +79,7 @@ class Additional implements Loader
                 $entity->set('columnList', $numericColumnList);
             }
 
-            $entity->set('columnsData', $report->get('columnsData') ?? (object) []);
+            $entity->set('columnsData', $report->getColumnsData());
         }
 
         $displayType = $entity->get('displayType');

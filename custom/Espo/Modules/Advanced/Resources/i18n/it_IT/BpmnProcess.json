@@ -3,7 +3,14 @@
     "Create BpmnProcess": "Avvia processo",
     "Stop Process": "Ferma il processo",
     "User Tasks": "Attività utente",
-    "Flowcharts": "Diagrammi di flusso"
+    "Flowcharts": "Diagrammi di flusso",
+    "Interrupt": "Interruzione",
+    "Reject": "Rifiuta",
+    "Start flow from here": "Avvia il flusso da qui",
+    "Reactivate": "Riattiva",
+    "View Variables": "Visualizza variabili",
+    "View Error": "Visualizza errore",
+    "Error Message": "Messaggio di Errore"
   },
   "fields": {
     "status": "Stato",
@@ -16,13 +23,21 @@
     "flowchartElementsDataHash": "Elementi del diagramma di flusso",
     "variables": "Variabili",
     "endedAt": "Finito a",
-    "startElementId": "Elemento Start"
+    "startElementId": "Elemento Start",
+    "workflowId": "ID flusso di lavoro",
+    "parentProcess": "Processo padre",
+    "parentProcessFlowNode": "Nodo del flusso di processo padre",
+    "rootProcess": "Processo radice"
   },
   "links": {
     "flowchart": "Diagramma di flusso",
     "target": "Destinazione",
     "flowNodes": "Log di flusso",
-    "userTasks": "Elaborare le attività dell'utente"
+    "userTasks": "Elaborare le attività dell'utente",
+    "childProcesses": "Processi figlio",
+    "parentProcess": "Processo padre",
+    "parentProcessFlowNode": "Nodo del flusso di processo padre",
+    "rootProcess": "Processo radice"
   },
   "options": {
     "status": {
@@ -30,7 +45,8 @@
       "Started": "Iniziato",
       "Ended": "Terminata",
       "Paused": "In pausa",
-      "Stopped": "Arrestato"
+      "Stopped": "Arrestato",
+      "Interrupted": "Interrotto"
     }
   },
   "presetFilters": {

@@ -10,9 +10,11 @@
       "Created": "Creato",
       "Pending": "In attesa",
       "In Process": "In corso",
+      "Standby": "Pausa",
       "Processed": "Processato",
       "Rejected": "Rifiutato",
-      "Failed": "Fallito"
+      "Failed": "Fallito",
+      "Interrupted": "Interrotto"
     }
   }
 }

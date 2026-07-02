@@ -1,10 +1,9 @@
 [
     {
-        "label": "",
         "rows": [
-            [{"name": "name"},{"name":"type", "readOnly": true}],
+            [{"name": "name"},{"name": "type", "readOnly": true}],
             [{"name": "category"}, {"name": "entityType", "readOnly": true}],
-            [{"name": "description", "fullWidth": true}]
+            [{"name": "description"}]
         ]
     },
     {
@@ -42,6 +41,10 @@
                     "view": "advanced:views/report/fields/runtime-filters"
                 },
                 {"name": "applyAcl"}
+            ],
+            [
+                {"name": "tableMode"},
+                false
             ]
         ]
     },
@@ -51,15 +54,15 @@
             [
                 {
                     "name": "filtersControl",
-                    "customLabel": "",
-                    "view": "advanced:views/report/fields/filters-control-2",
-                    "fullWidth": true
+                    "noLabel": true,
+                    "view": "advanced:views/report/fields/filters-control-2"
                 }
             ]
         ]
     },
     {
         "label": "Chart",
+        "name": "chart",
         "rows": [
             [
                 {

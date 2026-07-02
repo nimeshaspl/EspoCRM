@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Workflow;
@@ -22,103 +22,63 @@ use Espo\Core\Acl;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
+use Espo\Core\InjectableFactory;
+use Espo\Core\ORM\Entity as CoreEntity;
+use Espo\Core\Record\ServiceContainer;
 use Espo\Core\Utils\Log;
 use Espo\Entities\User;
 use Espo\Modules\Advanced\Controllers\WorkflowLogRecord;
 use Espo\Modules\Advanced\Core\WorkflowManager;
 use Espo\Modules\Advanced\Entities\Workflow;
-use Espo\Modules\Advanced\Entities\Workflow as WorkflowEntity;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
+use Espo\Tools\DynamicLogic\ConditionCheckerFactory;
+use Espo\Tools\DynamicLogic\Exceptions\BadCondition;
+use Espo\Tools\DynamicLogic\Item as LogicItem;
+use RuntimeException;
+use stdClass;
 
 class Service
 {
-    private EntityManager $entityManager;
-    private Acl $acl;
-    private User $user;
-    private WorkflowManager $workflowManager;
-    private Log $log;
-
     public function __construct(
-        EntityManager $entityManager,
-        Acl $acl,
-        User $user,
-        WorkflowManager $workflowManager,
-        Log $log
-    ) {
-        $this->entityManager = $entityManager;
-        $this->acl = $acl;
-        $this->user = $user;
-        $this->workflowManager = $workflowManager;
-        $this->log = $log;
+        private EntityManager $entityManager,
+        private Acl $acl,
+        private User $user,
+        private WorkflowManager $workflowManager,
+        private Log $log,
+        private InjectableFactory $injectableFactory,
+        private ServiceContainer $serviceContainer,
+    ) {}
+
+    /**
+     * @throws Error
+     * @throws Forbidden
+     * @throws NotFound
+     */
+    public function runManual(string $id, string $targetId): TriggerResult
+    {
+        $workflow = $this->getManualWorkflow($id);
+        $entity = $this->getEntityForManualWorkflow($workflow, $targetId);
+
+        $this->processManualWorkflowAccess($workflow, $entity);
+        $this->processCheckManualWorkflowConditions($workflow, $entity);
+
+        $result = $this->triggerWorkflow($entity, $workflow->getId(), true);
+
+        if (!$result) {
+            throw new Error("No result.");
+        }
+
+        return $result;
     }
 
     /**
-     * @throws NotFound
-     * @throws Forbidden
+     * @throws Error
      */
-    public function runManual(string $id, string $targetId): void
+    public function triggerWorkflow(Entity $entity, string $workflowId, bool $mandatory = false): ?TriggerResult
     {
-        if ($this->user->isPortal()) {
-            throw new Forbidden();
-        }
-
-        /** @var Workflow $workflow */
-        $workflow = $this->entityManager
-            ->getRDBRepository(Workflow::ENTITY_TYPE)
-            ->getById($id);
-
-        if (!$workflow) {
-            throw new NotFound("Workflow $id not found.");
-        }
-
-        if ($workflow->getType() !== Workflow::TYPE_MANUAL) {
-            throw new Forbidden();
-        }
-
-        $targetEntityType = $workflow->getTargetEntityType();
-
-        $entity = $this->entityManager
-            ->getRDBRepository($targetEntityType)
-            ->getById($targetId);
-
-        if (!$entity) {
-            throw new NotFound();
-        }
-
-        $accessRequired = $workflow->get('manualAccessRequired');
-
-        if ($accessRequired === 'admin') {
-            if (!$this->user->isAdmin()) {
-                throw new Forbidden("No admin access.");
-            }
-        }
-        elseif ($accessRequired === Acl\Table::ACTION_READ) {
-            if (!$this->acl->checkEntityRead($entity)) {
-                throw new Forbidden("No read access.");
-            }
-        }
-        else {
-            if (!$this->acl->checkEntityEdit($entity)) {
-                throw new Forbidden("No edit access.");
-            }
-        }
-
-        if (!$this->user->isAdmin()) {
-            $teamIdList = $workflow->getLinkMultipleIdList('manualTeams');
-
-            if (array_intersect($teamIdList, $this->user->getTeamIdList()) === []) {
-                throw new Forbidden("User is not from allowed team.");
-            }
-        }
-
-        $this->triggerWorkflow($entity, $workflow->getId());
-    }
-
-    public function triggerWorkflow(Entity $entity, string $workflowId, bool $mandatory = false): void
-    {
-        /** @var ?WorkflowEntity $workflow */
-        $workflow = $this->entityManager->getEntityById(WorkflowEntity::ENTITY_TYPE, $workflowId);
+        /** @var ?Workflow $workflow */
+        $workflow = $this->entityManager->getEntityById(Workflow::ENTITY_TYPE, $workflowId);
 
         if (!$workflow) {
             throw new Error("Workflow $workflowId does not exist.");
@@ -128,7 +88,7 @@ class Service
             if (!$mandatory) {
                 $this->log->debug("Workflow $workflowId not triggerred as it's not active.");
 
-                return;
+                return null;
             }
 
             throw new Error("Workflow $workflowId is not active.");
@@ -137,7 +97,7 @@ class Service
         if (!$this->workflowManager->checkConditions($workflow, $entity)) {
             $this->log->debug("Workflow $workflowId not triggerred as conditions are not met.");
 
-            return;
+            return null;
         }
 
         $workflowLogRecord = $this->entityManager->getNewEntity(WorkflowLogRecord::ENTITY_TYPE);
@@ -150,6 +110,133 @@ class Service
 
         $this->entityManager->saveEntity($workflowLogRecord);
 
-        $this->workflowManager->runActions($workflow, $entity);
+        $alertObject = new stdClass();
+        $variables = ['__alert' => $alertObject];
+
+        $this->workflowManager->runActions($workflow, $entity, $variables);
+
+        return $this->prepareTriggerResult($alertObject);
+    }
+
+    /**
+     * @throws Forbidden
+     * @throws Error
+     */
+    private function processCheckManualWorkflowConditions(Workflow $workflow, CoreEntity $entity): void
+    {
+        $conditionGroup = $workflow->getManualDynamicLogicConditionGroup();
+
+        if (
+            !$conditionGroup ||
+            !class_exists("Espo\\Tools\\DynamicLogic\\ConditionCheckerFactory")
+        ) {
+            return;
+        }
+
+        $conditionCheckerFactory = $this->injectableFactory->create(ConditionCheckerFactory::class);
+
+        $checker = $conditionCheckerFactory->create($entity);
+
+        try {
+            $item = LogicItem::fromGroupDefinition($conditionGroup);
+
+            $isTrue = $checker->check($item);
+        } catch (BadCondition $e) {
+            throw new Error($e->getMessage(), 500, $e);
+        }
+
+        if (!$isTrue) {
+            throw new Forbidden("Workflow conditions are not met.");
+        }
+    }
+
+    /**
+     * @throws NotFound
+     */
+    private function getEntityForManualWorkflow(Workflow $workflow, string $targetId): CoreEntity
+    {
+        $targetEntityType = $workflow->getTargetEntityType();
+
+        $entity = $this->entityManager->getRDBRepository($targetEntityType)->getById($targetId);
+
+        if (!$entity) {
+            throw new NotFound();
+        }
+
+        $this->serviceContainer->get($targetEntityType)->loadAdditionalFields($entity);
+
+        if (!$entity instanceof CoreEntity) {
+            throw new RuntimeException();
+        }
+
+        return $entity;
+    }
+
+    /**
+     * @throws Forbidden
+     * @throws NotFound
+     */
+    private function getManualWorkflow(string $id): Workflow
+    {
+        $workflow = $this->entityManager->getRDBRepositoryByClass(Workflow::class)->getById($id);
+
+        if (!$workflow) {
+            throw new NotFound("Workflow $id not found.");
+        }
+
+        if ($workflow->getType() !== Workflow::TYPE_MANUAL) {
+            throw new Forbidden();
+        }
+
+        return $workflow;
+    }
+
+    /**
+     * @throws Forbidden
+     */
+    private function processManualWorkflowAccess(Workflow $workflow, CoreEntity $entity): void
+    {
+        if ($this->user->isPortal()) {
+            throw new Forbidden();
+        }
+
+        $accessRequired = $workflow->getManualAccessRequired();
+
+        if ($accessRequired === Workflow::MANUAL_ACCESS_ADMIN) {
+            if (!$this->user->isAdmin()) {
+                throw new Forbidden("No admin access.");
+            }
+        } else if ($accessRequired === Workflow::MANUAL_ACCESS_READ) {
+            if (!$this->acl->checkEntityRead($entity)) {
+                throw new Forbidden("No read access.");
+            }
+        } else if (!$this->acl->checkEntityEdit($entity)) {
+            throw new Forbidden("No edit access.");
+        }
+
+        if (!$this->user->isAdmin()) {
+            $teamIdList = $workflow->getLinkMultipleIdList('manualTeams');
+
+            if (array_intersect($teamIdList, $this->user->getTeamIdList()) === []) {
+                throw new Forbidden("User is not from allowed team.");
+            }
+        }
+    }
+
+    private function prepareTriggerResult(stdClass $alertObject): TriggerResult
+    {
+        $alert = null;
+
+        if (property_exists($alertObject, 'message') && is_string($alertObject->message)) {
+            $alert = new Alert(
+                message: $alertObject->message,
+                type: $alertObject->type ?? null,
+                autoClose: $alertObject->autoClose ?? false,
+            );
+        }
+
+        return new TriggerResult(
+            alert: $alert,
+        );
     }
 }

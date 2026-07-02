@@ -13,7 +13,11 @@
         "type": {
             "type": "enum",
             "default": "Grid",
-            "options": ["Grid", "List", "JointGrid"],
+            "options": [
+                "Grid",
+                "List",
+                "JointGrid"
+            ],
             "readOnlyAfterCreate": true
         },
         "data": {
@@ -34,10 +38,12 @@
         "orderBy": {
             "type": "jsonArray",
             "audited": true,
-            "view": "views/fields/json-object"
+            "view": "views/fields/json-object",
+            "tooltip": true
         },
         "orderByList": {
-            "type": "varchar"
+            "type": "varchar",
+            "view": "advanced:views/report/fields/order-by-list"
         },
         "filters": {
             "type": "jsonArray"
@@ -85,12 +91,14 @@
         "chartOneColumns": {
             "type": "multiEnum",
             "notStorable": true,
-            "view": "advanced:views/report/fields/chart-columns"
+            "view": "advanced:views/report/fields/chart-columns",
+            "tooltip": true
         },
         "chartOneY2Columns": {
             "type": "multiEnum",
             "notStorable": true,
-            "view": "advanced:views/report/fields/chart-columns"
+            "view": "advanced:views/report/fields/chart-columns",
+            "tooltip": true
         },
         "description": {
             "type": "text"
@@ -114,14 +122,22 @@
             }
         },
         "depth": {
-            "type": "int"
+            "type": "int",
+            "readOnly": true
         },
         "isInternal": {
-            "type": "bool"
+            "type": "bool",
+            "readOnly": true
         },
         "internalClassName": {
-            "type": "varchar",
-            "readOnly": true
+            "type": "enum",
+            "readOnlyAfterCreate": true,
+            "maxLength": 192,
+            "view": "modules/advanced/views/report/fields/internal-class-name"
+        },
+        "internalParams": {
+            "type": "jsonObject",
+            "utility": true
         },
         "category": {
             "type": "link",
@@ -156,8 +172,13 @@
         },
         "emailSendingInterval": {
             "type": "enum",
-            "options": ["", "Daily","Weekly","Monthly","Yearly"],
-            "default":""
+            "options": [
+                "",
+                "Daily",
+                "Weekly",
+                "Monthly",
+                "Yearly"
+            ]
         },
         "emailSendingSettingMonth": {
             "type": "enum",
@@ -197,6 +218,15 @@
             "type": "bool",
             "tooltip": true
         },
+        "tableMode": {
+            "type": "enum",
+            "options": [
+                "Regular",
+                "Normalized"
+            ],
+            "default": "Regular",
+            "maxLength": 10
+        },
         "joinedReports": {
             "type": "linkMultiple",
             "entity": "Report",
@@ -204,7 +234,9 @@
             "columns": {
                 "label": "joinedReportLabel"
             },
-            "view": "advanced:views/report/fields/joined-reports"
+            "sortable": true,
+            "view": "advanced:views/report/fields/joined-reports",
+            "inlineEditDisabled": true
         },
         "joinedReportLabel": {
             "type": "varchar",
@@ -288,7 +320,7 @@
         "GoogleCalendarRecurrentEvent",
         "MailChimpLogMarker",
         "MailChimp",
-        "MailChimpCamapaign",
+        "MailChimpCampaign",
         "MailChimpList",
         "MailChimpManualSync",
         "Import",

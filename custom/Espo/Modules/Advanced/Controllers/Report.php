@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Controllers;
@@ -27,7 +27,8 @@ use Espo\Core\Exceptions\NotFound;
 use Espo\Core\Record\SearchParamsFetcher;
 use Espo\Core\Select\SearchParams;
 use Espo\Core\Select\Where\Item as WhereItem;
-use Espo\Modules\Advanced\Tools\Report\GridExportService;
+use Espo\Core\Utils\Json;
+use Espo\Modules\Advanced\Tools\Report\Export\GridExportService;
 use Espo\Modules\Advanced\Tools\Report\ListExportService;
 use Espo\Modules\Advanced\Tools\Report\ListType\ExportParams;
 use Espo\Modules\Advanced\Tools\Report\ListType\SubReportParams;
@@ -35,6 +36,8 @@ use Espo\Modules\Advanced\Tools\Report\SendingService;
 use Espo\Modules\Advanced\Tools\Report\Service;
 use Espo\Modules\Advanced\Tools\Report\TargetListSyncService;
 
+use Espo\ORM\Query\Part\Order;
+use JsonException;
 use stdClass;
 
 class Report extends Record
@@ -97,10 +100,11 @@ class Report extends Record
         }
 
         return new SubReportParams(
-            (int) ($request->getQueryParam('groupIndex') ?? 0),
-            $groupValue,
-            $request->hasQueryParam('groupValue2'),
-            $groupValue2
+            groupIndex: (int) ($request->getQueryParam('groupIndex') ?? 0),
+            groupValue: $groupValue,
+            hasGroupValue2: $request->hasQueryParam('groupValue2'),
+            groupValue2: $groupValue2,
+            target: $request->getQueryParam('target'),
         );
     }
 
@@ -124,7 +128,7 @@ class Report extends Record
         $whereItem = null;
 
         if ($where) {
-            $whereItem = WhereItem::fromRawAndGroup(json_decode(json_encode($where), true));
+            $whereItem = WhereItem::fromRawAndGroup(self::normalizeWhere($where));
         }
 
         if (!$id) {
@@ -200,12 +204,18 @@ class Report extends Record
         }
 
         $whereItem = $where ?
-            WhereItem::fromRawAndGroup(json_decode(json_encode($where), true)) :
+            WhereItem::fromRawAndGroup(self::normalizeWhere($where)) :
             null;
+
+        $order = strtoupper($order);
+
+        if (!in_array($order, [Order::ASC, Order::DESC])) {
+            $order = null;
+        }
 
         $searchParams = SearchParams::create()
             ->withOrderBy($orderBy)
-            ->withOrder(strtoupper($order));
+            ->withOrder($order);
 
         if ($whereItem) {
             $searchParams = $searchParams->withWhere($whereItem);
@@ -237,19 +247,20 @@ class Report extends Record
             $hasGroupValue2 = property_exists($data, 'groupValue2');
 
             $subReportParams = new SubReportParams(
-                $data->groupIndex ?? 0,
-                $groupValue,
-                $hasGroupValue2,
-                $groupValue2
+                groupIndex: $data->groupIndex ?? 0,
+                groupValue: $groupValue,
+                hasGroupValue2: $hasGroupValue2,
+                groupValue2: $groupValue2,
+                target: $data->subReportTarget ?? null,
             );
         }
 
         $attachmentId = $this->getListExportService()->export(
-            $id,
-            $searchParams,
-            $exportParams,
-            $subReportParams,
-            $this->user
+            id: $id,
+            searchParams: $searchParams,
+            exportParams: $exportParams,
+            subReportParams: $subReportParams,
+            user: $this->user,
         );
 
         return (object) ['id' => $attachmentId];
@@ -273,7 +284,7 @@ class Report extends Record
         }
 
         $whereItem = $where ?
-            WhereItem::fromRawAndGroup(json_decode(json_encode($where), true)) :
+            WhereItem::fromRawAndGroup(self::normalizeWhere($where)) :
             null;
 
         return (object) $this->injectableFactory
@@ -299,7 +310,7 @@ class Report extends Record
         }
 
         $whereItem = $where ?
-            WhereItem::fromRawAndGroup(json_decode(json_encode($where), true)) :
+            WhereItem::fromRawAndGroup(self::normalizeWhere($where)) :
             null;
 
         $attachmentId = $this->getGridExportService()->exportXlsx($id, $whereItem, $this->user);
@@ -326,7 +337,7 @@ class Report extends Record
         }
 
         $whereItem = $where ?
-            WhereItem::fromRawAndGroup(json_decode(json_encode($data->where), true)) :
+            WhereItem::fromRawAndGroup(self::normalizeWhere($where)) :
             null;
 
         $attachmentId = $this->getGridExportService()->exportCsv($id, $whereItem, $column, $this->user);
@@ -349,7 +360,7 @@ class Report extends Record
         $where = $data->where ?? null;
 
         $whereItem = $where ?
-            WhereItem::fromRawAndGroup(json_decode(json_encode($data->where), true)) :
+            WhereItem::fromRawAndGroup(self::normalizeWhere($where)) :
             null;
 
         if (!$id || !$templateId) {
@@ -359,6 +370,18 @@ class Report extends Record
         $attachmentId = $this->getGridExportService()->exportPdf($id, $whereItem, $templateId, $this->user);
 
         return (object) ['id' => $attachmentId];
+    }
+
+    /**
+     * @throws BadRequest
+     */
+    private static function normalizeWhere(mixed $where): mixed
+    {
+        try {
+            return Json::decode(Json::encode($where), true);
+        } catch (JsonException) {
+            throw new BadRequest("Bad where.");
+        }
     }
 
     private function getReportService(): Service

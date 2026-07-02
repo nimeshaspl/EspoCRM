@@ -11,31 +11,46 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
-use Espo\ORM\Entity;
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
+use Espo\Core\ORM\Entity as CoreEntity;
+use Espo\Modules\Advanced\Tools\Workflow\Core\SaveContextHelper;
 use stdClass;
 
+/**
+ * @noinspection PhpUnused
+ */
 class ExecuteFormula extends BaseEntity
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         if (empty($actionData->formula)) {
             return true;
         }
 
-        $reloadedEntity = $this->getEntityManager()->getEntity($entity->getEntityType(), $entity->get('id'));
+        $reloadedEntity = $this->entityManager->getEntityById($entity->getEntityType(), $entity->getId());
 
         $variables = $this->getFormulaVariables();
 
-        $this->getFormulaManager()->run($actionData->formula, $reloadedEntity, $variables);
+        try {
+            $this->formulaManager->run($actionData->formula, $reloadedEntity, $variables);
+        } catch (FormulaError $e) {
+            throw new Error($e->getMessage(), previous: $e);
+        }
 
         $this->updateVariables($variables);
+
+        if (!$reloadedEntity) {
+            // Can be removed.
+            return true;
+        }
 
         $isChanged = false;
 
@@ -49,15 +64,20 @@ class ExecuteFormula extends BaseEntity
             }
         }
 
-        if ($isChanged) {
-            $this->getEntityManager()->saveEntity($reloadedEntity, [
-                'modifiedById' => 'system',
-                'skipWorkflow' => !$this->bpmnProcess,
-                'workflowId' => $this->getWorkflowId(),
-            ]);
-
-            $entity->set($changedMap);
+        if (!$isChanged) {
+            return true;
         }
+
+        $saveOptions = [
+            'modifiedById' => 'system',
+            'skipWorkflow' => !$this->bpmnProcess,
+            'workflowId' => $this->getWorkflowId(),
+            'context' => SaveContextHelper::createDerived($options),
+        ];
+
+        $this->entityManager->saveEntity($reloadedEntity, $saveOptions);
+
+        $entity->setMultiple($changedMap);
 
         return true;
     }

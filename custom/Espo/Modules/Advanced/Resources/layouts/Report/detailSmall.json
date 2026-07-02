@@ -1,6 +1,5 @@
 [
     {
-        "label": false,
         "rows": [
             [{"name":"name"}],
             [{"name":"description"}]

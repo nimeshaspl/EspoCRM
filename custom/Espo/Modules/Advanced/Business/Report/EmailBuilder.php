@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Business\Report;
@@ -22,11 +22,13 @@ use Espo\Core\Exceptions\Error;
 use Espo\Core\Htmlizer\TemplateRendererFactory;
 use Espo\Core\InjectableFactory;
 use Espo\Core\Mail\EmailSender;
+use Espo\Core\ORM\Type\FieldType;
 use Espo\Core\Utils\Log;
 use Espo\Entities\Email;
 use Espo\Entities\User;
 use Espo\Modules\Advanced\Entities\Report;
-use Espo\Modules\Advanced\Tools\Report\GridExportService;
+use Espo\Modules\Advanced\Tools\Report\Export\GridExportService;
+use Espo\Modules\Advanced\Tools\Report\GridType\Data;
 use Espo\Modules\Advanced\Tools\Report\GridType\Helper;
 use Espo\Modules\Advanced\Tools\Report\GridType\Result as GridResult;
 use Espo\ORM\EntityManager;
@@ -44,52 +46,27 @@ use stdClass;
 
 class EmailBuilder
 {
-    private EntityManager $entityManager;
-    private Config $config;
     private DateTime $dateTime;
-    private Metadata $metadata;
-    private Language $language;
     private Preferences $preferences;
-    private ?TemplateFileManager $templateFileManager;
-    private FileStorageManager $fileStorageManager;
-    private Helper $gridHelper;
-    private GridExportService $gridExportService;
-    private InjectableFactory $injectableFactory;
-    private EmailSender $emailSender;
-    private TemplateRendererFactory $templateRendererFactory;
-    private Log $log;
 
     public function __construct(
-        Metadata $metadata,
-        EntityManager $entityManager,
-        Config $config,
-        Language $language,
-        TemplateFileManager $templateFileManager,
-        FileStorageManager $fileStorageManager,
-        Helper $gridHelper,
-        GridExportService $gridExportService,
-        InjectableFactory $injectableFactory,
-        EmailSender $emailSender,
-        TemplateRendererFactory $templateRendererFactory,
-        Log $log
-    ) {
-        $this->metadata = $metadata;
-        $this->entityManager = $entityManager;
-        $this->config = $config;
-        $this->language = $language;
-        $this->templateFileManager = $templateFileManager;
-        $this->fileStorageManager = $fileStorageManager;
-        $this->gridHelper = $gridHelper;
-        $this->gridExportService = $gridExportService;
-        $this->injectableFactory = $injectableFactory;
-        $this->emailSender = $emailSender;
-        $this->templateRendererFactory = $templateRendererFactory;
-        $this->log = $log;
-    }
+        private Metadata $metadata,
+        private EntityManager $entityManager,
+        private Config $config,
+        private Language $language,
+        private TemplateFileManager $templateFileManager,
+        private FileStorageManager $fileStorageManager,
+        private Helper $gridHelper,
+        private GridExportService $gridExportService,
+        private InjectableFactory $injectableFactory,
+        private EmailSender $emailSender,
+        private TemplateRendererFactory $templateRendererFactory,
+        private Log $log,
+    ) {}
 
     private function initForUserById(string $userId): void
     {
-        $user = $this->entityManager->getEntity(User::ENTITY_TYPE, $userId);
+        $user = $this->entityManager->getEntityById(User::ENTITY_TYPE, $userId);
 
         if (!$user) {
             throw new RuntimeException('Report Sending Builder: No User with id = ' . $userId);
@@ -128,15 +105,13 @@ class EmailBuilder
     }
 
     /**
-     * @param GridResult|array $reportResult
+     * @param stdClass $data
+     * @param GridResult|array<int, mixed> $reportResult
      * @param bool $isLocal Images will be included.
+     * @throws Error
      */
     public function buildEmailData($data, $reportResult, Report $report, bool $isLocal = false): void
     {
-        if (!is_object($report)) {
-            throw new RuntimeException('Report Sending Builder: no report.');
-        }
-
         if (!is_object($data) || !isset($data->userId)) {
             throw new RuntimeException('Report Sending Builder: Not enough data for sending email.');
         }
@@ -148,22 +123,36 @@ class EmailBuilder
         switch ($type) {
             case Report::TYPE_GRID:
             case Report::TYPE_JOINT_GRID:
+                assert($reportResult instanceof GridResult);
+
                 $this->buildEmailGridData($data, $reportResult, $report);
 
                 break;
 
             case Report::TYPE_LIST:
+                assert(is_array($reportResult));
+
                 $this->buildEmailListData($data, $reportResult, $report, $isLocal);
 
                 break;
         }
     }
 
+    /**
+     * @param stdClass $data
+     * @throws Error
+     */
     private function buildEmailGridData($data, GridResult $reportResult, Report $report): void
     {
         $depth = count($reportResult->getGroupByList());
 
         if ($depth === 2) {
+            if ($reportResult->getTableMode() === Data::TABLE_MODE_NORMALIZED) {
+                $this->buildEmailGrid2NormalizedData($data, $reportResult, $report);
+
+                return;
+            }
+
             $this->buildEmailGrid2Data($data, $reportResult, $report);
 
             return;
@@ -172,38 +161,30 @@ class EmailBuilder
         $this->buildEmailGrid1Data($data, $reportResult, $report);
     }
 
+    /**
+     * @param stdClass $data
+     * @param array<int, mixed> $reportResult
+     * @throws Error
+     */
     private function buildEmailListData($data, array $reportResult, Report $report, bool $isLocal): void
     {
-        $entityType = $report->get('entityType');
-        $columns = $report->get('columns');
-        $columnsDataValue = $report->get('columnsData');
-
-        if ($columnsDataValue instanceof stdClass) {
-            $columnsData = get_object_vars($columnsDataValue);
-        } else if (is_array($columnsDataValue)) {
-            $columnsData = $columnsDataValue;
-        } else {
-            $columnsData = [];
-        }
-
-        $entity = $this->entityManager->getEntity($entityType);
-
-        if (empty($entity)) {
-            throw new RuntimeException('Report Sending Builder: Entity type "' . $entityType . '" is not available');
-        }
+        $entityType = $report->getTargetEntityType();
+        $columns = $report->getColumns();
+        $columnsData = get_object_vars($report->getColumnsData());
 
         $fields = $this->metadata->get(['entityDefs', $entityType, 'fields']);
 
         $columnAttributes = [];
 
         foreach ($columns as $column) {
-            $columnData = (isset($columnsData[$column])) ? $columnsData[$column] : null;
+            $columnData = $columnsData[$column] ?? null;
             $attrs = [];
 
             if (is_object($columnData)) {
                 if (isset($columnData->width)) {
                     $attrs['width'] = $columnData->width . '%';
                 }
+
                 if (isset($columnData->align)) {
                     $attrs['align'] = $columnData->align;
                 }
@@ -219,7 +200,7 @@ class EmailBuilder
             $scope = $entityType;
             $isForeign = false;
 
-            if (strpos($column, '.') !== false) {
+            if (str_contains($column, '.')) {
                 $isForeign = true;
 
                 [$link, $field] = explode('.', $column);
@@ -230,10 +211,10 @@ class EmailBuilder
                 $fields[$column]['isForeign'] = true;
             }
 
-            $label = $this->language->translate($field, 'fields', $scope);
+            $label = $this->language->translateLabel($field, 'fields', $scope);
 
             if ($isForeign) {
-                $label = $this->language->translate($link ?? '', 'links', $entityType) . '.' . $label;
+                $label = $this->language->translateLabel($link ?? '', 'links', $entityType) . ' . ' . $label;
             }
 
             $columnTitles[] = [
@@ -255,30 +236,32 @@ class EmailBuilder
                 $value = is_scalar($value) ? (string) $record[$columnInRecord] : '';
 
                 switch ($type) {
-                    case 'date':
+                    case FieldType::DATE:
                         if (!empty($value)) {
                             $value = $this->dateTime->convertSystemDate($value);
                         }
 
                         break;
 
-                    case 'datetime':
-                    case 'datetimeOptional':
+                    case FieldType::DATETIME:
+                    case FieldType::DATETIME_OPTIONAL:
                         if (!empty($value)) {
                             $value = $this->dateTime->convertSystemDateTime($value);
                         }
 
                         break;
 
-                    case 'link':
-                    case 'linkParent':
+                    case FieldType::LINK:
+                    case FieldType::LINK_PARENT:
+                    case FieldType::LINK_ONE:
                         if (!empty($record[$columnInRecord . 'Name'])) {
                             $value = $record[$columnInRecord . 'Name'];
                         }
 
                         break;
 
-                    case 'linkMultiple':
+                    case FieldType::LINK_MULTIPLE:
+                    case FieldType::ATTACHMENT_MULTIPLE:
                         if (!empty($record[$columnInRecord . 'Names'])) {
                             $value = implode(', ', array_values( (array) $record[$columnInRecord . 'Names']));
                         }
@@ -288,12 +271,12 @@ class EmailBuilder
                     case 'jsonArray':
                         break;
 
-                    case 'bool':
+                    case FieldType::BOOL:
                         $value = ($value) ? '1' : '0';
 
                         break;
 
-                    case 'enum':
+                    case FieldType::ENUM:
                         if (isset($fields[$column]['isForeign']) && $fields[$column]['isForeign']) {
                             [, $field] = explode('.', $column);
 
@@ -305,13 +288,15 @@ class EmailBuilder
 
                         break;
 
-                    case 'int':
+                    case FieldType::INT:
                         $value = $this->formatInt($value);
 
                         break;
 
-                    case 'float':
+                    case FieldType::FLOAT:
+                    case 'decimal':
                         $isCurrency = isset($fields[$column]['view']) &&
+                            // @todo Refactor.
                             strpos($fields[$column]['view'], 'currency-converted');
 
                         $decimalPlaces = $fields[$column]['decimalPlaces'] ?? null;
@@ -322,21 +307,21 @@ class EmailBuilder
 
                         break;
 
-                    case 'currency':
+                    case FieldType::CURRENCY:
                         $decimalPlaces = $fields[$column]['decimalPlaces'] ?? null;
 
                         $value = $this->formatCurrency($value, $record[$columnInRecord . 'Currency'], $decimalPlaces);
 
                         break;
 
-                    case 'currencyConverted':
+                    case FieldType::CURRENCY_CONVERTED:
                         $decimalPlaces = $fields[$column]['decimalPlaces'] ?? null;
 
                         $value = $this->formatCurrency($value, null, $decimalPlaces);
 
                         break;
 
-                    case 'address':
+                    case FieldType::ADDRESS:
                         $value = '';
 
                         if (!empty($record[$columnInRecord . 'Street'])) {
@@ -385,21 +370,21 @@ class EmailBuilder
                         }
                             break;
 
-                        case 'array':
-                        case 'multiEnum':
-                        case 'checklist':
+                    case FieldType::ARRAY:
+                    case FieldType::MULTI_ENUM:
+                    case FieldType::CHECKLIST:
 
-                            $value = $record[$columnInRecord] ?? [];
+                        $value = $record[$columnInRecord] ?? [];
 
-                            if (is_array($value)) {
-                                $value = implode(", ", $value);
-                            } else {
-                                $value = '';
-                            }
+                        if (is_array($value)) {
+                            $value = implode(", ", $value);
+                        } else {
+                            $value = '';
+                        }
 
-                            break;
+                        break;
 
-                    case 'image':
+                    case FieldType::IMAGE:
                         if (!$isLocal) {
                             break;
                         }
@@ -409,7 +394,7 @@ class EmailBuilder
                         if ($attachmentId) {
                             /** @var ?Attachment $attachment */
                             $attachment = $this->entityManager
-                                ->getEntity(Attachment::ENTITY_TYPE, $attachmentId);
+                                ->getEntityById(Attachment::ENTITY_TYPE, $attachmentId);
 
                             if ($attachment) {
                                 $filePath = $this->fileStorageManager->getLocalFilePath($attachment);
@@ -430,7 +415,7 @@ class EmailBuilder
         $bodyData = [
             'columnList' => $columnTitles,
             'rowList' => $rows,
-            'noDataLabel' => $this->language->translate('No Data'),
+            'noDataLabel' => $this->language->translateLabel('No Data'),
         ];
 
         try {
@@ -438,7 +423,7 @@ class EmailBuilder
             $body = $this->renderReport($report, 'reportSendingList', 'body', $bodyData);
         }
         catch (Exception $e) {
-            $this->log->error($e->getMessage());
+            $this->log->error($e->getMessage(), ['exception' => $e]);
 
             throw Error::createWithBody(
                 'emailTemplateParsingError',
@@ -454,14 +439,16 @@ class EmailBuilder
         $data->tableData = array_merge([$columnTitles], $rows);
     }
 
+    /**
+     * @param stdClass $data
+     * @throws Error
+     */
     private function buildEmailGrid1Data($data, GridResult $reportResult, Report $report): void
     {
         $reportData = $reportResult->getReportData();
 
         /** @var array<string, int> $columnDecimalPlacesMap */
-        $columnDecimalPlacesMap = get_object_vars($reportResult->getColumnDecimalPlacesMap() ?? (object) []);
-
-        $rows = [];
+        $columnDecimalPlacesMap = get_object_vars($reportResult->getColumnDecimalPlacesMap());
 
         $groupCount = count($reportResult->getGroupByList());
 
@@ -470,6 +457,8 @@ class EmailBuilder
         } else {
             $groupName = '__STUB__';
         }
+
+        $rows = [];
 
         $row = [];
 
@@ -483,6 +472,7 @@ class EmailBuilder
             $allowedTypeList = [
                 'int',
                 'float',
+                'decimal',
                 'currency',
                 'currencyConverted',
             ];
@@ -492,8 +482,7 @@ class EmailBuilder
 
             if (strpos($column, ':')) {
                 [$function, $field] = explode(':', $column);
-            }
-            else {
+            } else {
                 $field = $column;
             }
 
@@ -510,8 +499,7 @@ class EmailBuilder
             if (!$columnType) {
                 if ($function === 'COUNT') {
                     $columnType = 'int';
-                }
-                else {
+                } else {
                     $columnType = $this->metadata->get(['entityDefs', $fieldEntityType, 'fields', $field, 'type']);
                 }
             }
@@ -532,30 +520,35 @@ class EmailBuilder
 
         $rows[] = $row;
 
-        foreach ($reportResult->getGrouping()[0] as $gr) {
+        foreach ($reportResult->getGrouping()[0] ?? [] as $gr) {
             $rows[] = $this->buildEmailGrid1GroupingRow(
-                $gr,
-                $groupName,
-                $reportData,
-                $reportResult,
-                $columnTypes,
-                $columnDecimalPlacesMap
+                gr: $gr,
+                groupName: $groupName,
+                reportData: $reportData,
+                reportResult: $reportResult,
+                columnTypes: $columnTypes,
+                columnDecimalPlacesMap: $columnDecimalPlacesMap,
             );
 
             if ($hasSubListColumns) {
                 $rows = array_merge(
                     $rows,
-                    $this->buildEmailGrid1SubListRowList($gr, $reportResult, $columnTypes, $columnDecimalPlacesMap)
+                    $this->buildEmailGrid1SubListRowList(
+                        gr: $gr,
+                        reportResult: $reportResult,
+                        columnTypes: $columnTypes,
+                        columnDecimalPlacesMap: $columnDecimalPlacesMap,
+                    )
                 );
 
                 $rows[] = $this->buildEmailGrid1GroupingRow(
-                    $gr,
-                    $groupName,
-                    $reportData,
-                    $reportResult,
-                    $columnTypes,
-                    $columnDecimalPlacesMap,
-                    true
+                    gr: $gr,
+                    groupName: $groupName,
+                    reportData: $reportData,
+                    reportResult: $reportResult,
+                    columnTypes: $columnTypes,
+                    columnDecimalPlacesMap: $columnDecimalPlacesMap,
+                    onlyNumeric: true,
                 );
             }
         }
@@ -563,7 +556,7 @@ class EmailBuilder
         if ($groupCount) {
             $row = [];
 
-            $totalLabel = $this->language->translate('Total', 'labels', 'Report');
+            $totalLabel = $this->language->translateLabel('Total', 'labels', 'Report');
 
             $row[] = [
                 'value' => $totalLabel,
@@ -573,10 +566,7 @@ class EmailBuilder
             foreach ($reportResult->getColumnList() as $column) {
                 if (
                     in_array($column, $reportResult->getNumericColumnList()) &&
-                    (
-                        //!isset($reportResult['aggregatedColumnList']) ||
-                        in_array($column, $reportResult->getAggregatedColumnList())
-                    )
+                    in_array($column, $reportResult->getAggregatedColumnList())
                 ) {
                     $sum = 0;
 
@@ -590,6 +580,7 @@ class EmailBuilder
                                 break;
 
                             case 'float':
+                            case 'decimal':
                                 $decimalPlaces = $columnDecimalPlacesMap[$column] ?? null;
 
                                 $sum = $this->formatFloat($sum, $decimalPlaces);
@@ -600,12 +591,12 @@ class EmailBuilder
                             case 'currencyConverted':
                                 $decimalPlaces = $columnDecimalPlacesMap[$column] ?? null;
 
-                                $sum = $this->formatCurrency($sum, null, $decimalPlaces);
+                                $sum = $this->formatCurrency($sum, $reportResult->getCurrency(), $decimalPlaces);
+
                                 break;
                         }
                     }
-                }
-                else {
+                } else {
                     $sum = '';
                 }
 
@@ -617,41 +608,21 @@ class EmailBuilder
             }
 
             $rows[] = $row;
-        }
-        else {
+        } else {
             foreach ($rows as &$row) {
                 unset($row[0]);
+
+                $row = array_values($row);
             }
         }
 
-        $bodyData = [
-            'rowList' => $rows,
-        ];
-
-        try {
-            $subject = $this->renderReport($report, 'reportSendingGrid1', 'subject');
-            $body = $this->renderReport($report, 'reportSendingGrid1', 'body', $bodyData);
-        }
-        catch (Exception $e) {
-            $this->log->error($e->getMessage());
-
-            throw Error::createWithBody(
-                'emailTemplateParsingError',
-                Error\Body::create()
-                    ->withMessageTranslation('emailTemplateParsingError', 'Report',
-                        ['template' => 'reportSendingGrid1'])
-                    ->encode()
-            );
-        }
-
-        $data->emailSubject = $subject;
-        $data->emailBody = $body;
-        $data->tableData = $rows;
+        $this->prepareGrid1Result($rows, $report, $data);
     }
 
     /**
      * @param array<string, string> $columnTypes
      * @param array<string, int> $columnDecimalPlacesMap
+     * @return (array<string, mixed>)[]
      */
     private function buildEmailGrid1GroupingRow(
         string $gr,
@@ -660,8 +631,8 @@ class EmailBuilder
         GridResult $reportResult,
         array $columnTypes,
         array $columnDecimalPlacesMap,
-        bool $onlyNumeric = false
-    ) : array {
+        bool $onlyNumeric = false,
+    ): array {
 
         $row = [];
 
@@ -670,9 +641,8 @@ class EmailBuilder
         $label = $gr;
 
         if (empty($label)) {
-            $label = $this->language->translate('-Empty-', 'labels', 'Report');
-        }
-        else if (isset($reportResult->getGroupValueMap()[$groupName][$gr])) {
+            $label = $this->language->translateLabel('-Empty-', 'labels', 'Report');
+        } else if (isset($reportResult->getGroupValueMap()[$groupName][$gr])) {
             $label = $reportResult->getGroupValueMap()[$groupName][$gr];
         }
 
@@ -683,7 +653,7 @@ class EmailBuilder
         }
 
         if ($hasSubListColumns && $onlyNumeric) {
-            $label = $this->language->translate('Group Total', 'labels', 'Report');
+            $label = $this->language->translateLabel('Group Total', 'labels', 'Report');
         }
 
         $row[] = [
@@ -708,10 +678,7 @@ class EmailBuilder
 
             if (
                 $isNumericValue &&
-                (
-                    //isset($reportResult['aggregatedColumnList']) &&
-                    !in_array($column, $reportResult->getAggregatedColumnList())
-                )
+                !in_array($column, $reportResult->getAggregatedColumnList())
             ) {
                 $row[] = [];
 
@@ -720,19 +687,27 @@ class EmailBuilder
 
             if ($isNumericValue) {
                 $value = $this->formatColumnValue(
-                    $reportData->$gr->$column ?? 0,
-                    $columnTypes[$column],
-                    $columnDecimalPlacesMap[$column] ?? null
+                    value: $reportData->$gr->$column ?? 0,
+                    type: $columnTypes[$column],
+                    decimalPlaces: $columnDecimalPlacesMap[$column] ?? null,
+                    currency: $reportResult->getCurrency(),
                 );
-            }
-            else {
-                $value = $reportData->$gr->$column ?? '';
+
+                $align = 'right';
+            } else {
+                $value = $reportData->$gr->$column ?? null;
+
+                if ($value !== null) {
+                    $value = $reportResult->getCellValueMaps()->$column->$value ?? $value;
+                }
+
+                $align = 'left';
             }
 
             $row[] = [
                 'value' => $value,
                 'attrs' => [
-                    'align' => $isNumericValue ? 'right' : 'left',
+                    'align' => $align,
                 ],
             ];
         }
@@ -740,32 +715,35 @@ class EmailBuilder
         return $row;
     }
 
-    private function formatColumnValue($value, ?string $type, ?int $decimalPlaces = null): string
-    {
+    private function formatColumnValue(
+        mixed $value,
+        ?string $type,
+        ?int $decimalPlaces = null,
+        ?string $currency = null,
+    ): string {
+
         if ((!$type || $type === 'int') && $decimalPlaces !== null) {
             $type = 'float';
         }
 
-        switch ($type) {
-            case 'int':
-                return $this->formatInt($value);
-
-            case 'float':
-                return $this->formatFloat($value, $decimalPlaces);
-
-            case 'currency':
-            case 'currencyConverted':
-                return $this->formatCurrency($value, null, $decimalPlaces);
-        }
-
-        return (string) $value;
+        return match ($type) {
+            'int' => $this->formatInt($value),
+            'float' => $this->formatFloat($value, $decimalPlaces),
+            'currency', 'currencyConverted' => $this->formatCurrency($value, $currency, $decimalPlaces),
+            default => (string) $value,
+        };
     }
 
+    /**
+     * @param array<string, string> $columnTypes
+     * @param array<string, int> $columnDecimalPlacesMap
+     * @return array{value: mixed, isBold?: bool, attrs?: array<string, mixed>}[][]
+     */
     private function buildEmailGrid1SubListRowList(
         string $gr,
         GridResult $reportResult,
         array $columnTypes,
-        array $columnDecimalPlacesMap
+        array $columnDecimalPlacesMap,
     ): array {
 
         $itemList = $reportResult->getSubListData()->$gr;
@@ -774,16 +752,21 @@ class EmailBuilder
 
         foreach ($itemList as $item) {
             $rowList[] = $this->buildEmailGrid1SubListRow(
-                $item,
-                $reportResult,
-                $columnTypes,
-                $columnDecimalPlacesMap
+                item: $item,
+                reportResult: $reportResult,
+                columnTypes: $columnTypes,
+                columnDecimalPlacesMap: $columnDecimalPlacesMap,
             );
         }
 
         return $rowList;
     }
 
+    /**
+     * @param array<string, string> $columnTypes
+     * @param array<string, int> $columnDecimalPlacesMap
+     * @return array{value: mixed, isBold?: bool, attrs?: array<string, mixed>}[]
+     */
     private function buildEmailGrid1SubListRow(
         object $item,
         GridResult $reportResult,
@@ -810,12 +793,11 @@ class EmailBuilder
 
             if ($isNumericValue) {
                 $value = $this->formatColumnValue(
-                    $item->$column ?? 0,
-                    $columnTypes[$column],
-                    $columnDecimalPlacesMap[$column] ?? null
+                    value: $item->$column ?? 0,
+                    type: $columnTypes[$column],
+                    decimalPlaces: $columnDecimalPlacesMap[$column] ?? null
                 );
-            }
-            else {
+            } else {
                 $value = $item->$column ?? '';
             }
 
@@ -828,19 +810,160 @@ class EmailBuilder
         return $row;
     }
 
+
+    /**
+     * @param stdClass $data
+     * @throws Error
+     */
+    private function buildEmailGrid2NormalizedData($data, GridResult $reportResult, Report $report): void
+    {
+        $groupName1 = $reportResult->getGroupByList()[0];
+        $groupName2 = $reportResult->getGroupByList()[1];
+
+        /** @var array<string, int> $columnDecimalPlacesMap */
+        $columnDecimalPlacesMap = get_object_vars($reportResult->getColumnDecimalPlacesMap());
+
+        $rows = [];
+
+        $row = [
+            [
+                'value' => $reportResult->getGroupNameMap()[$groupName1] ?? null,
+                'isBold' => true,
+            ],
+            [
+                'value' => $reportResult->getGroupNameMap()[$groupName2] ?? null,
+                'isBold' => true,
+            ],
+        ];
+
+        foreach ($reportResult->getNonSummaryColumnList() as $column) {
+            $row[] = [
+                'value' => $reportResult->getColumnNameMap()[$column] ?? null,
+                'isBold' => true,
+            ];
+        }
+
+        foreach ($reportResult->getSummaryColumnList() as $column) {
+            $row[] = [
+                'value' => $reportResult->getColumnNameMap()[$column] ?? null,
+                'isBold' => true,
+            ];
+        }
+
+        $rows[] = $row;
+
+        foreach ($reportResult->getGrouping()[0] ?? [] as $group) {
+            foreach ($reportResult->getGrouping()[1] ?? [] as $secondGroup) {
+                $row = [];
+
+                $row[] = [
+                    'value' => $this->prepareGroupLabel($reportResult, $groupName1, $group),
+                ];
+
+                $row[] = [
+                    'value' => $this->prepareGroupLabel($reportResult, $groupName2, $secondGroup),
+                ];
+
+                foreach ($reportResult->getNonSummaryColumnList() as $column) {
+                    $columnGroup = $reportResult->getNonSummaryColumnGroupMap()->$column ?? null;
+
+                    $columnGroupValue = $columnGroup === $reportResult->getGroupByList()[0] ?
+                        $group : $secondGroup;
+
+                    $value = $this->gridExportService->getCellDisplayValueFromResult(
+                        groupIndex: $columnGroup === $reportResult->getGroupByList()[0] ? 0 : 1,
+                        groupValue: $columnGroupValue,
+                        column: $column,
+                        reportResult: $reportResult,
+                    );
+
+                    [$value, $align] = $this->prepareColumnDisplayData(
+                        reportResult: $reportResult,
+                        column: $column,
+                        value: $value,
+                    );
+
+                    $row[] = [
+                        'value' => $value,
+                        'attrs' => ['align' => $align],
+                    ];
+                }
+
+                $hasNonEmpty = false;
+
+                foreach ($reportResult->getSummaryColumnList() as $column) {
+                    $value = $reportResult->getReportData()->$group->$secondGroup->$column ?? null;
+
+                    if ($value !== null) {
+                        $hasNonEmpty = true;
+                    }
+
+                    $value = $this->formatColumnValue(
+                        value: $value,
+                        type: $this->getNumericColumnType($column, $report),
+                        decimalPlaces: $columnDecimalPlacesMap[$column] ?? null,
+                        currency: $reportResult->getCurrency(),
+                    );
+
+                    $row[] = [
+                        'value' => $value,
+                        'attrs' => ['align' => 'right'],
+                    ];
+                }
+
+                if (!$hasNonEmpty) {
+                    continue;
+                }
+
+                $rows[] = $row;
+            }
+        }
+
+        $row = [];
+
+        $row[] = [
+            'value' => $this->language->translateLabel('Total', 'labels', 'Report'),
+            'isBold' => true,
+        ];
+
+        $row[] = [];
+
+        foreach ($reportResult->getNonSummaryColumnList() as $ignored) {
+            $row[] = [];
+        }
+
+        foreach ($reportResult->getSummaryColumnList() as $column) {
+            $sum = $reportResult->getSums()->$column ?? 0;
+
+            $value = $this->formatColumnValue(
+                value: $sum ,
+                type: $this->getNumericColumnType($column, $report),
+                decimalPlaces: $columnDecimalPlacesMap[$column] ?? null,
+                currency: $reportResult->getCurrency(),
+            );
+
+            $row[] = [
+                'value' => $value,
+                'isBold' => true,
+                'attrs' => ['align' => 'right'],
+            ];
+        }
+
+        $rows[] = $row;
+
+        $this->prepareGrid1Result($rows, $report, $data);
+    }
+
+    /**
+     * @param stdClass $data
+     * @throws Error
+     */
     private function buildEmailGrid2Data($data, GridResult $reportResult, Report $report): void
     {
         $reportData = $reportResult->getReportData();
 
         /** @var array<string, int> $columnDecimalPlacesMap */
-        $columnDecimalPlacesMap = get_object_vars($reportResult->getColumnDecimalPlacesMap() ?? (object) []);
-
-        $allowedTypeList = [
-            'int',
-            'float',
-            'currency',
-            'currencyConverted',
-        ];
+        $columnDecimalPlacesMap = get_object_vars($reportResult->getColumnDecimalPlacesMap());
 
         $specificColumn = $data->specificColumn ?? null;
 
@@ -857,27 +980,9 @@ class EmailBuilder
             $group1NonSummaryColumnList = $reportResult->getGroup1NonSummaryColumnList() ?? [];
             $group2NonSummaryColumnList = $reportResult->getGroup2NonSummaryColumnList() ?? [];
 
-            $columnType = 'int';
+            $columnType = $this->getNumericColumnType($column, $report);
 
-            if (strpos($column , ':')) {
-                [$function, $field] = explode(':', $column);
-
-                if ($function !== 'COUNT') {
-                    $columnType = $this->metadata
-                        ->get(['entityDefs', $report->getTargetEntityType(), 'fields', $field, 'type']);
-                }
-            }
-
-            if ($columnType === 'float') {
-                $view = $this->metadata
-                    ->get(['entityDefs', $report->getTargetEntityType(), 'fields', $field ?? $column, 'view']);
-
-                if ($view && strpos($view, 'currency-converted')) {
-                    $columnType = 'currencyConverted';
-                }
-            }
-
-            $columnTypes[$column] = (in_array($columnType, $allowedTypeList)) ? $columnType : 'int';
+            $columnTypes[$column] = $columnType;
 
             $grid = [];
             $row = [];
@@ -889,42 +994,63 @@ class EmailBuilder
                 $row[] = ['value' => $text];
             }
 
-            foreach ($reportResult->getGrouping()[0] as $gr1) {
-                $label = $gr1;
-
-                if (empty($label)) {
-                    $label = $this->language->translate('-Empty-', 'labels', 'Report');
-                }
-                else if (!empty($reportResult->getGroupValueMap()[$groupName1][$gr1])) {
-                    $label = $reportResult->getGroupValueMap()[$groupName1][$gr1];
-                }
-
-                if (strpos($groupName1 , ':')) {
-                    [$function, $field] = explode(':', $groupName1);
-
-                    $label = $this->handleDateGroupValue($function, $label);
-                }
+            foreach ($reportResult->getGrouping()[0] ?? [] as $gr1) {
+                $label = $this->prepareGroupLabel($reportResult, $groupName1, $gr1);
 
                 $row[] = ['value' => $label];
             }
 
             if ($reportResult->getGroup2Sums() !== null) {
                 $row[] = [
-                    'value' => $this->language->translate('Total', 'labels', 'Report'),
+                    'value' => $this->language->translateLabel('Total', 'labels', 'Report'),
                     'isBold' => true,
                 ];
             }
 
             $grid[] = $row;
 
-            foreach ($reportResult->getGrouping()[1] as $gr2) {
+            foreach ($group1NonSummaryColumnList as $c) {
+                $row = [];
+
+                $text = $reportResult->getColumnNameMap()[$c];
+                $row[] = ['value' => $text];
+
+                foreach ($group2NonSummaryColumnList as $ignored3) {
+                    $row[] = [];
+                }
+
+                foreach ($reportResult->getGrouping()[0] ?? [] as $gr1) {
+                    $value = $this->gridExportService->getCellDisplayValueFromResult(
+                        groupIndex: 0,
+                        groupValue: $gr1,
+                        column: $c,
+                        reportResult: $reportResult,
+                    );
+
+                    [$value, $align] = $this->prepareColumnDisplayData(
+                        reportResult: $reportResult,
+                        column: $c,
+                        value: $value,
+                    );
+
+                    $row[] = [
+                        'value' => $value,
+                        'attrs' => ['align' => $align],
+                    ];
+                }
+
+                $row[] = [];
+
+                $grid[] = $row;
+            }
+
+            foreach ($reportResult->getGrouping()[1] ?? [] as $gr2) {
                 $row = [];
                 $label = $gr2;
 
                 if (empty($label)) {
-                    $label = $this->language->translate('-Empty-', 'labels', 'Report');
-                }
-                else if (isset($reportResult->getGroupValueMap()[$groupName2][$gr2])) {
+                    $label = $this->language->translateLabel('-Empty-', 'labels', 'Report');
+                } else if (isset($reportResult->getGroupValueMap()[$groupName2][$gr2])) {
                     $label = $reportResult->getGroupValueMap()[$groupName2][$gr2];
                 }
 
@@ -940,41 +1066,18 @@ class EmailBuilder
                 ];
 
                 foreach ($group2NonSummaryColumnList as $c) {
-                    $value = $this->gridExportService->getCellDisplayValueFromResult(1, $gr2, $c, $reportResult);
-
-                    $cData = $this->gridHelper->getDataFromColumnName(
-                        $reportResult->getEntityType(),
-                        $c,
-                        $reportResult
+                    $value = $this->gridExportService->getCellDisplayValueFromResult(
+                        groupIndex: 1,
+                        groupValue: $gr2,
+                        column: $c,
+                        reportResult: $reportResult,
                     );
 
-                    $align = 'left';
-
-
-                    switch ($cData->fieldType) {
-                        case 'int':
-                            $value = $this->formatInt($value);
-                            $align = 'right';
-
-                            break;
-
-                        case 'float':
-                            $decimalPlaces = $columnDecimalPlacesMap[$column] ?? null;
-
-                            $value = $this->formatFloat($value, $decimalPlaces);
-                            $align = 'right';
-
-                            break;
-
-                        case 'currency':
-                        case 'currencyConverted':
-                            $decimalPlaces = $columnDecimalPlacesMap[$column] ?? null;
-
-                            $value = $this->formatCurrency($value, null, $decimalPlaces);
-                            $align = 'right';
-
-                            break;
-                    }
+                    [$value, $align] = $this->prepareColumnDisplayData(
+                        reportResult: $reportResult,
+                        column: $c,
+                        value: $value,
+                    );
 
                     $row[] = [
                         'value' => $value,
@@ -982,39 +1085,18 @@ class EmailBuilder
                     ];
                 }
 
-                foreach ($reportResult->getGrouping()[0] as $gr1) {
+                foreach ($reportResult->getGrouping()[0] ?? [] as $gr1) {
                     $value = 0;
 
                     if (isset($reportData->$gr1->$gr2->$column)) {
                         $value = $reportData->$gr1->$gr2->$column;
 
                         $value = $this->formatColumnValue(
-                            $value ?? 0,
-                            $columnTypes[$column],
-                            $columnDecimalPlacesMap[$column] ?? null
+                            value: $value,
+                            type: $columnTypes[$column],
+                            decimalPlaces: $columnDecimalPlacesMap[$column] ?? null,
+                            currency: $reportResult->getCurrency(),
                         );
-
-                        /*switch ($columnType) {
-                            case 'int':
-                                $value = $this->formatInt($value);
-
-                                break;
-
-                            case 'float':
-                                $decimalPlaces = $columnDecimalPlacesMap[$column] ?? null;
-
-                                $value = $this->formatFloat($value, $decimalPlaces);
-
-                                break;
-
-                            case 'currency':
-                            case 'currencyConverted':
-                                $decimalPlaces = $columnDecimalPlacesMap[$column] ?? null;
-
-                                $value = $this->formatCurrency($value, null, $decimalPlaces);
-
-                                break;
-                        }*/
                     }
 
                     $row[] = [
@@ -1027,9 +1109,10 @@ class EmailBuilder
                     $value = $reportResult->getGroup2Sums()->$gr2->$column;
 
                     $value = $this->formatColumnValue(
-                        $value ?? 0,
-                        $columnTypes[$column],
-                        $columnDecimalPlacesMap[$column] ?? null
+                        value: $value ?? 0,
+                        type: $columnTypes[$column],
+                        decimalPlaces: $columnDecimalPlacesMap[$column] ?? null,
+                        currency: $reportResult->getCurrency(),
                     );
 
                     $row[] = [
@@ -1045,7 +1128,7 @@ class EmailBuilder
             $row = [];
 
             $row[] = [
-                'value' => $this->language->translate('Total', 'labels', 'Report'),
+                'value' => $this->language->translateLabel('Total', 'labels', 'Report'),
                 'isBold' => true,
             ];
 
@@ -1053,19 +1136,21 @@ class EmailBuilder
                 $row[] = ['value' => ''];
             }
 
-            foreach ($reportResult->getGrouping()[0] as $gr1) {
+            foreach ($reportResult->getGrouping()[0] ?? [] as $gr1) {
                 $sum = 0;
 
-                if (!empty($reportResult->getGroup1Sums()->$gr1)) {
-                    if (!empty($reportResult->getGroup1Sums()->$gr1->$column)) {
-                        $sum = $reportResult->getGroup1Sums()->$gr1->$column;
+                if (
+                    !empty($reportResult->getGroup1Sums()->$gr1) &&
+                    !empty($reportResult->getGroup1Sums()->$gr1->$column)
+                ) {
+                    $sum = $reportResult->getGroup1Sums()->$gr1->$column;
 
-                        $sum = $this->formatColumnValue(
-                            $sum ?? 0,
-                            $columnTypes[$column],
-                            $columnDecimalPlacesMap[$column] ?? null
-                        );
-                    }
+                    $sum = $this->formatColumnValue(
+                        value: $sum ,
+                        type: $columnTypes[$column],
+                        decimalPlaces: $columnDecimalPlacesMap[$column] ?? null,
+                        currency: $reportResult->getCurrency(),
+                    );
                 }
 
                 $row[] = [
@@ -1079,9 +1164,10 @@ class EmailBuilder
                 $value = $reportResult->getSums()->$column;
 
                 $value = $this->formatColumnValue(
-                    $value ?? 0,
-                    $columnTypes[$column],
-                    $columnDecimalPlacesMap[$column] ?? null
+                    value: $value ?? 0,
+                    type: $columnTypes[$column],
+                    decimalPlaces: $columnDecimalPlacesMap[$column] ?? null,
+                    currency: $reportResult->getCurrency(),
                 );
 
                 $row[] = [
@@ -1092,74 +1178,6 @@ class EmailBuilder
             }
 
             $grid[] = $row;
-
-            if (count($group1NonSummaryColumnList)) {
-                $row = [];
-
-                foreach ($group2NonSummaryColumnList as $ignored1) {
-                    $row[] = [];
-                }
-
-                foreach ($reportResult->getGrouping()[0] as $ignored2) {
-                    $row[] = [];
-                }
-
-                $grid[] = $row;
-            }
-
-            foreach ($group1NonSummaryColumnList as $c) {
-                $row = [];
-                $text = $reportResult->getColumnNameMap()[$c];
-                $row[] = ['value' => $text];
-
-                foreach ($group2NonSummaryColumnList as $ignored3) {
-                    $row[] = [];
-                }
-
-                foreach ($reportResult->getGrouping()[0] as $gr1) {
-                    $value = $this->gridExportService->getCellDisplayValueFromResult(0, $gr1, $c, $reportResult);
-
-                    $cData = $this->gridHelper->getDataFromColumnName(
-                        $reportResult->getEntityType(),
-                        $c,
-                        $reportResult
-                    );
-
-                    $align = 'left';
-
-                    switch ($cData->fieldType) {
-                        case 'int':
-                            $value = $this->formatInt($value);
-                            $align = 'right';
-
-                            break;
-
-                        case 'float':
-                            $decimalPlaces = $columnDecimalPlacesMap[$column] ?? null;
-
-                            $value = $this->formatFloat($value, $decimalPlaces);
-                            $align = 'right';
-
-                            break;
-
-                        case 'currency':
-                        case 'currencyConverted':
-                            $decimalPlaces = $columnDecimalPlacesMap[$column] ?? null;
-
-                            $value = $this->formatCurrency($value, null, $decimalPlaces);
-                            $align = 'right';
-
-                            break;
-                    }
-
-                    $row[] = [
-                        'value' => $value,
-                        'attrs' => ['align' => $align],
-                    ];
-                }
-
-                $grid[] = $row;
-            }
 
             $rows = $grid;
 
@@ -1174,9 +1192,10 @@ class EmailBuilder
         try {
             $subject = $this->renderReport($report, 'reportSendingGrid2', 'subject');
             $body = $this->renderReport($report, 'reportSendingGrid2', 'body', $bodyData);
-        }
-        catch (Exception $e) {
-            $this->log->error($e->getMessage());
+        } catch (Exception $e) {
+            $this->log->error($e->getMessage(), [
+                'exception' => $e,
+            ]);
 
             throw Error::createWithBody(
                 'emailTemplateParsingError',
@@ -1201,7 +1220,7 @@ class EmailBuilder
         string $userId,
         string $emailSubject,
         string $emailBody,
-        ?string $attachmentId
+        ?string $attachmentId,
     ): void {
 
         if (!$emailSubject || !$emailBody) {
@@ -1259,6 +1278,9 @@ class EmailBuilder
         }
     }
 
+    /**
+     * @param string|numeric $value
+     */
     private function formatCurrency($value, ?string $currency = null, ?int $decimalPlaces = null): string
     {
         if ($value === "") {
@@ -1272,14 +1294,15 @@ class EmailBuilder
         $currencyFormat = (int) $this->config->get('currencyFormat');
 
         if (!$currency) {
+            // @todo Support currency defined in the report result.
             $currency = $this->config->get('defaultCurrency');
         }
 
         if ($currencyFormat) {
             $pad = $decimalPlaces ?? ((int) $this->config->get('currencyDecimalPlaces'));
-            $value = number_format($value, $pad, $userDecimalMark, $userThousandSeparator);
-        }
-        else {
+
+            $value = number_format(floatval($value), $pad, $userDecimalMark, $userThousandSeparator);
+        } else {
             $value = $this->formatFloat($value, $decimalPlaces);
         }
 
@@ -1319,7 +1342,7 @@ class EmailBuilder
         $userThousandSeparator = $this->getPreference('thousandSeparator');
         $userDecimalMark = $this->getPreference('decimalMark');
 
-        return number_format($value, 0, $userDecimalMark, $userThousandSeparator);
+        return number_format(floatval($value), 0, $userDecimalMark, $userThousandSeparator);
     }
 
     /**
@@ -1338,7 +1361,7 @@ class EmailBuilder
         $userThousandSeparator = $this->getPreference('thousandSeparator');
         $userDecimalMark = $this->getPreference('decimalMark');
 
-        $valueString = number_format($value, $decimalPlaces ?? 8, $userDecimalMark, $userThousandSeparator);
+        $valueString = number_format(floatval($value), $decimalPlaces ?? 8, $userDecimalMark, $userThousandSeparator);
 
         if ($decimalPlaces !== null) {
             return $valueString;
@@ -1347,6 +1370,9 @@ class EmailBuilder
         return rtrim(rtrim($valueString, '0'), $userDecimalMark);
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function renderReport(
         Report $entity,
         string $templateName,
@@ -1354,6 +1380,7 @@ class EmailBuilder
         array $data = []
     ): string {
 
+        /** @phpstan-ignore-next-line arguments.count */
         $template = $this->templateFileManager->getTemplate($templateName, $type, null, 'Advanced');
         $template = str_replace(["\n", "\r"], '', $template);
 
@@ -1390,5 +1417,145 @@ class EmailBuilder
         }
 
         return $value;
+    }
+
+    /**
+     * @param array<string, mixed>[][] $rows
+     * @throws Error
+     */
+    private function prepareGrid1Result(array $rows, Report $report, stdClass $data): void
+    {
+        $bodyData = [
+            'rowList' => $rows,
+        ];
+
+        try {
+            $subject = $this->renderReport($report, 'reportSendingGrid1', 'subject');
+            $body = $this->renderReport($report, 'reportSendingGrid1', 'body', $bodyData);
+        } catch (Exception $e) {
+            $this->log->error($e->getMessage(), ['exception' => $e]);
+
+            throw Error::createWithBody(
+                'emailTemplateParsingError',
+                Error\Body::create()
+                    ->withMessageTranslation('emailTemplateParsingError', 'Report',
+                        ['template' => 'reportSendingGrid1'])
+                    ->encode()
+            );
+        }
+
+        $data->emailSubject = $subject;
+        $data->emailBody = $body;
+        $data->tableData = $rows;
+    }
+
+    /**
+     * @param GridResult $reportResult
+     */
+    private function prepareGroupLabel(GridResult $reportResult, string $groupName, string $group): string
+    {
+        $label = $group;
+
+        if (empty($label)) {
+            $label = $this->language->translateLabel('-Empty-', 'labels', 'Report');
+        } else if (!empty($reportResult->getGroupValueMap()[$groupName][$group])) {
+            $label = $reportResult->getGroupValueMap()[$groupName][$group];
+        }
+
+        if (strpos($groupName, ':')) {
+            [$function,] = explode(':', $groupName);
+
+            $label = $this->handleDateGroupValue($function, $label);
+        }
+
+        return $label;
+    }
+
+    /**
+     * @param GridResult $reportResult
+     * @return array{string, string}
+     */
+    private function prepareColumnDisplayData(
+        GridResult $reportResult,
+        string $column,
+        mixed $value,
+    ): array {
+
+        $cDat = $this->gridHelper->getDataFromColumnName(
+            entityType: $reportResult->getEntityType(),
+            column: $column,
+            result: $reportResult,
+        );
+
+        /** @var array<string, int> $columnDecimalPlacesMap */
+        $columnDecimalPlacesMap = get_object_vars($reportResult->getColumnDecimalPlacesMap());
+
+        $align = 'left';
+
+        switch ($cDat->fieldType) {
+            case 'int':
+                $value = $this->formatInt($value);
+                $align = 'right';
+
+                break;
+
+            case 'float':
+            case 'decimal':
+                $decimalPlace = $columnDecimalPlacesMap[$column] ?? null;
+
+                $value = $this->formatFloat($value, $decimalPlace);
+                $align = 'right';
+
+                break;
+
+            case 'currency':
+            case 'currencyConverted':
+                $decimalPlace = $columnDecimalPlacesMap[$column] ?? null;
+
+                $value = $this->formatCurrency($value, null, $decimalPlace);
+                $align = 'right';
+
+                break;
+        }
+
+        return [$value, $align];
+    }
+
+    private function getNumericColumnType(string $column, Report $report): string
+    {
+        $columnType = 'int';
+
+        if (strpos($column, ':')) {
+            [$f, $field] = explode(':', $column);
+
+            if ($f !== 'COUNT') {
+                $columnType = $this->metadata
+                    ->get(['entityDefs', $report->getTargetEntityType(), 'fields', $field, 'type']);
+            }
+        }
+
+        if ($columnType === 'float') {
+            // @todo Refactor.
+            $view = $this->metadata
+                ->get(['entityDefs', $report->getTargetEntityType(), 'fields', $field ?? $column, 'view']);
+
+            if ($view && strpos($view, 'currency-converted')) {
+                $columnType = 'currencyConverted';
+            }
+        }
+
+        $allowedTypeList = [
+            'int',
+            'float',
+            'decimal',
+            'currency',
+            'currencyConverted',
+        ];
+
+        if (!in_array($columnType, $allowedTypeList)) {
+            $columnType = 'int';
+        }
+
+        return $columnType;
     }
 }

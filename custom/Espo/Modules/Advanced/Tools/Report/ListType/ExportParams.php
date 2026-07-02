@@ -11,44 +11,29 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\ListType;
 
 class ExportParams
 {
-    /** @var ?string[] */
-    private ?array $attributeList;
-    /** @var ?string[] */
-    private ?array $fieldList;
-    private ?string $format;
-    /** @var ?string[] */
-    private ?array $ids;
-    /** @var ?array<string, mixed> */
-    private ?array $params;
 
     /**
      * @param ?string[] $attributeList
      * @param ?string[] $fieldList
      * @param ?string[] $ids
-     * @params ?array<string, mixed> $params
+     * @param ?array<string, mixed> $params
      */
     public function __construct(
-        ?array $attributeList,
-        ?array $fieldList,
-        ?string $format,
-        ?array $ids,
-        ?array $params
-    ) {
-        $this->attributeList = $attributeList;
-        $this->fieldList = $fieldList;
-        $this->format = $format;
-        $this->ids = $ids;
-        $this->params = $params;
-    }
+        private ?array $attributeList,
+        private ?array $fieldList,
+        private ?string $format,
+        private ?array $ids,
+        private ?array $params
+    ) {}
 
     /**
      * @return ?string[]

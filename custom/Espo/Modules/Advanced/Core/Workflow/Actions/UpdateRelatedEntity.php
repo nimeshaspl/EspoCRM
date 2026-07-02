@@ -11,29 +11,42 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityCollection;
-use Exception;
+use Espo\ORM\Type\RelationType;
 use stdClass;
 
-/** @noinspection PhpUnused */
+/**
+ * @noinspection PhpUnused
+ */
 class UpdateRelatedEntity extends BaseEntity
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    /**
+     * @throws Error
+     */
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         $link = $actionData->link;
 
         $relatedEntities = $this->getRelatedEntities($entity, $link);
 
+        $saveOptions = [
+            'modifiedById' => 'system',
+            'workflowId' => $this->getWorkflowId(),
+        ];
+
         foreach ($relatedEntities as $relatedEntity) {
-            if (!($relatedEntity instanceof Entity)) {
+            if (!$relatedEntity instanceof Entity) {
                 continue;
             }
 
@@ -41,43 +54,33 @@ class UpdateRelatedEntity extends BaseEntity
 
             if (
                 $entity->hasRelation($link) &&
-                $entity->getRelationType($link) === 'belongsToParent' &&
-                !empty($actionData->parentEntityType)
+                $entity->getRelationType($link) === RelationType::BELONGS_TO_PARENT &&
+                !empty($actionData->parentEntityType) &&
+                $actionData->parentEntityType !== $relatedEntity->getEntityType()
             ) {
-                if ($actionData->parentEntityType !== $relatedEntity->getEntityType()) {
-                    $update = false;
-                }
+                $update = false;
             }
 
             if (!$update) {
                 continue;
             }
 
-            $data = $this->getDataToFill($relatedEntity, $actionData->fields);
+            $data = $this->getEntityValuesToSet($relatedEntity, $actionData->fields);
+            $relatedEntity->setMultiple($data);
 
-            $relatedEntity->set($data);
-
-            if (!empty($actionData->formula)) {
-                $clonedVariables = clone $this->getFormulaVariables();
-                $this->getFormulaManager()->run($actionData->formula, $relatedEntity, $clonedVariables);
-            }
+            $this->processFormula($actionData, $relatedEntity);
 
             if (!$relatedEntity->has('modifiedById')) {
                 $relatedEntity->set('modifiedByName', 'System');
             }
 
-            $this->getEntityManager()->saveEntity($relatedEntity, [
-                'modifiedById' => 'system',
-                'workflowId' => $this->getWorkflowId(),
-            ]);
+            $this->entityManager->saveEntity($relatedEntity, $saveOptions);
         }
 
         return true;
     }
 
     /**
-     * Get Related Entity,
-     *
      * @return EntityCollection|iterable<Entity>
      */
     protected function getRelatedEntities(Entity $entity, string $link)
@@ -95,17 +98,13 @@ class UpdateRelatedEntity extends BaseEntity
                     return [];
                 }
 
-                try {
-                    $relatedEntity = $this->getEntityManager()->getEntityById($parentType, $parentId);
-                }
-                catch (Exception $e) {
-                    $GLOBALS['log']->info(
-                        'Workflow[UpdateRelatedEntity]: Cannot getRelatedEntities(), error: '. $e->getMessage());
+                $relatedEntity = $this->entityManager->getEntityById($parentType, $parentId);
 
+                if (!$relatedEntity) {
                     return [];
                 }
 
-                $fetched = $this->getEntityManager()
+                $fetched = $this->entityManager
                     ->getCollectionFactory()
                     ->create($entity->getEntityType(), [$relatedEntity]);
 
@@ -114,8 +113,7 @@ class UpdateRelatedEntity extends BaseEntity
             case Entity::HAS_MANY:
             case Entity::HAS_CHILDREN:
             case Entity::MANY_MANY:
-                $fetched = $this->getEntityManager()
-                    ->getRDBRepository($entity->getEntityType())
+                $fetched = $this->entityManager
                     ->getRelation($entity, $link)
                     ->sth()
                     ->find();
@@ -123,28 +121,38 @@ class UpdateRelatedEntity extends BaseEntity
                 break;
 
             default:
-                try {
-                    $fetched = $this->getEntityManager()
-                        ->getRDBRepository($entity->getEntityType())
-                        ->getRelation($entity, $link)
-                        ->findOne();
-                }
-                catch (Exception $e) {
-                    $GLOBALS['log']->info(
-                        'Workflow[UpdateRelatedEntity]: Cannot getRelatedEntities(), error: '. $e->getMessage());
-
-                    return [];
-                }
+                $fetched = $this->entityManager
+                    ->getRelation($entity, $link)
+                    ->findOne();
 
                 break;
         }
 
         if ($fetched instanceof Entity) {
-            return $this->getEntityManager()
+            return $this->entityManager
                 ->getCollectionFactory()
                 ->create($entity->getEntityType(), [$fetched]);
         }
 
         return $fetched ?? [];
+    }
+
+
+    /**
+     * @throws Error
+     */
+    private function processFormula(stdClass $actionData, Entity $entity): void
+    {
+        if (empty($actionData->formula)) {
+            return;
+        }
+
+        $clonedVariables = clone $this->getFormulaVariables();
+
+        try {
+            $this->formulaManager->run($actionData->formula, $entity, $clonedVariables);
+        } catch (FormulaError $e) {
+            throw new Error($e->getMessage(), previous: $e);
+        }
     }
 }

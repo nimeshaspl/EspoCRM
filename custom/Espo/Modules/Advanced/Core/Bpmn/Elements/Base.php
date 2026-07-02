@@ -11,87 +11,80 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
 use Espo\Core\Formula\Manager as FormulaManager;
 use Espo\Core\Utils\Config;
+use Espo\Core\Utils\DateTime as DateTimeUtil;
+use Espo\Core\Utils\Log;
 use Espo\Core\WebSocket\Submission;
 use Espo\Modules\Advanced\Core\Bpmn\BpmnManager;
+use Espo\Modules\Advanced\Core\Bpmn\Utils\PlaceholderHelper;
 use Espo\Modules\Advanced\Entities\BpmnProcess;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Container;
 use Espo\Core\Utils\Metadata;
 use Espo\ORM\EntityManager;
-use Espo\ORM\Entity;
-
+use Espo\Core\ORM\Entity;
+use RuntimeException;
 use stdClass;
 
 abstract class Base
 {
-    /** @var Container */
-    protected $container;
-    /** @var BpmnProcess */
-    protected $process;
-    /** @var BpmnFlowNode */
-    protected $flowNode;
-    /** @var Entity */
-    protected $target;
-    /** @var BpmnManager */
-    protected $manager;
-
+    /**
+     * // Do not rename the parameters. Mapped by name.
+     */
     public function __construct(
-        Container $container,
-        BpmnManager $manager,
-        Entity $target,
-        BpmnFlowNode $flowNode,
-        BpmnProcess $process
-    ) {
-        $this->container = $container;
-        $this->manager = $manager;
-        $this->target = $target;
-        $this->flowNode = $flowNode;
-        $this->process = $process;
-    }
+        protected Container $container,
+        protected BpmnManager $manager,
+        protected Entity $target,
+        protected BpmnFlowNode $flowNode,
+        protected BpmnProcess $process,
+        protected PlaceholderHelper $placeholderHelper,
+    ) {}
 
     protected function getContainer(): Container
     {
         return $this->container;
     }
 
+    protected function getLog(): Log
+    {
+        return $this->container->getByClass(Log::class);
+    }
+
     protected function getEntityManager(): EntityManager
     {
-        /** @var EntityManager */
-        return $this->container->get('entityManager');
+        return $this->container->getByClass(EntityManager::class);
     }
 
     protected function getMetadata(): Metadata
     {
-        /** @var Metadata */
-        return $this->container->get('metadata');
+        return $this->container->getByClass(Metadata::class);
     }
 
     protected function getFormulaManager(): FormulaManager
     {
-        /** @var FormulaManager */
-        return $this->getContainer()->get('formulaManager');
+        return $this->getContainer()->getByClass(FormulaManager::class);
     }
 
     private function getWebSocketSubmission(): Submission
     {
+        // Important: The service was not bound prior v9.0.0.
         /** @var Submission */
         return $this->getContainer()->get('webSocketSubmission');
     }
 
     private function getConfig(): Config
     {
-        /** @var Config */
-        return $this->getContainer()->get('config');
+        return $this->getContainer()->getByClass(Config::class);
     }
 
     protected function getProcess(): BpmnProcess
@@ -123,7 +116,11 @@ abstract class Base
 
     protected function refreshFlowNode(): void
     {
-        $flowNode = $this->getEntityManager()->getEntity('BpmnFlowNode', $this->flowNode->get('id'));
+        if (!$this->flowNode->hasId()) {
+            return;
+        }
+
+        $flowNode = $this->getEntityManager()->getEntityById(BpmnFlowNode::ENTITY_TYPE, $this->flowNode->getId());
 
         if ($flowNode) {
             $this->flowNode->set($flowNode->getValueMap());
@@ -133,7 +130,11 @@ abstract class Base
 
     protected function refreshProcess(): void
     {
-        $process = $this->getEntityManager()->getEntity('BpmnProcess', $this->process->get('id'));
+        if (!$this->process->hasId()) {
+            return;
+        }
+
+        $process = $this->getEntityManager()->getEntityById(BpmnProcess::ENTITY_TYPE, $this->process->getId());
 
         if ($process) {
             $this->process->set($process->getValueMap());
@@ -173,7 +174,11 @@ abstract class Base
 
     protected function refreshTarget(): void
     {
-        $target = $this->getEntityManager()->getEntity($this->target->getEntityType(), $this->target->get('id'));
+        if (!$this->target->hasId()) {
+            return;
+        }
+
+        $target = $this->getEntityManager()->getEntityById($this->target->getEntityType(), $this->target->getId());
 
         if ($target) {
             $this->target->set($target->getValueMap());
@@ -205,6 +210,9 @@ abstract class Base
             $flowNode->get('elementId') . " in flowchart " . $flowNode->getFlowchartId() . ".");
     }
 
+    /**
+     * @throws Error
+     */
     protected function getElementId(): string
     {
         $flowNode = $this->getFlowNode();
@@ -227,7 +235,7 @@ abstract class Base
     {
         $flowNode = $this->getFlowNode();
 
-        $item = $flowNode->get('elementData');
+        $item = $flowNode->getElementData();
         $nextElementIdList = $item->nextElementIdList;
 
         if (!count($nextElementIdList)) {
@@ -245,7 +253,7 @@ abstract class Base
             return null;
         }
 
-        $item = $flowNode->get('elementData');
+        $item = $flowNode->getElementData();
         $nextElementIdList = $item->nextElementIdList;
 
         return $nextElementIdList[0];
@@ -256,7 +264,7 @@ abstract class Base
      */
     public function getAttributeValue(string $name)
     {
-        $item = $this->getFlowNode()->get('elementData');
+        $item = $this->getFlowNode()->getElementData();
 
         if (!property_exists($item, $name)) {
             return null;
@@ -289,7 +297,12 @@ abstract class Base
         return $variables;
     }
 
-    protected function sanitizeVariables($variables): void
+    protected function addCreatedEntityDataToVariables(stdClass $variables): void
+    {
+        $variables->__createdEntitiesData = $this->getCreatedEntitiesData();
+    }
+
+    protected function sanitizeVariables(stdClass $variables): void
     {
         unset($variables->__createdEntitiesData);
         unset($variables->__processEntity);
@@ -300,11 +313,14 @@ abstract class Base
     {
         $this->getFlowNode()->set([
             'status' => BpmnFlowNode::STATUS_PROCESSED,
-            'processedAt' => date('Y-m-d H:i:s')
+            'processedAt' => date(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT)
         ]);
         $this->saveFlowNode();
     }
 
+    /**
+     * @throws Error
+     */
     protected function setInterrupted(): void
     {
         $this->getFlowNode()->set([
@@ -315,17 +331,23 @@ abstract class Base
         $this->endProcessFlow();
     }
 
+    /**
+     * @throws Error
+     */
     protected function setFailed(): void
     {
         $this->getFlowNode()->set([
             'status' => BpmnFlowNode::STATUS_FAILED,
-            'processedAt' => date('Y-m-d H:i:s'),
+            'processedAt' => date(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT),
         ]);
         $this->saveFlowNode();
 
         $this->endProcessFlow();
     }
 
+    /**
+     * @throws Error
+     */
     protected function setRejected(): void
     {
         $this->getFlowNode()->set([
@@ -336,11 +358,17 @@ abstract class Base
         $this->endProcessFlow();
     }
 
+    /**
+     * @throws Error
+     */
     public function fail(): void
     {
         $this->setFailed();
     }
 
+    /**
+     * @throws Error
+     */
     public function interrupt(): void
     {
         $this->setInterrupted();
@@ -349,13 +377,17 @@ abstract class Base
     public function cleanupInterrupted(): void
     {}
 
+    /**
+     * @throws Error
+     */
     public function complete(): void
     {
-        throw new Error("Can't complete " . $this->getFlowNode()->get('elementType') . ".");
+        throw new Error("Can't complete " . $this->getFlowNode()->getElementType() . ".");
     }
 
     /**
-     * @param string|bool|null $divergentFlowNodeId
+     * @param string|false|null $divergentFlowNodeId
+     * @throws Error
      */
     protected function prepareNextFlowNode(
         ?string $nextElementId = null,
@@ -379,7 +411,7 @@ abstract class Base
         }
 
         if ($divergentFlowNodeId === false) {
-            $divergentFlowNodeId = $flowNode->get('divergentFlowNodeId');
+            $divergentFlowNodeId = $flowNode->getDivergentFlowNodeId();
         }
 
         return $this->getManager()->prepareFlow(
@@ -393,7 +425,8 @@ abstract class Base
     }
 
     /**
-     * @param string|bool|null $divergentFlowNodeId
+     * @param string|false|null $divergentFlowNodeId
+     * @throws Error
      */
     protected function processNextElement(
         ?string $nextElementId = null,
@@ -418,11 +451,17 @@ abstract class Base
         return $nextFlowNode;
     }
 
+    /**
+     * @throws Error
+     */
     protected function processPreparedNextFlowNode(BpmnFlowNode $flowNode): void
     {
         $this->getManager()->processPreparedFlowNode($this->getTarget(), $flowNode, $this->getProcess());
     }
 
+    /**
+     * @throws Error
+     */
     protected function endProcessFlow(): void
     {
         $this->getManager()->endProcessFlow($this->getFlowNode(), $this->getProcess());
@@ -443,14 +482,10 @@ abstract class Base
     {
         $createdEntitiesData = $this->getCreatedEntitiesData();
 
-        if (strpos($target, 'created:') === 0) {
+        if (str_starts_with($target, 'created:')) {
             $alias = substr($target, 8);
         } else {
             $alias = $target;
-        }
-
-        if (!$createdEntitiesData) {
-            return null;
         }
 
         if (!property_exists($createdEntitiesData, $alias)) {
@@ -464,9 +499,23 @@ abstract class Base
         $entityType = $createdEntitiesData->$alias->entityType;
         $entityId = $createdEntitiesData->$alias->entityId;
 
-        return $this->getEntityManager()->getEntity($entityType, $entityId);
+        $entity = $this->getEntityManager()->getEntityById($entityType, $entityId);
+
+        if (!$entity) {
+            return null;
+        }
+
+        if (!$entity instanceof Entity) {
+            throw new RuntimeException();
+        }
+
+        return $entity;
     }
 
+    /**
+     * @throws FormulaError
+     * @throws Error
+     */
     protected function getSpecificTarget(?string $target): ?Entity
     {
         $entity = $this->getTarget();
@@ -475,11 +524,11 @@ abstract class Base
             return $entity;
         }
 
-        if (strpos($target, 'created:') === 0) {
+        if (str_starts_with($target, 'created:')) {
             return $this->getCreatedEntity($target);
         }
 
-        if (strpos($target, 'record:') === 0) {
+        if (str_starts_with($target, 'record:')) {
             $entityType = substr($target, 7);
 
             $targetIdExpression = $this->getAttributeValue('targetIdExpression');
@@ -488,7 +537,7 @@ abstract class Base
                 return null;
             }
 
-            if (substr($targetIdExpression, -1) === ';') {
+            if (str_ends_with($targetIdExpression, ';')) {
                 $targetIdExpression = substr($targetIdExpression, 0, -1);
             }
 
@@ -506,10 +555,20 @@ abstract class Base
                 throw new Error("BPM: Target-ID evaluated not to string.");
             }
 
-            return $this->getEntityManager()->getEntity($entityType, $id);
+            $entity = $this->getEntityManager()->getEntityById($entityType, $id);
+
+            if (!$entity) {
+                return null;
+            }
+
+            if (!$entity instanceof Entity) {
+                throw new RuntimeException();
+            }
+
+            return $entity;
         }
 
-        if (strpos($target, 'link:') === 0) {
+        if (str_starts_with($target, 'link:')) {
             $link = substr($target, 5);
 
             $linkList = explode('.', $link);
@@ -528,12 +587,10 @@ abstract class Base
                     break;
                 }
 
-                $pointerEntity = method_exists($this->getEntityManager(), 'getRDBRepository') ?
-                    $this->getEntityManager()
-                        ->getRDBRepository($pointerEntity->getEntityType())
-                        ->getRelation($pointerEntity, $link)
-                        ->findOne() :
-                    $pointerEntity->get($link);
+                $pointerEntity = $this->getEntityManager()
+                    ->getRDBRepository($pointerEntity->getEntityType())
+                    ->getRelation($pointerEntity, $link)
+                    ->findOne();
 
                 if (!$pointerEntity instanceof Entity) {
                     $notFound = true;
@@ -543,6 +600,10 @@ abstract class Base
             }
 
             if (!$notFound) {
+                if ($pointerEntity && !$pointerEntity instanceof Entity) {
+                    throw new RuntimeException();
+                }
+
                 return $pointerEntity;
             }
         }

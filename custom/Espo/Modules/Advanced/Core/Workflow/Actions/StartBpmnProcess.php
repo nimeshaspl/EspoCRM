@@ -11,14 +11,15 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
 use Espo\Core\Exceptions\Error;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Modules\Advanced\Entities\BpmnFlowchart;
 use Espo\ORM\Entity;
 use Espo\Modules\Advanced\Core\Bpmn\BpmnManager;
@@ -29,44 +30,58 @@ use stdClass;
  */
 class StartBpmnProcess extends Base
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    /**
+     * @throws Error
+     */
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         $target = $actionData->target ?? null;
         $flowchartId = $actionData->flowchartId ?? null;
         $elementId = $actionData->elementId;
 
         if (!$flowchartId || !$elementId) {
-            throw new Error('Workflow StartBpmnProcess: Not flowchart data.');
+            throw new Error('StartBpmnProcess: Not flowchart data.');
         }
 
         $targetEntity = $this->getFirstTargetFromTargetItem($entity, $target);
 
         if (!$targetEntity) {
-            $GLOBALS['log']->notice('Workflow StartBpmnProcess: No target.');
+            $this->log->notice('Workflow {id}, StartBpmnProcess: Target not found.', [
+                'id' => $this->getWorkflowId(),
+            ]);
 
             return false;
         }
 
+        if (
+            $targetEntity->getEntityType() === $entity->getEntityType() &&
+            $targetEntity->getId() === $entity->getId()
+        ) {
+            $targetEntity = $entity;
+        }
+
         $flowchart = $this->getFlowchart($flowchartId, $targetEntity);
 
-        $bpmnManager = new BpmnManager($this->getContainer());
+        $bpmnManager = $this->injectableFactory->create(BpmnManager::class);
 
         $bpmnManager->startProcess(
-            $targetEntity,
-            $flowchart,
-            $elementId,
-            null,
-            $this->getWorkflowId(),
-            $this->getSignalParams()
+            target: $targetEntity,
+            flowchart: $flowchart,
+            startElementId: $elementId,
+            workflowId: $this->getWorkflowId(),
+            signalParams: $this->getSignalParams(),
         );
 
         return true;
     }
 
-    private function getFlowchart(string $flowchartId, Entity $targetEntity): ?BpmnFlowchart
+    /**
+     * @throws Error
+     */
+    private function getFlowchart(string $flowchartId, Entity $targetEntity): BpmnFlowchart
     {
         /** @var ?BpmnFlowchart $flowchart */
-        $flowchart = $this->getEntityManager()->getEntityById(BpmnFlowchart::ENTITY_TYPE, $flowchartId);
+        $flowchart = $this->entityManager->getEntityById(BpmnFlowchart::ENTITY_TYPE, $flowchartId);
 
         if (!$flowchart) {
             throw new Error("StartBpmnProcess: Could not find flowchart $flowchartId.");

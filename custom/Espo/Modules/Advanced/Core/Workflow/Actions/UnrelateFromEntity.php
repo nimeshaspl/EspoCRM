@@ -11,44 +11,71 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
 use Espo\Core\Exceptions\Error;
+use Espo\Core\ORM\Entity as CoreEntity;
+use Espo\Modules\Advanced\Tools\Workflow\Core\SaveContextHelper;
 use Espo\ORM\Entity;
 use stdClass;
 
+/**
+ * @noinspection PhpUnused
+ */
 class UnrelateFromEntity extends BaseEntity
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    /**
+     * @throws Error
+     */
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
+    {
+        $foreignEntity = $this->getForeignEntity($entity, $actionData);
+
+        $relateOptions = [
+            'context' => SaveContextHelper::obtainFromRawOptions($options),
+        ];
+
+        $this->entityManager
+            ->getRelation($entity, $actionData->link)
+            ->unrelate($foreignEntity, $relateOptions);
+
+        if ($entity->hasLinkMultipleField($actionData->link)) {
+            $entity->loadLinkMultipleField($actionData->link);
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws Error
+     */
+    private function getForeignEntity(CoreEntity $entity, stdClass $actionData): Entity
     {
         if (empty($actionData->entityId) || empty($actionData->link)) {
-            throw new Error('Workflow['.$this->getWorkflowId().']: Bad params defined for UnrelateFromEntity');
+            throw new Error("Workflow {$this->getWorkflowId()}: Bad params defined in UnrelateFromEntity.");
         }
 
         $foreignEntityType = $entity->getRelationParam($actionData->link, 'entity');
 
         if (!$foreignEntityType) {
-            throw new Error('Workflow['.$this->getWorkflowId().
-                ']: Could not find foreign entity type for UnrelateFromEntity');
+            $message = "Workflow {$this->getWorkflowId()}: Could not find foreign entity type in UnrelateFromEntity.";
+
+            throw new Error($message);
         }
 
-        $foreignEntity = $this->getEntityManager()->getEntity($foreignEntityType, $actionData->entityId);
+        $foreignEntity = $this->entityManager->getEntityById($foreignEntityType, $actionData->entityId);
 
         if (!$foreignEntity) {
-            throw new Error('Workflow['.$this->getWorkflowId().
-                ']: Could not find foreign entity for UnrelateFromEntity');
+            $message = "Workflow {$this->getWorkflowId()}: Could not find foreign entity in UnrelateFromEntity.";
+
+            throw new Error($message);
         }
 
-        $this->getEntityManager()
-            ->getRDBRepository($entity->getEntityType())
-            ->getRelation($entity, $actionData->link)
-            ->unrelate($foreignEntity);
-
-        return true;
+        return $foreignEntity;
     }
 }

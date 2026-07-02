@@ -11,21 +11,23 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
-use Espo\Modules\Advanced\Core\Bpmn\Utils\Helper;
 use Espo\Modules\Advanced\Core\SignalManager;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 
+/**
+ * @noinspection PhpUnused
+ */
 class EventStartSignalEventSubProcess extends Event
 {
     /**
-     * @param string|bool|null $divergentFlowNodeId
+     * @inheritDoc
      */
     protected function processNextElement(
         ?string $nextElementId = null,
@@ -43,18 +45,18 @@ class EventStartSignalEventSubProcess extends Event
         if (!$signal) {
             $this->fail();
 
-            $GLOBALS['log']->warning("BPM: No signal for sub-process start event");
+            $this->getLog()->warning("BPM: No signal for sub-process start event; {id}.", [
+                'id' => $this->getProcess()->getId(),
+            ]);
 
             return;
         }
 
         $flowNode = $this->getFlowNode();
-        $flowNode->set([
-            'status' => BpmnFlowNode::STATUS_STANDBY,
-        ]);
+        $flowNode->setStatus(BpmnFlowNode::STATUS_STANDBY);
         $this->getEntityManager()->saveEntity($flowNode);
 
-        $this->getSignalManager()->subscribe($signal, $flowNode->get('id'));
+        $this->getSignalManager()->subscribe($signal, $flowNode->getId());
     }
 
     public function proceedPending(): void
@@ -74,43 +76,42 @@ class EventStartSignalEventSubProcess extends Event
 
     protected function createCopy(): void
     {
-        $data = $this->getFlowNode()->get('data') ?? (object) [];
+        $data = $this->getFlowNode()->getData();
         $data = clone $data;
 
-        $flowNode = $this->getEntityManager()->getEntity(BpmnFlowNode::ENTITY_TYPE);
+        $flowNode = $this->getEntityManager()->getNewEntity(BpmnFlowNode::ENTITY_TYPE);
 
-        $flowNode->set([
+        $flowNode->setMultiple([
             'status' => BpmnFlowNode::STATUS_STANDBY,
             'elementType' => $this->getFlowNode()->getElementType(),
-            'elementData' => $this->getFlowNode()->get('elementData'),
+            'elementData' => $this->getFlowNode()->getElementData(),
             'data' => $data,
             'flowchartId' => $this->getProcess()->getFlowchartId(),
-            'processId' => $this->getProcess()->get('id'),
+            'processId' => $this->getProcess()->getId(),
             'targetType' => $this->getFlowNode()->getTargetType(),
             'targetId' => $this->getFlowNode()->getTargetId(),
         ]);
 
         $this->getEntityManager()->saveEntity($flowNode);
 
-        $this->getSignalManager()->subscribe($this->getSignal(), $flowNode->get('id'));
+        $this->getSignalManager()->subscribe($this->getSignal(), $flowNode->getId());
     }
 
-    protected function getSignal() : ?string
+    protected function getSignal(): ?string
     {
         $subProcessStartData = $this->getFlowNode()->getDataItemValue('subProcessStartData') ?? (object) [];
 
         $name = $subProcessStartData->signal ?? null;
 
-        if (!$name) {
-            return $name;
+        if (!$name || !is_string($name)) {
+            return null;
         }
 
-        return Helper::applyPlaceholders($name, $this->getTarget(), $this->getVariables());
+        return $this->placeholderHelper->apply($name, $this->getTarget(), $this->getVariables());
     }
 
     protected function getSignalManager(): SignalManager
     {
-        /** @var SignalManager */
-        return $this->getContainer()->get('signalManager');
+        return $this->getContainer()->getByClass(SignalManager::class);
     }
 }

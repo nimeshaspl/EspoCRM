@@ -33,7 +33,7 @@
     "workflowLogRecords": "Журнал"
   },
   "tooltips": {
-    "requestHeaders": "Додаткові заголовки.\n\nФормат:\n```key: value```\n\nНаявні наповнювачі:\n* `{$attribute}`\n* `{$$variable}`",
+    "requestHeaders": "Додаткові хедери.\n\nФормат:\n```key: value```\n\nНаявні наповнювачі:\n* `{$attribute}`\n* `{$$variable}`\n* `{#secrets.name}`",
     "requestContent": "У форматі JSON.\n\nНаявні наповнювачі:\n* `{$attribute}`\n* `{$$variable}`",
     "portalOnly": "Якщо вибрано, робочий потік буде запущений тільки на порталі.",
     "portal": "Конкретний портал, де робочий потік буде запущений. Залиште порожнім, якщо вам це потрібно для роботи на будь-якому порталі.",
@@ -187,8 +187,8 @@
     "optOut": "Необов'язковий параметр: targetListId. Якщо не вказано, адреса ел. пошти позначається як така, що не бере участі в ел. розсилці.\n\nПриклад:\n```{\"targetListId\": \"TARGET_LIST_ID\"}```",
     "convertCurrency": "Необов'язковий параметр: targetCurrency. Якщо не вказано, він буде конвертований у валюту за умовчанням.",
     "sendInEmail": "Параметри:\n* templateId - ID PDF-шаблону\n* emailTemplateId - ID шаблону ел. листа\n* to - одержувач (необов'язковий параметр); за замовчуванням буде відправлений платіжному контакту або контрагенту; приклад: `link:account.assignedUser`\n\nПриклад:\n\n```{\n    \"templateId\": \"TEMPLATE_ID\",\n    \"emailTemplateId\": \"EMAIL_TEMPLATE_ID\",\n    \"to\": \"link:billingContact\"\n}```",
-    "addQuoteItemList": "Приклад: \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
-    "addInvoiceItemList": "Приклад: \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
-    "addSalesOrderItemList": "Приклад: \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```"
+    "addQuoteItemList": "Приклад: \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
+    "addInvoiceItemList": "Приклад: \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
+    "addSalesOrderItemList": "Приклад: \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```"
   }
 }

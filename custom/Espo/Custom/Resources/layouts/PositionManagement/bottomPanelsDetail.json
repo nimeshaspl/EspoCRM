@@ -8,5 +8,8 @@
     },
     "candidateManagements": {
         "index": 1
+    },
+    "vendorResourceses": {
+        "index": 2
     }
 }

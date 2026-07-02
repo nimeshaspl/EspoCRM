@@ -11,32 +11,30 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
-use Espo\Modules\Advanced\Core\Bpmn\Utils\Helper;
 use Espo\Modules\Advanced\Core\SignalManager;
 
 abstract class EventSignal extends Event
 {
     protected function getSignalManager(): SignalManager
     {
-        /** @var SignalManager */
-        return $this->getContainer()->get('signalManager');
+        return $this->getContainer()->getByClass(SignalManager::class);
     }
 
     protected function getSignal(): ?string
     {
         $name = $this->getAttributeValue('signal');
 
-        if (!$name) {
-            return $name;
+        if (!$name || !is_string($name)) {
+            return null;
         }
 
-        return Helper::applyPlaceholders($name, $this->getTarget(), $this->getVariables());
+        return $this->placeholderHelper->apply($name, $this->getTarget(), $this->getVariables());
     }
 }

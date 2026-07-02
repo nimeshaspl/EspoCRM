@@ -11,15 +11,18 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 
+/**
+ * @noinspection PhpUnused
+ */
 class EventIntermediateSignalBoundary extends EventSignal
 {
     public function process(): void
@@ -29,62 +32,66 @@ class EventIntermediateSignalBoundary extends EventSignal
         if (!$signal) {
             $this->fail();
 
-            $GLOBALS['log']->warning("BPM: No signal for sub-process EventIntermediateSignalBoundary");
+            $this->getLog()->warning("BPM: No signal for sub-process EventIntermediateSignalBoundary; {id}.", [
+                'id' => $this->getProcess()->getId(),
+            ]);
 
             return;
         }
 
         $flowNode = $this->getFlowNode();
-        $flowNode->set([
-            'status' => BpmnFlowNode::STATUS_PENDING,
-        ]);
+        $flowNode->setStatus(BpmnFlowNode::STATUS_PENDING);
         $this->getEntityManager()->saveEntity($flowNode);
 
-        $this->getSignalManager()->subscribe($signal, $flowNode->get('id'));
+        $this->getSignalManager()->subscribe($signal, $flowNode->getId());
     }
 
     public function proceedPending(): void
     {
         $flowNode = $this->getFlowNode();
 
-        $flowNode->set('status', BpmnFlowNode::STATUS_IN_PROCESS);
-
+        $flowNode->setStatus(BpmnFlowNode::STATUS_IN_PROCESS);
         $this->getEntityManager()->saveEntity($flowNode);
 
-        if ($this->getAttributeValue('cancelActivity')) {
-            $this->getManager()->cancelActivityByBoundaryEvent($this->getFlowNode());
-        } else {
+        $cancel = $this->getAttributeValue('cancelActivity');
+
+        if (!$cancel) {
             $this->createCopy();
         }
 
         $this->processNextElement();
+
+        if ($cancel) {
+            $this->getManager()->cancelActivityByBoundaryEvent($this->getFlowNode());
+        }
     }
 
     protected function createCopy(): void
     {
-        $data = $this->getFlowNode()->get('data') ?? (object) [];
+        $data = $this->getFlowNode()->getData();
 
         $data = clone $data;
 
-        $flowNode = $this->getEntityManager()->getEntity(BpmnFlowNode::ENTITY_TYPE);
+        /** @var BpmnFlowNode $flowNode */
+        $flowNode = $this->getEntityManager()->getNewEntity(BpmnFlowNode::ENTITY_TYPE);
 
         $flowNode->set([
             'status' => BpmnFlowNode::STATUS_PENDING,
-            'elementId' => $this->getFlowNode()->get('elementId'),
-            'elementType' => $this->getFlowNode()->get('elementType'),
-            'elementData' => $this->getFlowNode()->get('elementData'),
+            'elementId' => $this->getFlowNode()->getElementId(),
+            'elementType' => $this->getFlowNode()->getElementType(),
+            'elementData' => $this->getFlowNode()->getElementData(),
             'data' => $data,
-            'flowchartId' => $this->getProcess()->get('flowchartId'),
-            'processId' => $this->getProcess()->get('id'),
-            'previousFlowNodeElementType' => $this->getFlowNode()->get('previousFlowNodeElementType'),
-            'previousFlowNodeId' => $this->getFlowNode()->get('previousFlowNodeId'),
-            'divergentFlowNodeId' => $this->getFlowNode()->get('divergentFlowNodeId'),
-            'targetType' => $this->getFlowNode()->get('targetType'),
-            'targetId' => $this->getFlowNode()->get('targetId'),
+            'flowchartId' => $this->getProcess()->getFlowchartId(),
+            'processId' => $this->getProcess()->getId(),
+            'previousFlowNodeElementType' => $this->getFlowNode()->getPreviousFlowNodeElementType(),
+            'previousFlowNodeId' => $this->getFlowNode()->getPreviousFlowNodeId(),
+            'divergentFlowNodeId' => $this->getFlowNode()->getDivergentFlowNodeId(),
+            'targetType' => $this->getFlowNode()->getTargetType(),
+            'targetId' => $this->getFlowNode()->getTargetId(),
         ]);
 
         $this->getEntityManager()->saveEntity($flowNode);
 
-        $this->getSignalManager()->subscribe($this->getSignal(), $flowNode->get('id'));
+        $this->getSignalManager()->subscribe($this->getSignal(), $flowNode->getId());
     }
 }

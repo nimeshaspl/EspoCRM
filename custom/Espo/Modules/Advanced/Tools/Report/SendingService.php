@@ -11,13 +11,14 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report;
 
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
@@ -34,6 +35,7 @@ use Espo\Entities\Job;
 use Espo\Entities\User;
 use Espo\Modules\Advanced\Business\Report\EmailBuilder;
 use Espo\Modules\Advanced\Entities\Report as ReportEntity;
+use Espo\Modules\Advanced\Tools\Report\Export\GridExportService;
 use Espo\Modules\Advanced\Tools\Report\GridType\Result as GridResult;
 use Espo\Modules\Advanced\Tools\Report\Jobs\Send;
 use Espo\Modules\Advanced\Tools\Report\ListType\Result as ListResult;
@@ -42,39 +44,26 @@ use Espo\Tools\Export\Export;
 use Espo\Tools\Export\Params as ExportToolParams;
 
 use Exception;
+use LogicException;
 use RuntimeException;
 use DateTime;
 use DateTimeZone;
+use stdClass;
 
 class SendingService
 {
     private const LIST_REPORT_MAX_SIZE = 3000;
 
-    private EntityManager $entityManager;
-    private User $user;
-    private Metadata $metadata;
-    private Config $config;
-    private FieldUtil $fieldUtil;
-    private InjectableFactory $injectableFactory;
-    private EmailBuilder $emailBuilder;
-
     public function __construct(
-        EntityManager $entityManager,
-        User $user,
-        Metadata $metadata,
-        Config $config,
-        FieldUtil $fieldUtil,
-        InjectableFactory $injectableFactory,
-        EmailBuilder $emailBuilder
-    ) {
-        $this->entityManager = $entityManager;
-        $this->user = $user;
-        $this->metadata = $metadata;
-        $this->config = $config;
-        $this->fieldUtil = $fieldUtil;
-        $this->injectableFactory = $injectableFactory;
-        $this->emailBuilder = $emailBuilder;
-    }
+        private EntityManager $entityManager,
+        private User $user,
+        private Metadata $metadata,
+        private Config $config,
+        private FieldUtil $fieldUtil,
+        private InjectableFactory $injectableFactory,
+        private EmailBuilder $emailBuilder,
+        private ListExportService $listExportService,
+    ) {}
 
     private function getSendingListMaxCount(): int
     {
@@ -86,11 +75,12 @@ class SendingService
      * @throws Error
      * @throws NotFound
      * @throws Forbidden
+     * @throws BadRequest
      */
     public function getEmailAttributes(string $id, ?WhereItem $where = null, ?User $user = null): array
     {
         /** @var ?ReportEntity $report */
-        $report = $this->entityManager->getEntity(ReportEntity::ENTITY_TYPE, $id);
+        $report = $this->entityManager->getEntityById(ReportEntity::ENTITY_TYPE, $id);
 
         if (!$report) {
             throw new NotFound();
@@ -98,20 +88,24 @@ class SendingService
 
         $service = $this->injectableFactory->create(Service::class);
 
-
-
         if ($report->getType() === ReportEntity::TYPE_LIST) {
             $searchParams = SearchParams::create()
                 ->withMaxSize($this->getSendingListMaxCount());
 
-            $orderByList = $report->get('orderByList');
+            $orderByList = $report->getOrderByList();
 
             if ($orderByList) {
                 $arr = explode(':', $orderByList);
 
+                /**
+                 * @var 'ASC'|'DESC' $orderDirection
+                 * @noinspection PhpRedundantVariableDocTypeInspection
+                 */
+                $orderDirection = strtoupper($arr[0]);
+
                 $searchParams = $searchParams
                     ->withOrderBy($arr[1])
-                    ->withOrder(strtoupper($arr[0]));
+                    ->withOrder($orderDirection);
             }
 
             if ($where) {
@@ -119,8 +113,7 @@ class SendingService
             }
 
             $result = $service->runList($id, $searchParams, $user);
-        }
-        else {
+        } else {
             $result = $service->runGrid($id, $where, $user);
         }
 
@@ -137,6 +130,11 @@ class SendingService
         $data = (object) [
             'userId' => $user ? $user->getId() : $this->user->getId(),
         ];
+
+        if ($reportResult instanceof ListResult) {
+            // For static analysis.
+            throw new LogicException();
+        }
 
         $this->emailBuilder->buildEmailData($data, $reportResult, $report);
 
@@ -168,15 +166,16 @@ class SendingService
         if ($report->get('emailSendingInterval') && count($userIdList)) {
             $userList = $this
                 ->entityManager
-                ->getRDBRepository(User::ENTITY_TYPE)
+                ->getRDBRepositoryByClass(User::class)
                 ->where(['id' => $userIdList])
                 ->find();
 
             foreach ($userList as $user) {
-                $emailAddress = $user->get('emailAddress');
+                $emailAddress = $user->getEmailAddress();
+
                 if ($emailAddress) {
                     $toArr[] = $emailAddress;
-                    $nameHash->$emailAddress = $user->get('name');
+                    $nameHash->$emailAddress = $user->getName();
                 }
             }
         }
@@ -221,32 +220,26 @@ class SendingService
                 throw new RuntimeException("Bad result.");
             }
 
-            $fieldList = $report->get('columns');
+            if (!$entityType) {
+                throw new RuntimeException("No entity type.");
+            }
 
-            foreach ($fieldList as $key => $field) {
-                if (strpos($field, '.')) {
-                    $fieldList[$key] = str_replace('.', '_', $field);
+            $fieldList = $report->getColumns();
+
+            foreach ($fieldList as $i => $field) {
+                if (str_contains($field, '.')) {
+                    $fieldList[$i] = str_replace('.', '_', $field);
                 }
             }
 
-            $attributeList = [];
-
-            foreach ($fieldList as $field) {
-                $fieldAttributeList = $this->fieldUtil->getAttributeList($report->getTargetEntityType(), $field);
-
-                if (count($fieldAttributeList) > 0) {
-                    $attributeList = array_merge($attributeList, $fieldAttributeList);
-                } else {
-                    $attributeList[] = $field;
-                }
-            }
+            $attributeList = $this->prepareListAttributeList($fieldList, $report, $entityType);
 
             $exportParams = ExportToolParams::create($entityType)
                 ->withFieldList($fieldList)
                 ->withAttributeList($attributeList)
                 ->withFormat('xlsx')
-                ->withName($report->get('name'))
-                ->withFileName($report->get('name') . ' ' . date('Y-m-d'));
+                ->withName($report->getName())
+                ->withFileName($report->getName() . ' ' . date('Y-m-d'));
 
             $export = $this->injectableFactory->create(Export::class);
 
@@ -256,41 +249,40 @@ class SendingService
                     ->setCollection($result->getCollection())
                     ->run()
                     ->getAttachmentId();
-            }
-            catch (Exception $e) {
-                $GLOBALS['log']->error('Report export fail[' . $report->get('id') . ']: ' . $e->getMessage());
+            } catch (Exception $e) {
+                $GLOBALS['log']->error("Report export fail, {$report->getId()}: {$e->getMessage()}");
 
                 return null;
             }
         }
 
-        $name = $report->get('name');
-        $name = preg_replace("/([^\w\s\d\-_~,;:\[\]().])/u", '_', $name) . ' ' . date('Y-m-d');
+        $name = preg_replace("/([^\w\s\d\-_~,;:\[\]().])/u", '_', $report->getName()) . ' ' . date('Y-m-d');
+
         $mimeType = $this->metadata->get(['app', 'export', 'formatDefs', 'xlsx', 'mimeType']);
         $fileExtension = $this->metadata->get(['app', 'export', 'formatDefs', 'xlsx', 'fileExtension']);
-        $fileName = $name . '.' . $fileExtension;
+
+        $fileName = "$name.$fileExtension";
 
         try {
             $service = $this->injectableFactory->create(GridExportService::class);
 
             $contents = $service->buildXlsxContents($report->getId(), $where, $user);
 
-            $attachment = $this->entityManager->getNewEntity(Attachment::ENTITY_TYPE);
+            $attachment = $this->entityManager->getRDBRepositoryByClass(Attachment::class)->getNew();
 
-            $attachment->set([
-                'name' => $fileName,
-                'type' => $mimeType,
-                'contents' => $contents,
-                'role' => 'Attachment',
-                'parentType' => Email::ENTITY_TYPE,
-            ]);
+            $attachment
+                ->setName($fileName)
+                ->setType($mimeType)
+                ->setContents($contents)
+                ->setRole(Attachment::ROLE_ATTACHMENT);
+
+            $attachment->set('parentType', Email::ENTITY_TYPE);
 
             $this->entityManager->saveEntity($attachment);
 
             return $attachment->getId();
-        }
-        catch (Exception $e) {
-            $GLOBALS['log']->error('Report export fail[' . $report->get('id') . ']: ' . $e->getMessage());
+        } catch (Exception $e) {
+            $GLOBALS['log']->error("Report export fail, {$report->getId()}: {$e->getMessage()}");
 
             return null;
         }
@@ -299,7 +291,7 @@ class SendingService
     public function scheduleEmailSending(): void
     {
         $reports = $this->entityManager
-            ->getRDBRepository(ReportEntity::ENTITY_TYPE)
+            ->getRDBRepositoryByClass(ReportEntity::class)
             ->where([[
                 'AND' => [
                     ['emailSendingInterval!=' => ''],
@@ -399,7 +391,7 @@ class SendingService
                 }
 
                 $executeTime->setTimezone($espoTimeZone);
-                $executeTime->setTime($time[0], $time[1]);
+                $executeTime->setTime(intval($time[0]), intval($time[1]));
                 $executeTime->setTimezone($utcTZ);
             }
 
@@ -428,10 +420,35 @@ class SendingService
     }
 
     /**
-     * @param GridResult|array $result
+     * @param stdClass $data
+     * @param GridResult|array<int, mixed> $result
+     * @throws Error
      */
     public function buildData($data, $result, ReportEntity $report): void
     {
         $this->emailBuilder->buildEmailData($data, $result, $report, true);
+    }
+
+    /**
+     * @param string[] $fieldList
+     * @return string[]
+     */
+    private function prepareListAttributeList(array $fieldList, ReportEntity $report, ?string $entityType): array
+    {
+        $attributeList = [];
+
+        foreach ($fieldList as $field) {
+            if (str_contains($field, '_')) {
+                $attributeList[] = $field;
+
+                continue;
+            }
+
+            $itAttributeList = $this->fieldUtil->getAttributeList($report->getTargetEntityType(), $field);
+
+            $attributeList = array_merge($attributeList, $itAttributeList);
+        }
+
+        return $this->listExportService->prepareAttributeList($entityType, $attributeList);
     }
 }

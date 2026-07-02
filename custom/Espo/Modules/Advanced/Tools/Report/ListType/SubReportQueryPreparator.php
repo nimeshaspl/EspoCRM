@@ -11,14 +11,14 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\ListType;
 
-use Espo\Core\Exceptions\Error;
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Select\SearchParams;
 use Espo\Core\Select\SelectBuilderFactory;
@@ -37,25 +37,14 @@ use RuntimeException;
 
 class SubReportQueryPreparator
 {
-    private Metadata $metadata;
-    private SelectHelper $selectHelper;
-    private GridHelper $gridHelper;
-    private SelectBuilderFactory $selectBuilderFactory;
-    private GridQueryPreparator $gridQueryPreparator;
 
     public function __construct(
-        Metadata $metadata,
-        SelectHelper $selectHelper,
-        GridHelper $gridHelper,
-        SelectBuilderFactory $selectBuilderFactory,
-        GridQueryPreparator $gridQueryPreparator
-    ) {
-        $this->metadata = $metadata;
-        $this->selectHelper = $selectHelper;
-        $this->gridHelper = $gridHelper;
-        $this->selectBuilderFactory = $selectBuilderFactory;
-        $this->gridQueryPreparator = $gridQueryPreparator;
-    }
+        private Metadata $metadata,
+        private SelectHelper $selectHelper,
+        private GridHelper $gridHelper,
+        private SelectBuilderFactory $selectBuilderFactory,
+        private GridQueryPreparator $gridQueryPreparator
+    ) {}
 
     /**
      * A sub-report query preparator.
@@ -63,14 +52,14 @@ class SubReportQueryPreparator
      * Complex expression check is not applied for search parameters as it's supposed
      * to be checked the by runtime filter checker.
      *
-     * @throws Error
      * @throws Forbidden
+     * @throws BadRequest
      */
     public function prepare(
         GridData $data,
         SearchParams $searchParams,
         SubReportParams $subReportParams,
-        ?User $user = null
+        ?User $user = null,
     ): SelectBuilder {
 
         $entityType = $data->getEntityType();
@@ -115,26 +104,27 @@ class SubReportQueryPreparator
             $this->selectHelper->handleFiltersWhere($whereItem, $queryBuilder);
 
             $this->handleHaving(
-                $data,
-                $subReportParams,
-                $searchParams->getWhere(),
-                $user,
-                $groupBy,
-                $groupByOther,
-                $queryBuilder
+                data: $data,
+                subReportParams: $subReportParams,
+                where: $searchParams->getWhere(),
+                user: $user,
+                groupBy: $groupBy,
+                groupByOther: $groupByOther,
+                queryBuilder: $queryBuilder,
             );
         }
 
         if ($searchParams->getWhere()) {
+            /** @noinspection PhpDeprecationInspection */
             $this->selectHelper->applyDistinctFromWhere($searchParams->getWhere(), $queryBuilder);
         }
 
         $this->applyGroupWhereAll(
-            $data,
-            $subReportParams,
-            $groupBy,
-            $groupByOther,
-            $queryBuilder
+            data: $data,
+            subReportParams: $subReportParams,
+            groupBy: $groupBy,
+            groupByOther: $groupByOther,
+            queryBuilder: $queryBuilder,
         );
 
         return $queryBuilder;
@@ -147,7 +137,7 @@ class SubReportQueryPreparator
         GridData $data,
         SubReportParams $subReportParams,
         SelectBuilder $queryBuilder
-    ): ?array {
+    ): array {
 
         if (!$data->getGroupBy()) {
             return [null, null];
@@ -265,7 +255,8 @@ class SubReportQueryPreparator
         $value,
         string $groupBy,
         SelectBuilder $queryBuilder
-    ) {
+    ): void {
+
         $fieldType = $this->metadata
             ->get(['entityDefs', $data->getEntityType(), 'fields', $data->getGroupBy()[$index], 'type']);
 
@@ -278,7 +269,7 @@ class SubReportQueryPreparator
                 return;
             }
 
-            $arr = explode(':,:', $value);
+            $arr = explode(':,:', (string) $value);
 
             $valueType = $arr[0];
             $valueId = null;
@@ -302,7 +293,6 @@ class SubReportQueryPreparator
         if ($value === null) {
             $queryBuilder->where([
                 'OR' => [
-                    //[$groupBy => ''],
                     [$groupBy => null],
                 ]
             ]);
@@ -313,6 +303,10 @@ class SubReportQueryPreparator
         $queryBuilder->where([$groupBy => $value]);
     }
 
+    /**
+     * @throws BadRequest
+     * @throws Forbidden
+     */
     private function handleHaving(
         GridData $data,
         SubReportParams $subReportParams,
@@ -342,7 +336,7 @@ class SubReportQueryPreparator
             $subQueryBuilder
         );
 
-        if (!method_exists(Cond::class, 'exists')) {
+        if (!method_exists(Cond::class, 'exists')) { /** @phpstan-ignore-line */
             return;
         }
 

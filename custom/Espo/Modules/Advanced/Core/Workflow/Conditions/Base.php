@@ -11,18 +11,18 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Conditions;
 
 use Espo\Core\Exceptions\Error;
-use Espo\Core\Container;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Core\Utils\Config;
+use Espo\Modules\Advanced\Tools\Workflow\Core\FieldValueHelper;
 use Espo\Modules\Advanced\Core\Workflow\Utils;
-use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
 use stdClass;
@@ -30,24 +30,17 @@ use stdClass;
 abstract class Base
 {
     private ?string $workflowId = null;
-    protected ?Entity $entity = null;
+    protected ?CoreEntity $entity = null;
     protected ?stdClass $condition = null;
     protected ?stdClass $createdEntitiesData = null;
 
-    protected Container $container;
-    private EntityManager $entityManager;
+    public function __construct(
+        protected EntityManager $entityManager,
+        protected Config $config,
+        protected FieldValueHelper $fieldValueHelper,
+    ) {}
 
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-
-        /** @var EntityManager $entityManager */
-        $entityManager = $container->get('entityManager');;
-
-        $this->entityManager = $entityManager;
-    }
-
-    protected function compareComplex(Entity $entity, stdClass $condition): bool
+    protected function compareComplex(CoreEntity $entity, stdClass $condition): bool
     {
         return false;
     }
@@ -56,22 +49,6 @@ abstract class Base
      * @param mixed $fieldValue
      */
     abstract protected function compare($fieldValue): bool;
-
-    protected function getContainer(): Container
-    {
-        return $this->container;
-    }
-
-    protected function getConfig(): Config
-    {
-        /** @var Config */
-        return $this->container->get('config');
-    }
-
-    protected function getEntityManager(): EntityManager
-    {
-        return $this->entityManager;
-    }
 
     public function setWorkflowId(?string $workflowId): void
     {
@@ -83,7 +60,7 @@ abstract class Base
         return $this->workflowId;
     }
 
-    protected function getEntity(): Entity
+    protected function getEntity(): CoreEntity
     {
         return $this->entity;
     }
@@ -93,7 +70,7 @@ abstract class Base
         return $this->condition;
     }
 
-    public function process(Entity $entity, stdClass $condition, ?stdClass $createdEntitiesData = null): bool
+    public function process(CoreEntity $entity, stdClass $condition, ?stdClass $createdEntitiesData = null): bool
     {
         $this->entity = $entity;
         $this->condition = $condition;
@@ -101,8 +78,7 @@ abstract class Base
 
         if (!empty($condition->fieldValueMap)) {
             return $this->compareComplex($entity, $condition);
-        }
-        else {
+        } else {
             $fieldName = $this->getFieldName();
 
             if (isset($fieldName)) {
@@ -129,7 +105,7 @@ abstract class Base
             $normalizeFieldName = Utils::normalizeFieldName($entity, $field);
 
             if (is_array($normalizeFieldName)) { //if field is parent
-                return reset($normalizeFieldName);
+                return reset($normalizeFieldName) ?: null;
             }
 
             return $normalizeFieldName;
@@ -157,7 +133,7 @@ abstract class Base
     /**
      * Get value of fieldToCompare field.
      *
-     * @todo Pass ReadLoadProcessor to load additional fields if asked for not set field.
+     * @todo Use loader for not set fields.
      *   Only for BPM.
      *
      * @return mixed
@@ -167,12 +143,11 @@ abstract class Base
         $entity = $this->getEntity();
         $condition = $this->getCondition();
 
-        return Utils::getFieldValue(
-            $entity,
-            $condition->fieldToCompare,
-            false,
-            $this->getEntityManager(),
-            $this->createdEntitiesData
+        return $this->fieldValueHelper->getValue(
+            entity: $entity,
+            path: $condition->fieldToCompare,
+            createdEntitiesData: $this->createdEntitiesData,
+            workflowId: $this->workflowId,
         );
     }
 
@@ -186,48 +161,48 @@ abstract class Base
         $entity = $this->getEntity();
         $condition = $this->getCondition();
 
-        switch ($condition->subjectType) {
-            case 'value':
-                $subjectValue = $condition->value;
+        $subjectType = $condition->subjectType ?? null;
 
-                break;
-
-            case 'field':
-                $subjectValue = Utils::getFieldValue($entity, $condition->field);
-
-                if (isset($condition->shiftDays) || isset($condition->shiftUnits)) {
-                    $shiftDays = $condition->shiftDays ?? 0;
-                    $shiftUnits = $condition->shiftUnits ?? 'days';
-                    $timezone = $this->getConfig()->get('timeZone');
-
-                    return Utils::shiftDays(
-                        $shiftDays,
-                        $subjectValue,
-                        'date',
-                        $shiftUnits,
-                        $timezone
-                    );
-                }
-
-                return $subjectValue;
-
-            case 'today':
-                $shiftDays = $condition->shiftDays ?? 0;
-                $shiftUnits = $condition->shiftUnits ?? 'days';
-                $timezone = $this->getConfig()->get('timeZone');
-
-                return Utils::shiftDays(
-                    $shiftDays,
-                    null,
-                    'date',
-                    $shiftUnits,
-                    $timezone
-                );
-
-            default:
-                throw new Error("Workflow[{$this->getWorkflowId()}]: Unknown object type '$condition->subjectType'.");
+        if ($subjectType === null) {
+            return null;
         }
 
-        return $subjectValue;
+        if ($subjectType === 'value') {
+            return $condition->value ?? null;
+        }
+
+        if ($subjectType === 'field') {
+            $subjectValue = $this->fieldValueHelper->getValue(
+                entity: $entity,
+                path: $condition->field,
+                workflowId: $this->workflowId,
+            );
+
+            if (
+                isset($condition->shiftDays) ||
+                isset($condition->shiftUnits)
+            ) {
+                return Utils::shiftDays(
+                    shiftDays: $condition->shiftDays ?? 0,
+                    input: $subjectValue,
+                    type: 'date',
+                    unit: $condition->shiftUnits ?? 'days',
+                    timezone: $this->config->get('timeZone'),
+                );
+            }
+
+            return $subjectValue;
+        }
+
+        if ($subjectType === 'today') {
+            return Utils::shiftDays(
+                shiftDays: $condition->shiftDays ?? 0,
+                type: 'date',
+                unit: $condition->shiftUnits ?? 'days',
+                timezone: $this->config->get('timeZone'),
+            );
+        }
+
+        throw new Error("Workflow[{$this->getWorkflowId()}]: Non supported type '$subjectType'.");
     }
 }

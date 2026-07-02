@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
@@ -26,12 +26,14 @@ class EventEndSignal extends EventSignal
 
         $signal = $this->getSignal();
 
-        if ($signal && is_string($signal)) {
+        if ($signal) {
             if (mb_substr($signal, 0, 1) !== '@') {
                 $this->getManager()->broadcastSignal($signal);
             }
         } else {
-            $GLOBALS['log']->warning("BPM: eventEndSignal, no signal");
+            $this->getLog()->warning("BPM: eventEndSignal, no signal; {id}.", [
+                'id' => $this->getProcess()->getId(),
+            ]);
         }
 
         $this->refreshProcess();
@@ -39,11 +41,10 @@ class EventEndSignal extends EventSignal
 
         $this->endProcessFlow();
 
-        if ($signal && is_string($signal)) {
+        if ($signal) {
             if (mb_substr($signal, 0, 1) !== '@') {
                 $this->getSignalManager()->trigger($signal);
-            }
-            else {
+            } else {
                 $this->getSignalManager()->trigger($signal, $this->getTarget());
             }
         }

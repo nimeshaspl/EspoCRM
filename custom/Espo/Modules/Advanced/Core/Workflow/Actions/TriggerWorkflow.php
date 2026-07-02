@@ -11,21 +11,23 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Job\JobSchedulerFactory;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Modules\Advanced\Entities\Workflow;
 use Espo\Modules\Advanced\Tools\Workflow\Jobs\TriggerWorkflow as TriggerWorkflowJob;
 use Espo\Modules\Advanced\Tools\Workflow\Jobs\TriggerWorkflowMany;
 use Espo\Modules\Advanced\Tools\Workflow\Service;
 use Espo\ORM\Entity;
 use DateTime;
+use Exception;
 use stdClass;
 
 /**
@@ -33,7 +35,7 @@ use stdClass;
  */
 class TriggerWorkflow extends Base
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         $workflowId = $actionData->workflowId ?? null;
         $target = $actionData->target ?? null;
@@ -56,11 +58,17 @@ class TriggerWorkflow extends Base
         }
 
         if (!$targetEntity) {
-            return true;
+            throw new Error("TriggerWorkflow: Could not get target entity.");
         }
 
         if ($hasMany) {
-            $this->scheduleAnotherWorkflowMany($entity, $actionData, $targetEntity, $target, $workflowId);
+            $this->scheduleAnotherWorkflowMany(
+                entity: $entity,
+                actionData: $actionData,
+                firstEntity: $targetEntity,
+                target: $target,
+                workflowId: $workflowId,
+            );
 
             return true;
         }
@@ -70,17 +78,26 @@ class TriggerWorkflow extends Base
         return true;
     }
 
+    /**
+     * @throws Error
+     */
     private function scheduleAnotherWorkflowMany(
         Entity $entity,
         stdClass $actionData,
         Entity $firstEntity,
         ?string $target,
-        string $workflowId
+        string $workflowId,
     ): void {
 
         $this->checkNextWorkflow($workflowId, $firstEntity);
 
         $schedulerFactory = $this->injectableFactory->create(JobSchedulerFactory::class);
+
+        try {
+            $time = new DateTime($this->getExecuteTime($actionData));
+        } catch (Exception $e) {
+            throw new Error($e->getMessage(), previous: $e);
+        }
 
         $schedulerFactory
             ->create()
@@ -92,10 +109,13 @@ class TriggerWorkflow extends Base
                 'nextWorkflowId' => $workflowId,
                 'target' => $target,
             ])
-            ->setTime(new DateTime($this->getExecuteTime($actionData)))
+            ->setTime($time)
             ->schedule();
     }
 
+    /**
+     * @throws Error
+     */
     private function triggerAnotherWorkflow(Entity $entity, stdClass $actionData, Entity $originalEntity): void
     {
         $workflowId = $actionData->workflowId;
@@ -127,6 +147,12 @@ class TriggerWorkflow extends Base
             return;
         }
 
+        try {
+            $time = new DateTime($this->getExecuteTime($actionData));
+        } catch (Exception $e) {
+            throw new Error($e->getMessage(), previous: $e);
+        }
+
         $schedulerFactory = $this->injectableFactory->create(JobSchedulerFactory::class);
 
         $schedulerFactory
@@ -139,22 +165,26 @@ class TriggerWorkflow extends Base
                 'nextWorkflowId' => $workflowId,
                 'values' => $entity->getValueMap(),
             ])
-            ->setTime(new DateTime($this->getExecuteTime($actionData)))
+            ->setTime($time)
             ->schedule();
     }
 
+    /**
+     * @throws Error
+     */
     private function checkNextWorkflow(string $workflowId, Entity $entity): void
     {
         /** @var ?Workflow $workflow */
-        $workflow = $this->getEntityManager()->getEntityById(Workflow::ENTITY_TYPE, $workflowId);
+        $workflow = $this->entityManager->getEntityById(Workflow::ENTITY_TYPE, $workflowId);
 
         if (!$workflow) {
-            throw new Error("Workflow: Trigger another workflow: No workflow $workflowId.");
+            throw new Error("Trigger another workflow: No workflow $workflowId.");
         }
 
         if ($entity->getEntityType() !== $workflow->getTargetEntityType()) {
-            throw new Error(
-                "Workflow: Trigger another workflow: Not matching target entity type in workflow $workflowId.");
+            $message = "Trigger another workflow: Not matching target entity type in workflow $workflowId.";
+
+            throw new Error($message);
         }
     }
 }

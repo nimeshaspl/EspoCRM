@@ -11,73 +11,57 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Cleanup;
 
+use Exception;
 use Espo\ORM\EntityManager;
 use Espo\Entities\Extension;
-
-use Espo\Core\{
-    Cleanup\Cleanup,
-    InjectableFactory,
-    Utils\File\ZipArchive,
-    Job\Job\Data as JobData,
-    Utils\File\Manager as FileManager,
-};
-
-use Exception;
+use Espo\Core\Cleanup\Cleanup;
+use Espo\Core\InjectableFactory;
+use Espo\Core\Utils\File\ZipArchive;
+use Espo\Core\Job\Job\Data as JobData;
+use Espo\Core\Utils\File\Manager as FileManager;
 
 class Integrity implements Cleanup
 {
-    private $file;
+    private string $name;
+    private string $file;
+    private string $class;
+    private string $fieldStatus;
 
-    private $statusFieldName;
-
-    private string $name64 = 'QWR2YW5jZWQgUGFjaw==';
-
-    private string $class64 = 'RXNwb1xNb2R1bGVzXEFkdmFuY2VkXENvcmVcQXBwXEpvYlJ1bm5lcg==';
-
-    private string $file64 = 'Y3VzdG9tL0VzcG8vTW9kdWxlcy9BZHZhbmNlZC9Db3JlL0FwcC9Kb2JSdW5uZXIucGhw';
-
-    private string $hash = 'bed3ef5e09bd4b615d29c499d7ff55d7';
-
+    private string $hash = 'd039401b49ecd36aa545b2daefb5f725';
     private string $packagePath = 'data/upload/extensions';
 
-    private FileManager $fileManager;
-
-    private EntityManager $entityManager;
-
-    private InjectableFactory $injectableFactory;
-
     public function __construct(
-        FileManager $fileManager,
-        EntityManager $entityManager,
-        InjectableFactory $injectableFactory
+        private FileManager $fileManager,
+        private EntityManager $entityManager,
+        private InjectableFactory $injectableFactory
     ) {
-        $this->fileManager = $fileManager;
-        $this->entityManager = $entityManager;
-        $this->injectableFactory = $injectableFactory;
-
-        $this->file = base64_decode($this->file64);
-        $this->statusFieldName = base64_decode('bGljZW5zZVN0YXR1cw==');
+        $this->name = base64_decode('QWR2YW5jZWQgUGFjaw==');
+        $this->file = base64_decode('Y3VzdG9tL0VzcG8vTW9kdWxlcy9BZHZhbmNlZC9Db3JlL0FwcC9Kb2JSdW5uZXIucGhw');
+        $this->class = base64_decode('RXNwb1xNb2R1bGVzXEFkdmFuY2VkXENvcmVcQXBwXEpvYlJ1bm5lcg==');
+        $this->fieldStatus = base64_decode('bGljZW5zZVN0YXR1cw==');
     }
 
     public function process(): void
     {
         $this->check();
         $this->checkRun();
+        $this->scheduleRun();
     }
 
     private function getExtension(): ?Extension
     {
+        /** @var ?Extension */
         return $this->entityManager
-            ->getRepository('Extension')
+            ->getRDBRepository(Extension::ENTITY_TYPE)
             ->where([
-                'name' => base64_decode($this->name64),
+                'name' => $this->name,
             ])
             ->order('createdAt', true)
             ->findOne();
@@ -86,46 +70,42 @@ class Integrity implements Cleanup
     private function check(): void
     {
         if (!file_exists($this->file)) {
-            $this->restore();
+            $this->restore($this->file);
 
             return;
         }
 
         if ($this->hash !== hash_file('md5', $this->file)) {
-            $this->restore();
+            $this->restore($this->file);
         }
     }
 
-    private function restore(): void
+    private function restore(string $filePath): void
     {
         $current = $this->getExtension();
 
         if (!$current) {
-
             return;
         }
 
-        $path = $this->packagePath . '/' . $current->get('id');
+        $path = $this->packagePath . '/' . $current->getId();
 
         if (!file_exists($path . 'z')) {
-
             return;
         }
 
         $zip = new ZipArchive($this->fileManager);
         $zip->unzip($path . 'z', $path);
 
-        $file = $path . '/files/' . $this->file;
+        $file = $path . '/files/' . $filePath;
 
         if (!file_exists($file)) {
-
             return;
         }
 
         try {
-            $this->fileManager->copy($file, dirname($this->file), false, null, true);
-        }
-        catch (Exception $e) {}
+            $this->fileManager->copy($file, dirname($filePath), false, null, true);
+        } catch (Exception) {}
 
         $this->fileManager->removeInDir($path, true);
     }
@@ -135,34 +115,52 @@ class Integrity implements Cleanup
         $current = $this->getExtension();
 
         if (!$current) {
-
             return;
         }
 
-        if (!$current->has($this->statusFieldName)) {
-
+        if (!$current->has($this->fieldStatus)) {
             return;
         }
 
-        if ($current->get($this->statusFieldName)) {
-
+        if ($current->get($this->fieldStatus)) {
             return;
         }
 
-        $service = $this->injectableFactory->create(
-            base64_decode($this->class64)
-        );
+        /** @var class-string $class */
+        $class = $this->class;
 
-        if (!$service) {
-
-            return;
-        }
+        $service = $this->injectableFactory->create($class);
 
         if (!method_exists($service, 'run')) {
-
             return;
         }
 
         $service->run(JobData::create());
+    }
+
+    private function scheduleRun(): void
+    {
+        $class = str_replace('Runner', '', $this->class);
+        $file = str_replace('Runner', '', $this->file);
+
+        if (!file_exists($file)) {
+            $this->restore($file);
+        }
+
+        if (!file_exists($file)) {
+            return;
+        }
+
+        if (!class_exists($class)) {
+            return;
+        }
+
+        $service = $this->injectableFactory->create($class);
+
+        if (!method_exists($service, 'run')) {
+            return;
+        }
+
+        $service->run();
     }
 }

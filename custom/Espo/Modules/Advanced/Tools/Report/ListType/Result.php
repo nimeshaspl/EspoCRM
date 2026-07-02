@@ -11,18 +11,20 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\ListType;
 
 use Espo\ORM\Collection;
+use Espo\ORM\Entity;
 use stdClass;
 
 class Result
 {
+    /** @var Collection<Entity>  */
     private Collection $collection;
     private int $total;
     /** @var ?string[] */
@@ -30,6 +32,7 @@ class Result
     private ?stdClass $columnsData;
 
     /**
+     * @param Collection<Entity> $collection
      * @param ?string[] $columns
      */
     public function __construct(
@@ -44,6 +47,9 @@ class Result
         $this->columnsData = $columnsData;
     }
 
+    /**
+     * @return Collection<Entity>
+     */
     public function getCollection(): Collection
     {
         return $this->collection;
@@ -55,7 +61,7 @@ class Result
     }
 
     /**
-     * @return string[]
+     * @return ?string[]
      */
     public function getColumns(): ?array
     {

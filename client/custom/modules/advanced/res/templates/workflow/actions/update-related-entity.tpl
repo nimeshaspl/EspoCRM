@@ -3,7 +3,7 @@
         <div class="col-md-1">
             <button class="btn btn-default btn-sm btn-icon" type="button" data-action='editAction'><span class="fas fa-pencil-alt fa-sm"></span></button>
             <div>
-                <a class="btn btn-text btn-sm btn-icon drag-handle"><span class="fas fa-magnet fa-sm"></span></a>
+                <a class="btn btn-text btn-sm btn-icon drag-handle"><span class="fas fa-grip fa-sm fa-rotate-90"></span></a>
             </div>
         </div>
     {{/unless}}
@@ -18,6 +18,9 @@
                 {{#each actionData.fieldList}}
                     <div class="field-row cell form-group" data-field="{{./this}}">
                         <label class="control-label">{{translate ./this category='fields' scope=../linkedEntityName}}</label>
+                        {{#if (lookup ../fieldActionLabelMap this)}}
+                            <span class="text-muted"> · {{lookup ../fieldActionLabelMap this}}</span>
+                        {{/if}}
                         <div class="field-container field" data-field="{{./this}}"></div>
                     </div>
                 {{/each}}

@@ -1,6 +1,5 @@
 [
     {
-        "label": "",
         "rows": [
             [
                 {
@@ -14,12 +13,13 @@
                 {
                     "name": "targetType"
                 },
-                false
+                {
+                    "name": "category"
+                }
             ],
             [
                 {
-                    "name": "description",
-                    "fullWidth": true
+                    "name": "description"
                 }
             ]
         ]

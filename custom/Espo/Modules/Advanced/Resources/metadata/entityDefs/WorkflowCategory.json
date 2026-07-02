@@ -7,8 +7,7 @@
         },
         "order": {
             "type": "int",
-            "minValue": 1,
-            "required": true
+            "minValue": 1
         },
         "description": {
             "type": "text"
@@ -33,7 +32,8 @@
             "type": "linkMultiple"
         },
         "parent": {
-            "type": "link"
+            "type": "link",
+            "view": "views/fields/link-category-tree"
         },
         "childList": {
             "type": "jsonArray",
@@ -63,7 +63,8 @@
         "children": {
             "type": "hasMany",
             "foreign": "parent",
-            "entity": "WorkflowCategory"
+            "entity": "WorkflowCategory",
+            "readOnly": true
         },
         "workflows": {
             "type": "hasMany",
@@ -77,22 +78,19 @@
     },
     "additionalTables": {
         "WorkflowCategoryPath": {
-            "fields": {
+            "attributes": {
                 "id": {
                     "type": "id",
-                    "dbType": "int",
-                    "len": "11",
-                    "autoincrement": true,
-                    "unique" : true
+                    "dbType": "integer",
+                    "len": 11,
+                    "autoincrement": true
                 },
                 "ascendorId": {
-                    "type": "varchar",
-                    "len": "100",
+                    "type": "foreignId",
                     "index": true
                 },
                 "descendorId" : {
-                    "type": "varchar",
-                    "len": "24",
+                    "type": "foreignId",
                     "index": true
                 }
             }

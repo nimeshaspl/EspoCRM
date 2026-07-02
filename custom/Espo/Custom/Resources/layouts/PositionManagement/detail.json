@@ -15,6 +15,14 @@
                 },
                 {
                     "name": "noOfOpening"
+                },
+                {
+                    "name": "jobType"
+                }
+            ],
+            [
+                {
+                    "name": "jobDescription"
                 }
             ],
             [

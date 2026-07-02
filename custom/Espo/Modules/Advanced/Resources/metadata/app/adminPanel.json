@@ -23,7 +23,8 @@
                 "url":"#Workflow",
                 "label":"Workflow Manager",
                 "iconClass": "fas fa-code-branch icon-rotate-180",
-                "description":"workflowManager"
+                "description":"workflowManager",
+                "tabQuickSearch": true
             }
         ],
         "order": 99
@@ -35,13 +36,15 @@
                 "url":"#BpmnFlowchart",
                 "label":"Flowcharts",
                 "iconClass": "fas fa-project-diagram",
-                "description":"bpmnFlowcharts"
+                "description":"bpmnFlowcharts",
+                "tabQuickSearch": true
             },
             {
                 "url":"#BpmnProcess",
                 "label":"Processes",
                 "iconClass": "fas fa-cogs",
-                "description":"bpmnProcesses"
+                "description":"bpmnProcesses",
+                "tabQuickSearch": true
             }
         ],
         "order": 100

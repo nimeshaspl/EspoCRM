@@ -1,3 +1,6 @@
 [
-    "isActive"
+    "isActive",
+    "category",
+    "assignedUser",
+    "teams"
 ]

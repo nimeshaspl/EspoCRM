@@ -11,15 +11,17 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Workflow\Jobs;
 
+use Espo\Core\Exceptions\Error;
 use Espo\Core\Job\Job;
 use Espo\Core\Job\Job\Data;
+use Espo\Core\Mail\Exceptions\NoSmtp;
 use Espo\Modules\Advanced\Tools\Workflow\SendEmailService;
 
 class SendEmail implements Job
@@ -31,6 +33,10 @@ class SendEmail implements Job
         $this->service = $service;
     }
 
+    /**
+     * @throws Error
+     * @throws NoSmtp
+     */
     public function run(Data $data): void
     {
         $this->service->send($data->getRaw());

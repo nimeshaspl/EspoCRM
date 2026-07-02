@@ -1,0 +1,193 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": false,
+            "pattern": "$noBadCharacters",
+            "options": []
+        },
+        "description": {
+            "type": "text"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "assignedUser": {
+            "type": "link",
+            "required": false,
+            "view": "views/fields/assigned-user"
+        },
+        "teams": {
+            "type": "linkMultiple",
+            "view": "views/fields/teams"
+        },
+        "direction": {
+            "type": "enum",
+            "options": [
+                "Incoming",
+                "Outgoing"
+            ],
+            "style": {
+                "Incoming": null,
+                "Outgoing": null
+            },
+            "default": "Outgoing",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "fromNumber": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "toNumber": {
+            "type": "varchar",
+            "required": false,
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "message": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        },
+        "signalWireMessageSID": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "status": {
+            "type": "enum",
+            "options": [
+                "Draft",
+                "Queued",
+                "Sending",
+                "Sent",
+                "Delivered",
+                "Undelivered",
+                "Failed",
+                "Canceled",
+                "Received",
+                "Processed"
+            ],
+            "style": {
+                "Draft": null,
+                "Queued": null,
+                "Sending": null,
+                "Sent": null,
+                "Delivered": null,
+                "Undelivered": null,
+                "Failed": null,
+                "Canceled": null,
+                "Received": null,
+                "Processed": null
+            },
+            "default": "Draft",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "sentAt": {
+            "notNull": false,
+            "type": "datetime",
+            "minuteStep": 30,
+            "isCustom": true
+        },
+        "deliveredAt": {
+            "notNull": false,
+            "type": "datetime",
+            "minuteStep": 30,
+            "isCustom": true
+        },
+        "createdByAI": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        },
+        "dataMaster": {
+            "type": "link"
+        },
+        "signalWireResponse": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "teams": {
+            "type": "hasMany",
+            "entity": "Team",
+            "relationName": "entityTeam",
+            "layoutRelationshipsDisabled": true
+        },
+        "dataMaster": {
+            "type": "belongsTo",
+            "foreign": "sMSs",
+            "entity": "CDataMaster",
+            "audited": false,
+            "isCustom": true
+        }
+    },
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc"
+    },
+    "indexes": {
+        "name": {
+            "columns": [
+                "name",
+                "deleted"
+            ]
+        },
+        "assignedUser": {
+            "columns": [
+                "assignedUserId",
+                "deleted"
+            ]
+        },
+        "createdAt": {
+            "columns": [
+                "createdAt"
+            ]
+        },
+        "createdAtId": {
+            "unique": true,
+            "columns": [
+                "createdAt",
+                "id"
+            ]
+        }
+    }
+}

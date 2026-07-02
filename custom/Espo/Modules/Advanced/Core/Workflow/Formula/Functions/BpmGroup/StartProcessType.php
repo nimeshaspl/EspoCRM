@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Formula\Functions\BpmGroup;
@@ -22,53 +22,69 @@ use Espo\Core\Di\EntityManagerAware;
 use Espo\Core\Di\EntityManagerSetter;
 use Espo\Core\Di\InjectableFactoryAware;
 use Espo\Core\Di\InjectableFactorySetter;
+use Espo\Core\Di\LogAware;
+use Espo\Core\Di\LogSetter;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Formula\ArgumentList;
+use Espo\Core\Formula\Exceptions\BadArgumentValue;
+use Espo\Core\Formula\Exceptions\TooFewArguments;
 use Espo\Core\Formula\Functions\BaseFunction;
 use Espo\Modules\Advanced\Core\Bpmn\BpmnManager;
 use Espo\Modules\Advanced\Entities\BpmnFlowchart;
 
-class StartProcessType extends BaseFunction implements EntityManagerAware, InjectableFactoryAware
+/**
+ * @noinspection PhpUnused
+ */
+class StartProcessType extends BaseFunction implements
+    EntityManagerAware, InjectableFactoryAware
 {
     use EntityManagerSetter;
     use InjectableFactorySetter;
 
     /**
      * @inheritDoc
+     * @throws Error
      */
     public function process(ArgumentList $args)
     {
         $args = $this->evaluate($args);
+
+        if (count($args) < 3) {
+            throw TooFewArguments::create(3);
+        }
 
         $flowchartId = $args[0] ?? null;
         $targetType = $args[1] ?? null;
         $targetId = $args[2] ?? null;
         $elementId = $args[3] ?? null;
 
-        if (!$flowchartId || !$targetType || !$targetId)
-            throw new Error("Formula: bpm\\startProcess: Too few arguments.");
+        if (!is_string($flowchartId)) {
+            throw BadArgumentValue::create(1, 'string');
+        }
 
-        if (!is_string($flowchartId) || !is_string($targetType) || !is_string($targetId))
-            throw new Error("Formula: bpm\\startProcess: Bad arguments.");
+        if (!is_string($targetType)) {
+            throw BadArgumentValue::create(2, 'string');
+        }
+
+        if (!is_string($targetId)) {
+            throw BadArgumentValue::create(3, 'string');
+        }
 
         /** @var ?BpmnFlowchart $flowchart */
         $flowchart = $this->entityManager->getEntityById(BpmnFlowchart::ENTITY_TYPE, $flowchartId);
         $target = $this->entityManager->getEntityById($targetType, $targetId);
 
         if (!$flowchart) {
-            $GLOBALS['log']->notice("Formula: bpm\\startProcess: Flowchart '$flowchartId' not found.");
-
-            return null;
+            $this->throwError("Flowchart '$flowchartId' not found.");
         }
 
         if (!$target) {
-            $GLOBALS['log']->notice("Formula: bpm\\startProcess: Target $targetType '$targetId' not found.");
-
-            return null;
+            $this->throwError("Target $targetType '$targetId' not found.");
         }
 
-        if ($flowchart->get('targetType') != $targetType)
-            throw new Error("Formula: bpm\\startProcess: Target entity type doesn't match flowchart target type.");
+        if ($flowchart->getTargetType() !== $targetType) {
+            $this->throwError("Target entity type doesn't match flowchart target type.");
+        }
 
         $bpmnManager = $this->injectableFactory->create(BpmnManager::class);
 

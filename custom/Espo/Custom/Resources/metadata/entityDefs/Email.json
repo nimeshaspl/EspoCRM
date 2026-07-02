@@ -17,6 +17,23 @@
         },
         "cDataMaster": {
             "type": "link"
+        },
+        "cIsEmailOpened": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        },
+        "cEmailOpenedAt": {
+            "notNull": false,
+            "type": "datetime",
+            "minuteStep": 30,
+            "isCustom": true
+        },
+        "cEmailUniqueCode": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
         }
     },
     "links": {

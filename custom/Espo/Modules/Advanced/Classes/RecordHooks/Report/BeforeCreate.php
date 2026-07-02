@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Classes\RecordHooks\Report;
@@ -24,7 +24,9 @@ use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Record\CreateParams;
 use Espo\Core\Record\Hook\CreateHook;
+use Espo\Core\Utils\Metadata;
 use Espo\Modules\Advanced\Entities\Report;
+use Espo\Modules\Advanced\Tools\Report\TargetEntityTypeChecker;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
@@ -33,16 +35,11 @@ use Espo\ORM\EntityManager;
  */
 class BeforeCreate implements CreateHook
 {
-    private Acl $acl;
-    private EntityManager $entityManager;
-
     public function __construct(
-        Acl $acl,
-        EntityManager $entityManager
-    ) {
-        $this->acl = $acl;
-        $this->entityManager = $entityManager;
-    }
+        private Acl $acl,
+        private EntityManager $entityManager,
+        private TargetEntityTypeChecker $targetEntityTypeChecker,
+    ) {}
 
     public function process(Entity $entity, CreateParams $params): void
     {
@@ -51,14 +48,34 @@ class BeforeCreate implements CreateHook
         if (
             in_array('applyAcl', $this->acl->getScopeForbiddenFieldList(Report::ENTITY_TYPE, Table::ACTION_EDIT))
         ) {
-            $entity->set('applyAcl', true);
+            $entity->setApplyAcl();
         }
 
-        if (!$this->acl->check($entity->getTargetEntityType(), Table::ACTION_READ)) {
+        $entityType = $entity->getTargetEntityType();
+
+        if (
+            !$entityType &&
+            !$entity->getInternalClassName()
+        ) {
+            throw new Forbidden("No target entity type.");
+        }
+
+        if (
+            $entityType &&
+            !$this->acl->checkScope($entityType, Table::ACTION_READ)
+        ) {
             throw new Forbidden("No 'read' access to target entity type.");
+        }
+
+        if ($entityType) {
+            $this->targetEntityTypeChecker->check($entityType);
         }
     }
 
+    /**
+     * @throws BadRequest
+     * @throws Forbidden
+     */
     public function processJointGridBeforeSave(Report $entity): void
     {
         if ($entity->getType() !== Report::TYPE_JOINT_GRID) {
@@ -89,10 +106,9 @@ class BeforeCreate implements CreateHook
                 throw new Forbidden();
             }
 
-            $groupBy = $report->get('groupBy');
+            $groupBy = $report->getGroupBy();
 
             if (
-                !is_array($groupBy) ||
                 count($groupBy) > 1 ||
                 $report->getType() !== Report::TYPE_GRID
             ) {

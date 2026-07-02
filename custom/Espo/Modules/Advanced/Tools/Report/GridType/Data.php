@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\GridType;
@@ -24,23 +24,9 @@ use stdClass;
 class Data
 {
     public const COLUMN_TYPE_SUMMARY = 'Summary';
+    public const TABLE_MODE_REGULAR = 'Regular';
+    public const TABLE_MODE_NORMALIZED = 'Normalized';
 
-    private string $entityType;
-    private ?string $success;
-    /** @var string[] */
-    private array $columns;
-    /** @var string[] */
-    private array $groupBy;
-    /** @var string[] */
-    private array $orderBy;
-    private bool $applyAcl;
-    private ?WhereItem $filtersWhere;
-    private ?string $chartType;
-    /** @var ?array<string, string> */
-    private ?array $chartColors;
-    private ?string $chartColor;
-    /** @var ?stdClass[] */
-    private ?array $chartDataList;
     /** @var string[] */
     private array $aggregatedColumns = [];
     private stdClass $columnsData;
@@ -53,31 +39,21 @@ class Data
      * @param ?stdClass[] $chartDataList
      */
     public function __construct(
-        string $entityType,
-        array $columns,
-        array $groupBy,
-        array $orderBy,
-        bool $applyAcl,
-        ?WhereItem $filtersWhere,
-        ?string $chartType,
-        ?array $chartColors,
-        ?string $chartColor,
-        ?array $chartDataList,
-        ?string $success,
-        ?stdClass $columnsData
+        private string $entityType,
+        private array $columns,
+        private array $groupBy,
+        private array $orderBy,
+        private bool $applyAcl = false,
+        private ?WhereItem $filtersWhere = null,
+        private ?string $chartType = null,
+        private ?array $chartColors = null,
+        private ?string $chartColor = null,
+        private ?array $chartDataList = null,
+        private ?string $success = null,
+        ?stdClass $columnsData = null,
+        private ?string $tableMode = null,
     ) {
-        $this->entityType = $entityType;
-        $this->columns = $columns;
-        $this->groupBy = $groupBy;
-        $this->orderBy = $orderBy;
-        $this->applyAcl = $applyAcl;
-        $this->filtersWhere = $filtersWhere;
-        $this->chartType = $chartType;
-        $this->chartColors = $chartColors;
-        $this->chartColor = $chartColor;
-        $this->chartDataList = $chartDataList;
-        $this->success = $success;
-        $this->columnsData = $columnsData;
+        $this->columnsData = $columnsData ?? (object) [];
     }
 
     public function getEntityType(): string
@@ -212,5 +188,10 @@ class Data
         $obj->aggregatedColumns = $aggregatedColumns;
 
         return $obj;
+    }
+
+    public function getTableMode(): ?string
+    {
+        return $this->tableMode;
     }
 }

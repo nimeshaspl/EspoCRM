@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Formula\Functions\BpmGroup\CreatedEntityGroup;
@@ -25,6 +25,7 @@ use Espo\Core\Di\InjectableFactorySetter;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Formula\ArgumentList;
 use Espo\Core\Formula\AttributeFetcher;
+use Espo\Core\Formula\Exceptions\ExecutionException;
 use Espo\Core\Formula\Functions\BaseFunction;
 
 use RuntimeException;
@@ -34,6 +35,11 @@ class AttributeType extends BaseFunction implements EntityManagerAware, Injectab
     use EntityManagerSetter;
     use InjectableFactorySetter;
 
+    /**
+     * @throws \Espo\Core\Formula\Exceptions\Error
+     * @throws ExecutionException
+     * @throws Error
+     */
     public function process(ArgumentList $args)
     {
         $args = $this->evaluate($args);

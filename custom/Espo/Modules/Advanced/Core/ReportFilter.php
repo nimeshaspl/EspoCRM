@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core;
@@ -23,6 +23,7 @@ use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Utils\Metadata;
 use Espo\Entities\User;
 use Espo\Modules\Advanced\Entities\Report;
+use Espo\Modules\Advanced\Entities\ReportFilter as ReportFilterEntity;
 use Espo\Modules\Advanced\Tools\Report\Service;
 use Espo\ORM\EntityManager;
 
@@ -31,26 +32,17 @@ use Espo\ORM\EntityManager;
  */
 class ReportFilter
 {
-    private EntityManager $entityManager;
-    private Metadata $metadata;
-    private User $user;
-    private Service $service;
-
     public function __construct(
-        EntityManager $entityManager,
-        Metadata $metadata,
-        User $user,
-        Service $service
-    ) {
-        $this->entityManager = $entityManager;
-        $this->metadata = $metadata;
-        $this->user = $user;
-        $this->service = $service;
-    }
+        private EntityManager $entityManager,
+        private Metadata $metadata,
+        private User $user,
+        private Service $service
+    ) {}
 
     /**
      * @throws Forbidden
      * @throws Error
+     * @phpstan-ignore-next-line
      */
     public function applyFilter(string $entityType, string $filterName, &$result, $selectManger)
     {
@@ -61,7 +53,9 @@ class ReportFilter
             throw new Error('Report Filter error.');
         }
 
-        $reportFilter = $this->entityManager->getEntity('ReportFilter', $reportFilterId);
+        $reportFilter = $this->entityManager
+            ->getRDBRepositoryByClass(ReportFilterEntity::class)
+            ->getById($reportFilterId);
 
         if (!$reportFilter) {
             throw new Error('Report Filter not found.');

@@ -11,30 +11,30 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Hooks\BpmnFlowchart;
 
+use Espo\Modules\Advanced\Entities\BpmnFlowchart;
 use Espo\Modules\Advanced\Entities\Workflow;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
 class CreateWorkflows
 {
-    private EntityManager $entityManager;
+    public function __construct(private EntityManager $entityManager)
+    {}
 
-    public function __construct(EntityManager $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
-
+    /**
+     * @param BpmnFlowchart $entity
+     */
     public function afterSave(Entity $entity): void
     {
         $workflowList = $this->entityManager
-            ->getRDBRepository(Workflow::ENTITY_TYPE)
+            ->getRDBRepositoryByClass(Workflow::class)
             ->where([
                 'flowchartId' => $entity->getId(),
                 'isInternal' => true,
@@ -61,9 +61,14 @@ class CreateWorkflows
                         continue;
                     }
 
+                    $itId = $item->id ?? null;
+                    $itType = $item->type ?? null;
+                    $itTriggerType = $item->triggerType ?? null;
+                    $itSignal = $item->signal ?? null;
+
                     if (
-                        $item->type === 'eventStartConditional' &&
-                        in_array($item->triggerType, [
+                        $itType === 'eventStartConditional' &&
+                        in_array($itTriggerType, [
                             'afterRecordCreated',
                             'afterRecordSaved',
                             'afterRecordUpdated',
@@ -90,7 +95,7 @@ class CreateWorkflows
                         }
 
                         $workflow->set([
-                            'type' => $item->triggerType,
+                            'type' => $itTriggerType,
                             'entityType' => $entity->get('targetType'),
                             'isInternal' => true,
                             'flowchartId' => $entity->getId(),
@@ -102,24 +107,25 @@ class CreateWorkflows
                                 (object) [
                                     'type' => 'startBpmnProcess',
                                     'flowchartId' => $entity->getId(),
-                                    'elementId' => $item->id,
+                                    'elementId' => $itId,
                                     'cid' => 0,
                                 ]
-                            ]
+                            ],
+                            'processOrder' => 100,
                         ]);
 
                         $this->entityManager->saveEntity($workflow);
                     }
 
                     if (
-                        $item->type === 'eventStartSignal' &&
-                        !empty($item->signal)
+                        $itType === 'eventStartSignal' &&
+                        $itSignal
                     ) {
                         $workflow = $this->entityManager->getNewEntity(Workflow::ENTITY_TYPE);
 
                         $workflow->set([
-                            'type' => 'signal',
-                            'signalName' => $item->signal,
+                            'type' => Workflow::TYPE_SIGNAL,
+                            'signalName' => $itSignal,
                             'entityType' => $entity->get('targetType'),
                             'isInternal' => true,
                             'flowchartId' => $entity->get('id'),
@@ -128,24 +134,25 @@ class CreateWorkflows
                                 (object) [
                                     'type' => 'startBpmnProcess',
                                     'flowchartId' => $entity->getId(),
-                                    'elementId' => $item->id,
+                                    'elementId' => $itId,
                                     'cid' => 0,
                                 ]
                             ],
+                            'processOrder' => 150,
                         ]);
 
                         $this->entityManager->saveEntity($workflow);
                     }
 
                     if (
-                        $item->type === 'eventStartTimer' &&
+                        $itType === 'eventStartTimer' &&
                         !empty($item->targetReportId) &&
                         !empty($item->scheduling)
                     ) {
                         $workflow = $this->entityManager->getNewEntity(Workflow::ENTITY_TYPE);
 
                         $workflow->set([
-                            'type' => 'scheduled',
+                            'type' => Workflow::TYPE_SCHEDULED,
                             'entityType' => $entity->get('targetType'),
                             'isInternal' => true,
                             'flowchartId' => $entity->getId(),
@@ -158,10 +165,11 @@ class CreateWorkflows
                                 (object) [
                                     'type' => 'startBpmnProcess',
                                     'flowchartId' => $entity->getId(),
-                                    'elementId' => $item->id,
+                                    'elementId' => $itId,
                                     'cid' => 0,
                                 ]
                             ],
+                            'processOrder' => 100,
                         ]);
 
                         $this->entityManager->saveEntity($workflow);
@@ -185,7 +193,7 @@ class CreateWorkflows
         }
     }
 
-    private function removeWorkflows(Entity $entity)
+    private function removeWorkflows(Entity $entity): void
     {
         $workflowList = $this->entityManager
             ->getRDBRepository(Workflow::ENTITY_TYPE)
@@ -198,7 +206,8 @@ class CreateWorkflows
         foreach ($workflowList as $workflow) {
             $this->entityManager->removeEntity($workflow);
 
-            $this->entityManager->getRDBRepository(Workflow::ENTITY_TYPE)
+            $this->entityManager
+                ->getRDBRepository(Workflow::ENTITY_TYPE)
                 ->deleteFromDb($workflow->getId());
         }
     }

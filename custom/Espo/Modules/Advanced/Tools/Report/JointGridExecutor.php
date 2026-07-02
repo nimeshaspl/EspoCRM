@@ -11,15 +11,16 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report;
 
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
+use Espo\Core\ORM\Type\FieldType;
 use Espo\Core\Select\Where\Item as WhereItem;
 use Espo\Core\Utils\Language;
 use Espo\Entities\User;
@@ -122,7 +123,7 @@ class JointGridExecutor
                     throw new Error("Bad sub-report.");
                 }
 
-                $this->reportHelper->checkReportCanBeRunToRun($report);
+                $this->reportHelper->checkReportCanBeRun($report);
 
                 $subReportResult = $this->service->executeGridReport(
                     $this->reportHelper->fetchGridDataFromReport($report),
@@ -170,10 +171,7 @@ class JointGridExecutor
                     );
                 }
 
-                if (
-                    isset($subReportAggregatedColumnList) &&
-                    !in_array($columnPointer, $subReportAggregatedColumnList)
-                ) {
+                if (!in_array($columnPointer, $subReportAggregatedColumnList)) {
                     $columnToUnsetList[] = $newColumnName;
                 }
 
@@ -201,9 +199,9 @@ class JointGridExecutor
             $columnNameMap = [];
 
             foreach ($subReportResult->getColumnNameMap() as $key => $name) {
-                if (strpos($key, '.') === false) {
+                if (!str_contains($key, '.')) {
                     if (!empty($item->label)) {
-                        $name = $item->label . '.' . $name;
+                        $name = $item->label . ' · ' . $name;
                     }
                 }
 
@@ -222,7 +220,7 @@ class JointGridExecutor
 
             $columnDecimalPlacesMap = [];
 
-            foreach ($subReportResult->getColumnDecimalPlacesMap() as $key => $type) {
+            foreach (get_object_vars($subReportResult->getColumnDecimalPlacesMap()) as $key => $type) {
                 $columnDecimalPlacesMap[$key . '@'. $i] = $type;
             }
 
@@ -234,10 +232,8 @@ class JointGridExecutor
                 $chartColors[$subReportResult->getColumnList()[0]] = $subReportResult->getChartColor();
             }
 
-            if ($subReportResult->getChartColors()) {
-                foreach ($subReportResult->getChartColors() as $key => $color) {
-                    $chartColors[$key . '@'. $i] = $color;
-                }
+            foreach (get_object_vars($subReportResult->getChartColors()) as $key => $color) {
+                $chartColors[$key . '@'. $i] = $color;
             }
 
             $subReportResult->setChartColors((object) $chartColors);
@@ -265,10 +261,10 @@ class JointGridExecutor
             $subReportResult->setReportData($reportData);
 
             if ($i === 0) {
-                $groupCount = count($report->get('groupBy'));
+                $groupCount = count($report->getGroupBy());
 
                 if ($groupCount) {
-                    $groupColumn = $report->get('groupBy')[0];
+                    $groupColumn = $report->getGroupBy()[0];
                 }
 
                 if ($groupCount > 2) {
@@ -281,13 +277,12 @@ class JointGridExecutor
                 $result->setColumnEntityTypeMap([]);
                 $result->setColumnReportIdMap([]);
                 $result->setColumnSubReportLabelMap([]);
-            }
-            else {
+            } else {
                 if ($groupCount === null) {
                     throw new LogicException();
                 }
 
-                if (count($report->get('groupBy')) !== $groupCount) {
+                if (count($report->getGroupBy()) !== $groupCount) {
                     throw new Error("Sub-reports must have the same Group By number.");
                 }
 
@@ -297,7 +292,7 @@ class JointGridExecutor
                     $result->setColumnList($columnList);
                 }
 
-                foreach ($subReportResult->getSums() as $key => $value) {
+                foreach (get_object_vars($subReportResult->getSums()) as $key => $value) {
                     $sums = $result->getSums();
                     $sums->$key = $value;
                     $result->setSums($sums);
@@ -309,14 +304,14 @@ class JointGridExecutor
                     $result->setColumnNameMap($map);
                 }
 
-                foreach ($subReportResult->getColumnTypeMap() as $key => $type) {
+                foreach (($subReportResult->getColumnTypeMap() ?? []) as $key => $type) {
                     $map = $result->getColumnTypeMap();
                     $map[$key] = $type;
                     $result->setColumnTypeMap($map);
                 }
 
-                foreach (($subReportResult->getChartColors() ?? (object) []) as $key => $value) {
-                    $map = $result->getChartColors() ?? (object) [];
+                foreach (get_object_vars($subReportResult->getChartColors()) as $key => $value) {
+                    $map = $result->getChartColors();
                     $map->$key = $value;
                     $result->setChartColors($map);
                 }
@@ -333,8 +328,8 @@ class JointGridExecutor
                     $result->setCellValueMaps($map);
                 }
 
-                foreach ($subReportResult->getGroupValueMap() ?? [] as $group => $v) {
-                    $map = $result->getGroupValueMap() ?? [];
+                foreach ($subReportResult->getGroupValueMap() as $group => $v) {
+                    $map = $result->getGroupValueMap();
 
                     if (!array_key_exists($group, $map)) {
                         continue;
@@ -357,12 +352,12 @@ class JointGridExecutor
                     $result->setAggregatedColumnList($list);
                 }
 
-                foreach ($subReportResult->getGrouping()[0] as $groupName) {
-                    if (in_array($groupName, $result->getGrouping()[0])) {
+                foreach (($subReportResult->getGrouping()[0] ?? []) as $groupName) {
+                    if (in_array($groupName, $result->getGrouping()[0] ?? [])) {
                         continue;
                     }
 
-                    $list = $result->getGrouping()[0];
+                    $list = $result->getGrouping()[0] ?? [];
                     $list[] = $groupName;
                     $result->setGrouping([$list]);
                 }
@@ -396,7 +391,7 @@ class JointGridExecutor
 
                 $columnSubReportLabelMap[$column] = !empty($item->label) ?
                     $item->label :
-                    $this->language->translate($report->getTargetEntityType(), 'scopeNamesPlural');
+                    $this->language->translateLabel($report->getTargetEntityType(), 'scopeNamesPlural');
 
                 $result->setColumnEntityTypeMap($columnEntityTypeMap);
                 $result->setColumnReportIdMap($columnReportIdMap);
@@ -425,6 +420,8 @@ class JointGridExecutor
 
                 [, $i] = explode('@', $column);
 
+                $i = (int) $i;
+
                 $report = $reportList[$i];
 
                 $gridData = $this->reportHelper->fetchGridDataFromReport($report);
@@ -440,19 +437,19 @@ class JointGridExecutor
                 $value = null;
 
                 if ($groupColumn && $groupColumn !== self::STUB_KEY) {
-                    $subReportGroupColumn = $report->get('groupBy')[0];
+                    $subReportGroupColumn = $report->getGroupBy()[0];
 
-                    if (strpos($originalColumn, $subReportGroupColumn) === 0) {
+                    if (str_starts_with($originalColumn, $subReportGroupColumn)) {
                         $displayValue = null;
 
                         $columnData = $this->gridHelper->getDataFromColumnName($originalEntityType, $originalColumn);
 
-                        $e = $this->entityManager->getEntity($columnData->entityType, $key);
+                        $e = $this->entityManager->getEntityById($columnData->entityType, $key);
 
                         if ($e) {
                             $value = $e->get($columnData->field);
 
-                            if ($columnData->fieldType === 'link') {
+                            if ($columnData->fieldType === FieldType::LINK) {
                                 $value = $e->get($columnData->field . 'Id');
 
                                 $displayValue = $e->get($columnData->field . 'Name');
@@ -532,9 +529,9 @@ class JointGridExecutor
     private function setChartColors(GridResult $result): void
     {
         $colorList = [];
-        $chartColors = $result->getChartColors() ?? (object)[];
+        $chartColors = $result->getChartColors();
 
-        foreach ($chartColors as $key => $value) {
+        foreach (get_object_vars($chartColors) as $key => $value) {
             if (in_array($value, $colorList)) {
                 unset($chartColors->$key);
             }

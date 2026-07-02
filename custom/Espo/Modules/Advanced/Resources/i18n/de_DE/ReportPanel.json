@@ -16,7 +16,8 @@
     "columnList": "Spalteliste",
     "dynamicLogicVisible": "Bedingungen, die das Panel sichtbar machen",
     "order": "Reihenfolge",
-    "displayType": "Was soll angezeigt werden"
+    "displayType": "Was soll angezeigt werden",
+    "useSiMultiplier": "SI-Multiplikator"
   },
   "links": {
     "report": "Bericht"

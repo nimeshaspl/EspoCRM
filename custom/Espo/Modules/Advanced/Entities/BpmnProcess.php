@@ -11,13 +11,15 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Entities;
 
+use Espo\Core\Field\Link;
+use Espo\Core\Field\LinkMultiple;
 use Espo\Core\ORM\Entity;
 use stdClass;
 
@@ -37,6 +39,19 @@ class BpmnProcess extends Entity
         return $this->get('status');
     }
 
+    public function setStatus(string $status): self
+    {
+        $this->set('status', $status);
+
+        return $this;
+    }
+
+    public function getAssignedUser(): ?Link
+    {
+        /** @var ?Link */
+        return $this->getValueObject('assignedUser');
+    }
+
     public function getStartElementId(): ?string
     {
         return $this->get('startElementId');
@@ -50,6 +65,12 @@ class BpmnProcess extends Entity
     public function getTargetType(): ?string
     {
         return $this->get('targetType');
+    }
+
+    public function getTeams(): LinkMultiple
+    {
+        /** @var LinkMultiple */
+        return $this->getValueObject('teams');
     }
 
     public function isSubProcess(): bool
@@ -111,17 +132,17 @@ class BpmnProcess extends Entity
 
             if (isset($item1->center) && isset($item2->center)) {
                 if ($item1->center->y > $item2->center->y) {
-                    return true;
+                    return 1;
                 }
 
                 if ($item1->center->y == $item2->center->y) {
                     if ($item1->center->x > $item2->center->x) {
-                        return true;
+                        return 1;
                     }
                 }
             }
 
-            return false;
+            return 0;
         });
 
         return $elementIdList;
@@ -185,6 +206,34 @@ class BpmnProcess extends Entity
     public function setVariables(stdClass $variables): self
     {
         $this->set('variables', $variables);
+
+        return $this;
+    }
+
+    public function setCreatedEntitiesData(stdClass $createdEntitiesData): self
+    {
+        $this->set('createdEntitiesData', $createdEntitiesData);
+
+        return $this;
+    }
+
+    public function isLocked(): bool
+    {
+        return (bool) $this->get('isLocked');
+    }
+
+    public function setIsLocked(bool $isLocked): self
+    {
+        $this->set('isLocked', $isLocked);
+
+        return $this;
+    }
+
+    public function setVisitTimestampNow(): self
+    {
+        $now = (int) (microtime(true) * 1000);
+
+        $this->set('visitTimestamp', $now);
 
         return $this;
     }

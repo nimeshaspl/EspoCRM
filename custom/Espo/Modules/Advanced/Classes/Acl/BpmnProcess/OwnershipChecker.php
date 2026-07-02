@@ -5,6 +5,7 @@ namespace Espo\Modules\Advanced\Classes\Acl\BpmnProcess;
 use Espo\Core\Acl\DefaultOwnershipChecker;
 use Espo\Core\Acl\OwnershipOwnChecker;
 use Espo\Core\Acl\OwnershipTeamChecker;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Entities\User;
 use Espo\Modules\Advanced\Entities\BpmnProcess;
 use Espo\ORM\Entity;
@@ -38,7 +39,7 @@ class OwnershipChecker implements OwnershipOwnChecker, OwnershipTeamChecker
 
         $parent = $this->entityManager->getEntityById(BpmnProcess::ENTITY_TYPE, $entity->getParentProcessId());
 
-        if (!$parent) {
+        if (!$parent instanceof CoreEntity) {
             return false;
         }
 
@@ -56,7 +57,7 @@ class OwnershipChecker implements OwnershipOwnChecker, OwnershipTeamChecker
 
         $parent = $this->entityManager->getEntityById(BpmnProcess::ENTITY_TYPE, $entity->getParentProcessId());
 
-        if (!$parent) {
+        if (!$parent instanceof CoreEntity) {
             return false;
         }
 

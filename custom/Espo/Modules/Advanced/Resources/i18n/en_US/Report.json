@@ -34,19 +34,21 @@
         "Create Joint Grid Report": "Create Joint Grid Report",
         "Label": "Label",
         "Type": "Type",
-        "Decimal Places": "Decimal Places"
+        "Decimal Places": "Decimal Places",
+        "Preview": "Preview",
+        "Create Internal Report": "Create Internal Report"
     },
     "fields": {
         "type": "Type",
         "entityType": "Entity Type",
         "description": "Description",
-        "groupBy": "Group by",
+        "groupBy": "Group By",
         "columns": "Columns",
-        "orderBy": "Order by",
+        "orderBy": "Order By",
         "filters": "Filters",
         "runtimeFilters": "Runtime Filters",
         "chartType": "Chart Type",
-        "emailSendingInterval": "Interval",
+        "emailSendingInterval": "Email Sending Interval",
         "emailSendingTime": "Time",
         "emailSendingUsers": "Users",
         "emailSendingSettingDay": "Day",
@@ -57,26 +59,33 @@
         "chartColor": "Color",
         "chartOneColumns": "Chart Columns",
         "chartOneY2Columns": "Chart Secondary Axis Columns",
-        "orderByList": "List Order",
+        "orderByList": "Order (List)",
+        "orderByListShort": "Order",
         "column": "Column",
         "exportFormat": "Format",
         "category": "Category",
-        "applyAcl": "Apply ACL",
+        "applyAcl": "Apply access control",
         "portals": "Portals",
         "joinedReports": "Sub-Reports",
         "joinedReportLabel": "Sub-Report Label",
         "filtersDataList": "Filters Data List",
         "columnsData": "Columns Data",
-        "filtersData": "Filters Data"
+        "filtersData": "Filters Data",
+        "internalClassName": "Internal Report",
+        "tableMode": "Table Mode"
     },
     "tooltips": {
-        "emailSendingUsers": "Users report result will be sent to",
+        "chartOneColumns": "Columns to display on the chart. If not specified, the system will include all columns that can be combined into a single chart.",
+        "chartOneY2Columns": "Columns to display on the secondary axis of the chart.",
+        "orderBy": "Result data will be ordered by the specified columns and groups.",
+        "emailSendingUsers": "Users report result will be sent to.",
         "chartColorList": "Custom colors for specific groups.",
-        "applyAcl": "Report results will depend on the user's access.",
-        "groupBy": "Data will be aggregated by one or two groups. If empty, then data will not be aggregated, only totals will be displayed.\n\n[Complex expressions](https://www.espocrm.com/documentation/user-guide/complex-expressions/) can be used.",
+        "applyAcl": "Report results will depend on user's access. Records the user does not have access to will be excluded from the result data.",
+        "groupBy": "Data will be aggregated by the specified groups. The maximum number of groups is two. If empty, then data will not be aggregated – only totals will be displayed.\n\n[Complex expressions](https://www.espocrm.com/documentation/user-guide/complex-expressions/) can be used.",
         "columns": "What data to display. \n\n[Complex expressions](https://www.espocrm.com/documentation/user-guide/complex-expressions/) can be used.",
         "runtimeFilters": "Additional filters that will be available on the report view.",
-        "portals": "Report will be available only in specified portals."
+        "portals": "The report will be available only in the specified portals.",
+        "internalParamLeadTeam": "A team leads are assigned to. If empty, then all leads are taken into account."
     },
     "functions": {
         "COUNT": "Count",
@@ -107,16 +116,15 @@
             "Table": "Table"
         },
         "chartType": {
-            "BarHorizontal": "Bar (horizontal)",
-            "BarVertical": "Bar (vertical)",
-            "BarGroupedHorizontal": "Bar Grouped (horizontal)",
-            "BarGroupedVertical": "Bar Grouped (vertical)",
+            "BarHorizontal": "Bar · Horizontal",
+            "BarVertical": "Bar · Vertical",
+            "BarGroupedHorizontal": "Bar Grouped · Horizontal",
+            "BarGroupedVertical": "Bar Grouped · Vertical",
             "Pie": "Pie",
             "Line": "Line",
             "Radar": "Radar"
         },
         "emailSendingInterval": {
-            "": "None",
             "Daily": "Daily",
             "Weekly": "Weekly",
             "Monthly": "Monthly",
@@ -179,9 +187,16 @@
         "columnType": {
             "": "Auto",
             "Summary": "Summary"
+        },
+        "tableMode": {
+            "Regular": "Regular",
+            "Normalized": "Normalized"
         }
     },
     "messages": {
+        "noAccessToAttribute": "No access to attribute '{attribute}'.",
+        "onlyAdminCanPreviewInternalReports": "Only admin can preview internal reports.",
+        "noSubReportInPreview": "Sub-reports cannot be displayed in the preview mode.",
         "emailTemplateParsingError": "Error while parsing template `{template}`.",
         "executionError": "Could not run the report. Check the report parameters. Find more details in the log file.",
         "emptyStringGroupExcluded": "A group with an empty string value is excluded from the results.",
@@ -220,6 +235,16 @@
         "width": "Width",
         "notSortable": "Not Sortable",
         "exportOnly": "Export Only",
+        "hidden": "Hidden",
         "align": "Align"
+    },
+    "internalReports": {
+        "Advanced:LeadsByLastActivity": "Leads by Last Activity"
+    },
+    "parameterFields": {
+        "team": "Team"
+    },
+    "otherFields": {
+        "interval": "Interval"
     }
 }

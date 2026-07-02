@@ -16,6 +16,10 @@
         "employees": {
             "layout": null,
             "selectPrimaryFilterName": null
+        },
+        "employees": {
+            "layout": null,
+            "selectPrimaryFilterName": null
         }
     },
     "kanbanViewMode": false,

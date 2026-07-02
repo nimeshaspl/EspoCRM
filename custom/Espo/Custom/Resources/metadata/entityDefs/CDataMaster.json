@@ -320,6 +320,107 @@
             "audited": true,
             "isCustom": true,
             "tooltip": true
+        },
+        "aiResponse": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "audited": true,
+            "isCustom": true
+        },
+        "aiResponseStatus": {
+            "type": "enum",
+            "options": [
+                "Prompt Generated",
+                "Generate Email",
+                "Email Generated",
+                "Send Email",
+                "Email Sent"
+            ],
+            "style": {
+                "Prompt Generated": null,
+                "Generate Email": null,
+                "Email Generated": null,
+                "Send Email": null,
+                "Email Sent": null
+            },
+            "default": "Prompt Generated",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "aiPrompt": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        },
+        "aiGeneratedEmailSubject": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        },
+        "aiGeneratedEmailBody": {
+            "type": "text",
+            "rowsMin": 2,
+            "cutHeight": 200,
+            "isCustom": true
+        },
+        "leadOutreachStatus": {
+            "type": "enum",
+            "options": [
+                "New",
+                "Initial Email Sent",
+                "Follow Up 1 Sent",
+                "Follow Up 2 Sent",
+                "Follow Up 3 Sent",
+                "Opened",
+                "Cold Follow Up"
+            ],
+            "style": {
+                "New": null,
+                "Initial Email Sent": null,
+                "Follow Up 1 Sent": null,
+                "Follow Up 2 Sent": null,
+                "Follow Up 3 Sent": null,
+                "Opened": null,
+                "Cold Follow Up": null
+            },
+            "default": "New",
+            "audited": true,
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "timezone": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "timezoneConfidence": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
+        },
+        "isEmailResponded": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        },
+        "isSMSResponded": {
+            "notNull": true,
+            "type": "bool",
+            "isCustom": true
+        },
+        "sMSs": {
+            "type": "linkMultiple"
+        },
+        "emailUniqueCode": {
+            "type": "varchar",
+            "maxLength": 100,
+            "options": [],
+            "isCustom": true
         }
     },
     "links": {
@@ -385,6 +486,13 @@
             "relationName": "cSalesPlanningMonthlyDataMaster",
             "foreign": "dataMasters",
             "entity": "CSalesPlanningMonthly",
+            "audited": false,
+            "isCustom": true
+        },
+        "sMSs": {
+            "type": "hasMany",
+            "foreign": "dataMaster",
+            "entity": "CSMS",
             "audited": false,
             "isCustom": true
         }

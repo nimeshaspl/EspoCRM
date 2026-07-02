@@ -11,27 +11,37 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 use Espo\ORM\Entity;
 
+/**
+ * @noinspection PhpUnused
+ */
 class EventStartConditionalEventSubProcess extends EventIntermediateConditionalCatch
 {
+    /** @var string */
     protected $pendingStatus = BpmnFlowNode::STATUS_STANDBY;
 
+    /**
+     * @throws FormulaError
+     * @throws Error
+     */
     protected function getConditionsTarget(): ?Entity
     {
         return $this->getSpecificTarget($this->getFlowNode()->getDataItemValue('subProcessTarget'));
     }
 
     /**
-     * @param string|bool|null $divergentFlowNodeId
+     * @inheritDoc
      */
     protected function processNextElement(
         ?string $nextElementId = null,
@@ -114,23 +124,23 @@ class EventStartConditionalEventSubProcess extends EventIntermediateConditionalC
         }
     }
 
-    protected function createOppositeNode($isNegative = false)
+    protected function createOppositeNode(bool $isNegative = false): void
     {
-        $data = $this->getFlowNode()->get('data') ?? (object) [];
+        $data = $this->getFlowNode()->getData();
         $data = clone $data;
         $data->isOpposite = !$isNegative;
 
-        $flowNode = $this->getEntityManager()->getEntity(BpmnFlowNode::ENTITY_TYPE);
+        $flowNode = $this->getEntityManager()->getNewEntity(BpmnFlowNode::ENTITY_TYPE);
 
-        $flowNode->set([
+        $flowNode->setMultiple([
             'status' => BpmnFlowNode::STATUS_STANDBY,
-            'elementType' => $this->getFlowNode()->get('elementType'),
-            'elementData' => $this->getFlowNode()->get('elementData'),
+            'elementType' => $this->getFlowNode()->getElementType(),
+            'elementData' => $this->getFlowNode()->getElementData(),
             'data' => $data,
-            'flowchartId' => $this->getProcess()->get('flowchartId'),
-            'processId' => $this->getProcess()->get('id'),
-            'targetType' => $this->getFlowNode()->get('targetType'),
-            'targetId' => $this->getFlowNode()->get('targetId'),
+            'flowchartId' => $this->getProcess()->getFlowchartId(),
+            'processId' => $this->getProcess()->getId(),
+            'targetType' => $this->getFlowNode()->getTargetType(),
+            'targetId' => $this->getFlowNode()->getTargetId(),
         ]);
 
         $this->getEntityManager()->saveEntity($flowNode);

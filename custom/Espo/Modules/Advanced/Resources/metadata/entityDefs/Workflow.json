@@ -8,7 +8,8 @@
         "entityType": {
             "type": "varchar",
             "required": true,
-            "view": "advanced:views/workflow/fields/entity-type"
+            "view": "advanced:views/workflow/fields/entity-type",
+            "tooltip": true
         },
         "type": {
             "type": "enum",
@@ -22,7 +23,8 @@
                 "signal"
             ],
             "default": "afterRecordCreated",
-            "index": true
+            "index": true,
+            "tooltip": true
         },
         "signalName": {
             "type": "varchar",
@@ -83,15 +85,20 @@
         "targetReport": {
             "type": "link",
             "view": "advanced:views/workflow/fields/target-report",
-            "audited": true
+            "audited": true,
+            "tooltip": true
         },
         "scheduling": {
             "type": "varchar",
-            "maxLength": 16,
+            "maxLength": 48,
             "default": "0 0 * * *",
             "tooltip": true,
             "view": "advanced:views/workflow/fields/scheduling",
-            "audited": true
+            "audited": true,
+            "noSpellCheck": true,
+            "validatorClassNameList": [
+                "Espo\\Modules\\Advanced\\Classes\\FieldValidators\\Workflow\\Scheduling\\Valid"
+            ]
         },
         "schedulingApplyTimezone": {
             "type": "bool",
@@ -151,9 +158,32 @@
             "type": "text",
             "tooltip": true
         },
+        "manualStyle": {
+            "type": "enum",
+            "options": [
+                "",
+                "danger",
+                "success",
+                "info",
+                "warning"
+            ],
+            "translation": "LayoutManager.options.style",
+            "style": {
+                "danger": "danger",
+                "success": "success",
+                "info": "info",
+                "warning": "warning"
+            }
+        },
         "category": {
             "type": "link",
             "view": "views/fields/link-category-tree"
+        },
+        "processOrder": {
+            "type": "int",
+            "required": true,
+            "tooltip": true,
+            "default": 1
         },
         "createdAt": {
             "type": "datetime",
@@ -225,6 +255,7 @@
         "int": "int",
         "currency": "currency",
         "float": "float",
+        "decimal": "decimal",
         "bool": "bool",
         "password": "varchar",
         "text": "text",
@@ -246,26 +277,49 @@
     "fieldDefinitions": {
         "date": "date",
         "datetime": "date",
-        "datetimeOptional": "date",
-        "jsonArray": "wide"
+        "datetimeOptional": "date"
     },
     "fieldDefinitionsFieldViews": {
         "duration": "advanced:views/workflow/field-definitions/fields/duration"
     },
+    "fieldTypeActions": {
+        "linkMultiple": [
+            "update",
+            "add",
+            "remove"
+        ],
+        "array": [
+            "update",
+            "add",
+            "remove"
+        ],
+        "multiEnum": [
+            "update",
+            "add",
+            "remove"
+        ],
+        "checklist": [
+            "update",
+            "add",
+            "remove"
+        ]
+    },
     "fieldTypeComparison": {
         "enumInt": ["int"],
-        "enumFloat": ["float"],
+        "enumFloat": ["float", "decimal"],
         "date": ["datetime", "datetimeOptional"],
         "datetime": ["date", "datetimeOptional"],
         "datetimeOptional": ["date", "datetime"],
-        "float": ["enumFloat"],
+        "float": ["enumFloat", "int", "decimal"],
+        "decimal": ["enumFloat", "int", "float"],
         "linkMultiple": "link",
         "email": ["varchar"],
         "phone": ["varchar"],
         "personName": ["varchar"],
         "varchar": ["email", "phone"],
         "text": ["varchar"],
-        "wysiwyg": ["varchar"]
+        "wysiwyg": ["varchar"],
+        "linkParent": ["link", "linkParent", "id"]
     },
     "ignoreActualAttributesOnValueCopyFieldList": [
         "personName",

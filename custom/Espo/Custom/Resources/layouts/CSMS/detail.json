@@ -1,0 +1,56 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "direction"
+                }
+            ],
+            [
+                {
+                    "name": "fromNumber"
+                },
+                {
+                    "name": "toNumber"
+                }
+            ],
+            [
+                {
+                    "name": "status"
+                },
+                {
+                    "name": "signalWireMessageSID"
+                }
+            ],
+            [
+                {
+                    "name": "sentAt"
+                },
+                {
+                    "name": "deliveredAt"
+                },
+                {
+                    "name": "createdByAI"
+                }
+            ],
+            [
+                {
+                    "name": "dataMaster"
+                },
+                {
+                    "name": "message"
+                }
+            ],
+            [
+                {
+                    "name": "signalWireResponse"
+                }
+            ]
+        ],
+        "style": "default",
+        "label": "Overview"
+    }
+]

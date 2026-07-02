@@ -11,17 +11,27 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
+use Espo\Core\Exceptions\Error as FormulaError;
+use Espo\Core\Formula\Exceptions\Error;
+use Espo\Core\InjectableFactory;
 use Espo\Modules\Advanced\Core\Bpmn\Utils\ConditionManager;
 
+/**
+ * @noinspection PhpUnused
+ */
 class GatewayExclusive extends Gateway
 {
+    /**
+     * @throws Error
+     * @throws FormulaError
+     */
     protected function processDivergent(): void
     {
         $conditionManager = $this->getConditionManager();
@@ -36,9 +46,9 @@ class GatewayExclusive extends Gateway
         $nextElementId = null;
 
         foreach ($flowList as $flowData) {
-            $conditionsAll = isset($flowData->conditionsAll) ? $flowData->conditionsAll : null;
-            $conditionsAny = isset($flowData->conditionsAny) ? $flowData->conditionsAny : null;
-            $conditionsFormula = isset($flowData->conditionsFormula) ? $flowData->conditionsFormula : null;
+            $conditionsAll = $flowData->conditionsAll ?? null;
+            $conditionsAny = $flowData->conditionsAny ?? null;
+            $conditionsFormula = $flowData->conditionsFormula ?? null;
 
             $result = $conditionManager->check(
                 $this->getTarget(),
@@ -68,6 +78,9 @@ class GatewayExclusive extends Gateway
         $this->endProcessFlow();
     }
 
+    /**
+     * @throws FormulaError
+     */
     protected function processConvergent(): void
     {
         $this->processNextElement();
@@ -75,7 +88,10 @@ class GatewayExclusive extends Gateway
 
     protected function getConditionManager(): ConditionManager
     {
-        $conditionManager = new ConditionManager($this->getContainer());
+        $conditionManager = $this->getContainer()
+            ->getByClass(InjectableFactory::class)
+            ->create(ConditionManager::class);
+
         $conditionManager->setCreatedEntitiesData($this->getCreatedEntitiesData());
 
         return $conditionManager;

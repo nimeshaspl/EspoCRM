@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Business\Workflow\AssignmentRules;
@@ -24,6 +24,7 @@ use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\Core\Exceptions\Error;
 use Espo\Modules\Advanced\Entities\WorkflowRoundRobin;
+use Espo\ORM\Query\Part\WhereItem;
 
 class RoundRobin
 {
@@ -53,6 +54,7 @@ class RoundRobin
     }
 
     /**
+     * @param array<string|int, mixed>|WhereItem|null $whereClause
      * @return array<string, mixed>
      * @throws Error
      */
@@ -61,7 +63,7 @@ class RoundRobin
         string $targetTeamId,
         ?string $targetUserPosition,
         ?string $listReportId = null,
-        ?array $whereClause = null
+        $whereClause = null
     ): array {
 
         $team = $this->entityManager->getEntityById(Team::ENTITY_TYPE, $targetTeamId);

@@ -5,11 +5,12 @@
         "ReportCategory": "Report Category",
         "WorkflowLogRecord": "Workflow Log Record",
         "WorkflowCategory": "Workflow Category",
-        "BpmnFlowchart": "Process Flowchart",
+        "BpmnFlowchart": "Flowchart",
         "BpmnProcess": "Process",
         "BpmnUserTask": "Process User Task",
         "ReportFilter": "Report Filter",
-        "ReportPanel": "Report Panel"
+        "ReportPanel": "Report Panel",
+        "BpmnFlowchartCategory": "Flowchart Category"
     },
     "scopeNamesPlural": {
         "Workflow": "Workflows",
@@ -17,11 +18,12 @@
         "ReportCategory": "Report Categories",
         "WorkflowLogRecord": "Workflows Log",
         "WorkflowCategory": "Workflow Categories",
-        "BpmnFlowchart": "Process Flowcharts",
+        "BpmnFlowchart": "Flowcharts",
         "BpmnProcess": "Processes",
         "BpmnUserTask": "Process User Tasks",
         "ReportFilter": "Report Filters",
-        "ReportPanel": "Report Panels"
+        "ReportPanel": "Report Panels",
+        "BpmnFlowchartCategory": "Flowchart Categories"
     },
     "dashlets": {
         "Report": "Report",

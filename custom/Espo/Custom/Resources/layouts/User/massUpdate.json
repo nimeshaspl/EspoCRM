@@ -4,5 +4,6 @@
     "defaultTeam",
     "isActive",
     "cAppraisalTemplate",
-    "cAppraisalRelease"
+    "cAppraisalRelease",
+    "cDepartment"
 ]

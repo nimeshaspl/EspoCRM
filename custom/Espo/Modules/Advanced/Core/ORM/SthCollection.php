@@ -11,95 +11,97 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\ORM;
 
+use Espo\Core\FieldProcessing\ListLoadProcessor;
+use Espo\Core\FieldProcessing\Loader\Params as LoaderParams;
+use Espo\Core\ORM\Entity as CoreEntity;
+use Espo\Core\ORM\EntityFactory;
+use Espo\Entities\User;
+use Espo\Modules\Advanced\Tools\Report\AccessHelper;
 use Espo\ORM\Collection;
+use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 
 use PDOStatement;
 use PDO;
 use IteratorAggregate;
+use stdClass;
+use Traversable;
 
+/**
+ * @implements IteratorAggregate<int, Entity>
+ * @implements Collection<Entity>
+ */
 class SthCollection implements IteratorAggregate, Collection
 {
-    /** @var PDOStatement */
-    private $sth;
-    /** @var string */
-    private $entityType;
-    private $fieldDefs;
-    private $linkMultipleFieldList;
-    private $foreignLinkFieldDataList;
-    /** @var CustomEntityFactory */
-    private $customEntityFactory;
-    /** @var EntityManager */
-    private $entityManager;
-
+    /**
+     * @param array<string, array<string, mixed>> $attributeDefs Additional attributes.
+     * @param string[] $linkMultipleFieldList
+     * @param object{entityType: string, name: string}[] $foreignLinkFieldDataList
+     */
     public function __construct(
-        PDOStatement $sth,
-        string $entityType,
-        EntityManager $entityManager,
-        $fieldDefs,
-        $linkMultipleFieldList,
-        $foreignLinkFieldDataList,
-        CustomEntityFactory $customEntityFactory
-    ) {
-        $this->sth = $sth;
-        $this->entityType = $entityType;
-        $this->entityManager = $entityManager;
-        $this->fieldDefs = $fieldDefs;
-        $this->linkMultipleFieldList = $linkMultipleFieldList;
-        $this->foreignLinkFieldDataList = $foreignLinkFieldDataList;
-        $this->customEntityFactory = $customEntityFactory;
-    }
+        private PDOStatement $sth,
+        private string $entityType,
+        private EntityManager $entityManager,
+        private $attributeDefs,
+        private $linkMultipleFieldList,
+        private $foreignLinkFieldDataList,
+        private CustomEntityFactory $customEntityFactory,
+        private ListLoadProcessor $listLoadProcessor,
+        private ?User $user,
+        private AccessHelper $accessHelper,
+    ) {}
 
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return (function () {
             while ($row = $this->sth->fetch(PDO::FETCH_ASSOC)) {
-
                 $rowData = [];
 
-                foreach ($row as $attr => $value) {
-                    $attribute = str_replace('.', '_', $attr);
+                foreach ($row as $key => $value) {
+                    /** @var string $attribute */
+                    $attribute = str_replace('.', '_', $key);
 
                     $rowData[$attribute] = $value;
                 }
 
-                $entity = $this->customEntityFactory->create($this->entityType, $this->fieldDefs);
+                $select = array_keys($rowData);
+
+                foreach ($this->linkMultipleFieldList as $it) {
+                    $select[] = $it . 'Ids';
+                    $select[] = $it . 'Names';
+                }
+
+                $entity = $this->prepareEntity();
 
                 $entity->set($rowData);
                 $entity->setAsFetched();
 
-                foreach ($this->linkMultipleFieldList as $field) {
-                    $entity->loadLinkMultipleField($field);
-                }
+                $fieldLoaderParams = LoaderParams::create()->withSelect($select);
 
-                foreach ($this->foreignLinkFieldDataList as $item) {
-                    $foreignId = $entity->get($item->name . 'Id');
+                $this->listLoadProcessor->process($entity, $fieldLoaderParams);
 
-                    if ($foreignId) {
-                        $foreignEntity = $this->entityManager
-                            ->getRDBRepository($item->entityType)
-                            ->where(['id' => $foreignId])
-                            ->select(['name'])
-                            ->findOne();
+                $this->loadNoLoadLinkMultiple($entity);
+                $this->loadForeignNames($entity);
 
-                        if ($foreignEntity) {
-                            $entity->set($item->name . 'Name', $foreignEntity->get('name'));
-                        }
-                    }
-                }
+                $entity->setAsFetched();
+
+                $this->clearForbiddenAttributes($entity);
 
                 yield $entity;
             }
         })();
     }
 
+    /**
+     * @return stdClass[]
+     */
     public function getValueMapList(): array
     {
         $list = [];
@@ -109,5 +111,128 @@ class SthCollection implements IteratorAggregate, Collection
         }
 
         return $list;
+    }
+
+    private function prepareEntity(): Entity
+    {
+        $factory = $this->entityManager->getEntityFactory();
+
+        /** @noinspection PhpConditionAlreadyCheckedInspection */
+        if (
+            $factory instanceof EntityFactory &&
+            /** @phpstan-ignore-next-line function.alreadyNarrowedType */
+            method_exists($factory, 'createWithAdditionalAttributes')
+        ) {
+            /** @noinspection PhpInternalEntityUsedInspection */
+            return $factory->createWithAdditionalAttributes($this->entityType, $this->attributeDefs);
+        }
+
+        // Before Espo v9.1.7.
+        return $this->customEntityFactory->create($this->entityType, $this->attributeDefs);
+    }
+
+    private function loadNoLoadLinkMultiple(Entity $entity): void
+    {
+        $entityDefs = $this->entityManager->getDefs()->getEntity($this->entityType);
+
+        if (!$entity instanceof CoreEntity) {
+            return;
+        }
+
+        foreach ($this->linkMultipleFieldList as $field) {
+            $fieldDefs = $entityDefs->tryGetField($field);
+
+            if (!$fieldDefs) {
+                continue;
+            }
+
+            if (!$fieldDefs->getParam('noLoad')) {
+                continue;
+            }
+
+            if (!$entity->hasLinkMultipleField($field)) {
+                continue;
+            }
+
+            /** @noinspection PhpInternalEntityUsedInspection */
+            $entity->loadLinkMultipleField($field);
+        }
+    }
+
+    private function clearForbiddenAttributes(Entity $entity): void
+    {
+        $forbiddenAttributes = $this->getForbiddenAttributes($entity);
+
+        foreach ($forbiddenAttributes as $attribute) {
+            $entity->clear($attribute);
+        }
+    }
+
+    private function loadForeignNames(Entity $entity): void
+    {
+        foreach ($this->foreignLinkFieldDataList as $item) {
+            $foreignId = $entity->get($item->name . 'Id');
+
+            if (!$foreignId) {
+                continue;
+            }
+
+            $foreignEntity = $this->entityManager
+                ->getRDBRepository($item->entityType)
+                ->where(['id' => $foreignId])
+                ->select(['name'])
+                ->findOne();
+
+            if (!$foreignEntity) {
+                continue;
+            }
+
+            $entity->set($item->name . 'Name', $foreignEntity->get('name'));
+        }
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getForbiddenAttributes(Entity $entity): array
+    {
+        $entityType = $entity->getEntityType();
+
+        $forbiddenAttributes = $this->accessHelper->getEntityTypeForbiddenAttributes($this->user, $entityType);
+        $forbiddenFields = $this->accessHelper->getEntityTypeForbiddenFields($this->user, $entityType);
+        $restrictedLinks = $this->accessHelper->getEntityTypeRestrictedLinks($this->user, $entityType);
+
+        $entityDefs = $this->entityManager->getDefs()->getEntity($entityType);
+
+        foreach ($entity->getAttributeList() as $attribute) {
+            if (!str_contains($attribute, '_')) {
+                continue;
+            }
+
+            [$link, $foreignAttribute] = explode('_', $attribute);
+
+            if (in_array($link, $forbiddenFields) || in_array($link, $restrictedLinks)) {
+                $forbiddenAttributes[] = $attribute;
+
+                continue;
+            }
+
+            $foreignEntityType = $entityDefs->tryGetRelation($link)?->tryGetForeignEntityType();
+
+            if (!$foreignAttribute) {
+                continue;
+            }
+
+            if (
+                in_array(
+                    $foreignAttribute,
+                    $this->accessHelper->getEntityTypeForbiddenAttributes($this->user, $foreignEntityType)
+                )
+            ) {
+                $forbiddenAttributes[] = $attribute;
+            }
+        }
+
+        return $forbiddenAttributes;
     }
 }

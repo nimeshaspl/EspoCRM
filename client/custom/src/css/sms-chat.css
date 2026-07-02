@@ -1,0 +1,81 @@
+<style>
+.sms-chat-wrapper {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #efeae2;
+    border: 1px solid #ddd;
+}
+
+.sms-chat-header {
+    padding: 10px 14px;
+    background: #075e54;
+    color: white;
+    font-size: 15px;
+}
+
+.sms-chat-body {
+    height: 360px;
+    overflow-y: auto;
+    padding: 15px;
+    background: #efeae2;
+}
+
+.sms-empty {
+    text-align: center;
+    color: #777;
+    margin-top: 120px;
+}
+
+.sms-row {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.sms-row-in {
+    justify-content: flex-start;
+}
+
+.sms-row-out {
+    justify-content: flex-end;
+}
+
+.sms-bubble {
+    max-width: 75%;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.12);
+}
+
+.sms-row-out .sms-bubble {
+    background: #dcf8c6;
+}
+
+.sms-text {
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+.sms-meta {
+    margin-top: 4px;
+    font-size: 10px;
+    color: #777;
+    text-align: right;
+}
+
+.sms-chat-footer {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    background: #f0f0f0;
+}
+
+.sms-input {
+    height: 42px;
+    resize: none;
+}
+
+.sms-send-btn {
+    height: 42px;
+}
+</style>

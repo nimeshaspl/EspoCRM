@@ -11,18 +11,19 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Jobs;
 
 use Cron\CronExpression;
 
-use DateTimeImmutable;
+use Espo\Core\Field\DateTime;
+use Espo\Core\Job\Job\Data;
 use Espo\Core\Job\JobDataLess;
-use Espo\Core\Job\QueueName;
+use Espo\Core\Job\JobSchedulerFactory;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\DateTime as DateTimeUtil;
 use Espo\Core\Utils\Log;
@@ -34,101 +35,83 @@ use Espo\ORM\EntityManager;
 use Exception;
 use DateTimeZone;
 
+/**
+ * @noinspection PhpUnused
+ */
 class RunScheduledWorkflows implements JobDataLess
 {
-    private EntityManager $entityManager;
-    private Config $config;
-    private Log $log;
-
     public function __construct(
-        EntityManager $entityManager,
-        Config $config,
-        Log $log
-    ) {
-        $this->entityManager = $entityManager;
-        $this->config = $config;
-        $this->log = $log;
-    }
+        private EntityManager $entityManager,
+        private Config $config,
+        private Log $log,
+        private JobSchedulerFactory $jobSchedulerFactory,
+    ) {}
 
     public function run(): void
     {
-        /** @var iterable<Workflow> $collection */
-        $collection = $this->entityManager
-            ->getRDBRepositoryByClass(Workflow::class)
-            ->where([
-                'type' => Workflow::TYPE_SCHEDULED,
-                'isActive' => true,
-            ])
-            ->find();
-
         $defaultTimeZone = $this->config->get('timeZone');
 
-        foreach ($collection as $entity) {
-            $timeZone = $entity->get('schedulingApplyTimezone') ? $defaultTimeZone : null;
-
-            $scheduling = $entity->getScheduling();
+        foreach ($this->getWorkflows() as $workflow) {
+            $timeZone = $workflow->getSchedulingApplyTimezone() ? $defaultTimeZone : null;
+            $scheduling = $workflow->getScheduling();
 
             try {
-                $cronExpression = method_exists(CronExpression::class, 'factory') ?
-                    CronExpression::factory($scheduling) :
-                    new CronExpression($scheduling);
+                $cronExpression = new CronExpression($scheduling);
 
-                $executionTime = $cronExpression
-                    ->getNextRunDate('now', 0, true, $timeZone)
-                    ->setTimezone(new DateTimeZone('UTC'))
-                    ->format(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT);
-            }
-            catch (Exception $e) {
-                $this->log->error("Bad scheduling in workflow {$entity->getId()}.");
+                $dateTime = $cronExpression->getNextRunDate('now', 0, true, $timeZone)
+                    ->setTimezone(new DateTimeZone('UTC'));
+
+                $time = DateTime::fromDateTime($dateTime);
+            } catch (Exception $e) {
+                $this->log->error("Bad scheduling in workflow {id}.", [
+                    'exception' => $e,
+                    'id' => $workflow->getId(),
+                ]);
 
                 continue;
             }
 
-            if ($entity->get('lastRun') === $executionTime) {
+            if ($workflow->getLastRun() && $workflow->getLastRun()->isEqualTo($time)) {
                 continue;
             }
 
-            if ($this->jobExists($executionTime, $entity->getId())) {
+            if ($this->jobExists($time, $workflow->getId())) {
                 return;
             }
 
-            $jobData = ['workflowId' => $entity->getId()];
+            $this->scheduleJob($time, $workflow->getId());
 
-            $this->createJob($jobData, $executionTime, $entity->getId());
+            $workflow->setLastRun($time);
 
-            $entity->set('lastRun', $executionTime);
-
-            $this->entityManager->saveEntity($entity, ['silent' => true]);
+            $this->entityManager->saveEntity($workflow, ['silent' => true]);
         }
     }
 
-    private function createJob(array $jobData, string $executionTime, string $workflowId): void
+    private function scheduleJob(DateTime $time, string $workflowId): void
     {
-        $job = $this->entityManager->getNewEntity(Job::ENTITY_TYPE);
-
-        $job->set([
-            'name' => RunScheduledWorkflowJob::class,
-            'className' => RunScheduledWorkflowJob::class,
-            'data' => $jobData,
-            'executeTime' => $executionTime,
-            'targetId' => $workflowId,
-            'targetType' => Workflow::ENTITY_TYPE,
-            //'queue' => QueueName::Q1,
-        ]);
-
-        $this->entityManager->saveEntity($job);
+        $this->jobSchedulerFactory
+            ->create()
+            ->setClassName(RunScheduledWorkflowJob::class)
+            ->setTime($time->toDateTime())
+            ->setData(
+                Data::create()
+                    ->withTargetId($workflowId)
+                    ->withTargetType(Workflow::ENTITY_TYPE)
+            )
+            ->schedule();
     }
 
-    private function jobExists(string $time, string $workflowId): bool
+    private function jobExists(DateTime $time, string $workflowId): bool
     {
-        $from = new DateTimeImmutable($time);
+        $from = $time->toDateTime();
+
         $seconds = (int) $from->format('s');
 
         $from = $from->modify("- $seconds seconds");
         $to = $from->modify('+ 1 minute');
 
         $found = $this->entityManager
-            ->getRDBRepository(Job::ENTITY_TYPE)
+            ->getRDBRepositoryByClass(Job::class)
             ->select(['id'])
             ->where([
                 'className' => RunScheduledWorkflowJob::class,
@@ -139,10 +122,22 @@ class RunScheduledWorkflows implements JobDataLess
             ])
             ->findOne();
 
-        if ($found) {
-            return true;
-        }
+        return (bool) $found;
+    }
 
-        return false;
+    /**
+     * @return iterable<Workflow>
+     */
+    private function getWorkflows(): iterable
+    {
+        return $this->entityManager
+            ->getRDBRepositoryByClass(Workflow::class)
+            ->where([
+                'type' => Workflow::TYPE_SCHEDULED,
+                'isActive' => true,
+            ])
+            ->order('processOrder')
+            ->order('id')
+            ->find();
     }
 }

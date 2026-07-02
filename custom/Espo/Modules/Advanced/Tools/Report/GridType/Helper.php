@@ -11,15 +11,16 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\GridType;
 
 use Espo\Core\AclManager;
 use Espo\Core\Exceptions\Forbidden;
+use Espo\Core\ORM\Type\FieldType;
 use Espo\Core\Utils\Metadata;
 use Espo\Modules\Advanced\Tools\Report\GridType\Result as GridResult;
 use Espo\ORM\Entity;
@@ -28,6 +29,7 @@ use Espo\ORM\QueryComposer\Util as QueryComposerUtil;
 
 class Helper
 {
+    /** @var string[] */
     private array $numericFieldTypeList = [
         'currency',
         'currencyConverted',
@@ -36,21 +38,14 @@ class Helper
         'enumInt',
         'enumFloat',
         'duration',
+        'decimal',
     ];
 
-    private Metadata $metadata;
-    private AclManager $aclManager;
-    private EntityManager $entityManager;
-
     public function __construct(
-        Metadata $metadata,
-        AclManager $aclManager,
-        EntityManager $entityManager
-    ) {
-        $this->metadata = $metadata;
-        $this->aclManager = $aclManager;
-        $this->entityManager = $entityManager;
-    }
+        private Metadata $metadata,
+        private AclManager $aclManager,
+        private EntityManager $entityManager
+    ) {}
 
     public function getDataFromColumnName(string $entityType, string $column, ?GridResult $result = null): ColumnData
     {
@@ -68,12 +63,29 @@ class Helper
         }
 
         if (str_contains($field, ':') || str_contains($field, '(') || substr_count($field, '.') > 2) {
+            if (substr_count($field, '.') === 1 && !str_contains($field, ',')) {
+                $attrs = QueryComposerUtil::getAllAttributesFromComplexExpression($column);
+
+                if (count($attrs) === 1) {
+                    $attr = $attrs[0];
+                    [$link, $field] = explode('.', $attr);
+
+                    return new ColumnData(
+                        function: $function,
+                        field: $field,
+                        entityType: null,
+                        link: $link,
+                        fieldType: null,
+                    );
+                }
+            }
+
             return new ColumnData(
-                $function,
-                '',
-                null,
-                null,
-                null
+                function: $function,
+                field: '',
+                entityType: null,
+                link: null,
+                fieldType: null,
             );
         }
 
@@ -88,11 +100,11 @@ class Helper
         $fieldType = $this->metadata->get(['entityDefs', $fieldEntityType, 'fields', $field, 'type']);
 
         return new ColumnData(
-            $function,
-            $field,
-            $fieldEntityType,
-            $link,
-            $fieldType
+            function: $function,
+            field: $field,
+            entityType: $fieldEntityType,
+            link: $link,
+            fieldType: $fieldType,
         );
     }
 
@@ -127,11 +139,11 @@ class Helper
         return false;
     }
 
-    public function isColumnSubList(string $item, ?string $groupBy = null): bool
+    public function isColumnEligibleForSubList(string $item, Data $data): bool
     {
-        if (str_contains($item, ':')) {
-            return false;
-        }
+        $groupBy = $data->getGroupBy()[0] ?? null;
+
+        $columnData = $this->getDataFromColumnName($data->getEntityType(), $item);
 
         if (!str_contains($item, '.')) {
             return true;
@@ -141,7 +153,7 @@ class Helper
             return true;
         }
 
-        if (explode('.', $item)[0] === $groupBy) {
+        if ($columnData->link === $groupBy) {
             return false;
         }
 
@@ -229,6 +241,7 @@ class Helper
 
     /**
      * @param string[] $itemList
+     * @throws Forbidden
      */
     public function checkColumnsAvailability(string $entityType, array $itemList): void
     {
@@ -252,11 +265,7 @@ class Helper
             return;
         }
 
-        if (str_contains($item, ':')) {
-            [, $field] = explode(':', $item);
-        } else {
-            $field = $item;
-        }
+        $field = $item;
 
         if (str_contains($field, '.')) {
             [$link, $field] = explode('.', $field);
@@ -293,7 +302,13 @@ class Helper
             }
 
             if (!$columnData->link) {
-                if (in_array($columnData->fieldType, ['link', 'file', 'image'])) {
+                if (
+                    in_array($columnData->fieldType, [
+                        FieldType::LINK,
+                        FieldType::FILE,
+                        FieldType::IMAGE,
+                    ])
+                ) {
                     $list[] = $item;
                 }
 
@@ -317,7 +332,11 @@ class Helper
                     $relationType === Entity::BELONGS_TO ||
                     $relationType === Entity::HAS_ONE
                 ) &&
-                in_array($columnData->fieldType, ['link', 'file', 'image'])
+                in_array($columnData->fieldType, [
+                    FieldType::LINK,
+                    FieldType::FILE,
+                    FieldType::IMAGE,
+                ])
             ) {
                 $list[] = $item;
             }
@@ -333,11 +352,11 @@ class Helper
     public function obtainLinkColumnListFromColumns(Data $data, array $columns): array
     {
         $typeList = [
-            'link',
-            'file',
-            'image',
-            'linkOne',
-            'linkParent',
+            FieldType::LINK,
+            FieldType::FILE,
+            FieldType::IMAGE,
+            FieldType::LINK_PARENT,
+            FieldType::LINK_ONE,
         ];
 
         $list = [];

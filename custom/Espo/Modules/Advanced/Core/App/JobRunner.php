@@ -11,36 +11,43 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\App;
 
 use Espo\Core\Job\Job;
 use Espo\Core\Job\Job\Data;
-use Espo\Core\ORM\EntityManager;
 use Espo\Core\Utils\Config;
-
 use Espo\Entities\Extension;
+use Espo\Core\ORM\EntityManager;
+use Espo\ORM\Query\SelectBuilder;
 
 class JobRunner implements Job
 {
-    private Config $config;
+    /** @var string */
+    private $name;
 
-    private EntityManager $entityManager;
+    /** @var string */
+    private $fieldStatus;
 
-    public function __construct(Config $config, EntityManager $entityManager)
-    {
-        $this->config = $config;
-        $this->entityManager = $entityManager;
+    /** @var string */
+    private $fieldMessage;
+
+    public function __construct(
+        private Config $config,
+        private EntityManager $entityManager
+    ) {
+        $this->name = base64_decode('QWR2YW5jZWQgUGFjaw==');
+        $this->fieldStatus = base64_decode('bGljZW5zZVN0YXR1cw==');
+        $this->fieldMessage = base64_decode('bGljZW5zZVN0YXR1c01lc3NhZ2U=');
     }
-
-    private $name = 'Advanced Pack';
 
     public function run(Data $data): void
     {
+        /** @var ?Extension $current */
         $current = $this->entityManager
             ->getRDBRepository(Extension::ENTITY_TYPE)
             ->where([
@@ -62,20 +69,20 @@ class JobRunner implements Job
             return;
         }
 
-        if (!$current->has('licenseStatus')) {
+        if (!$current->has($this->fieldStatus)) {
             return;
         }
 
         if (
-            $current->get('licenseStatus') == $status &&
-            $current->get('licenseStatusMessage') == $statusMessage
+            $current->get($this->fieldStatus) == $status &&
+            $current->get($this->fieldMessage) == $statusMessage
         ) {
             return;
         }
 
         $current->set([
-            'licenseStatus' => $status,
-            'licenseStatusMessage' => $statusMessage,
+            $this->fieldStatus => $status,
+            $this->fieldMessage => $statusMessage,
         ]);
 
         $this->entityManager->saveEntity($current, [
@@ -83,29 +90,42 @@ class JobRunner implements Job
         ]);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getData(?Extension $current): array
     {
+        $query = SelectBuilder::create()
+            ->from(Extension::ENTITY_TYPE)
+            ->select(['createdAt'])
+            ->withDeleted()
+            ->build();
+
+        /** @var ?Extension $first */
         $first = $this->entityManager
             ->getRDBRepository(Extension::ENTITY_TYPE)
-            ->select(['createdAt'])
-            ->where([
-                'name' => $this->name,
-            ])
+            ->clone($query)
+            ->where(['name' => $this->name])
             ->order('createdAt')
-            ->findOne(['withDeleted' => true]);
+            ->findOne();
 
         return [
-            'id' => 'ad613d6f17d95068d74b41de4412a563',
+            'id' => base64_decode('YzcyZDVhNzI4ZDkxOTg3NGUwNTBmZTBmMTIyYzJkMDA='),
             'name' => $this->name,
-            'version' => $current ? $current->get('version') : null,
-            'updatedAt' => $current ? $current->get('createdAt') : null,
-            'installedAt' => $first ? $first->get('createdAt') : null,
+            'version' => $current?->get('version'),
+            'updatedAt' => $current?->get('createdAt'),
+            'installedAt' => $first?->get('createdAt'),
             'site' => $this->config->get('siteUrl'),
+            'instanceId' => $this->config->get('instanceId'),
             'espoVersion' => $this->config->get('version'),
             'applicationName' => $this->config->get('applicationName'),
         ];
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @return ?array<string, mixed>
+     */
     private function validate(array $data): ?array
     {
         if (!function_exists('curl_version')) {
@@ -114,7 +134,13 @@ class JobRunner implements Job
 
         $ch = curl_init();
 
+        /**
+         * @var string $payload
+         * @phpstan-ignore-next-line
+         */
         $payload = json_encode($data);
+
+        /** @phpstan-ignore-next-line argument.type */
         curl_setopt($ch, CURLOPT_URL, base64_decode('aHR0cHM6Ly9zLmVzcG9jcm0uY29tL2xpY2Vuc2Uv'));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
@@ -122,12 +148,12 @@ class JobRunner implements Job
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
-            'Content-Length: ' . strlen($payload)
+            'Content-Length: ' . strlen($payload),
         ]);
 
+        /** @var string $result */
         $result = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
 
         if ($httpCode === 200) {
             return json_decode($result, true);

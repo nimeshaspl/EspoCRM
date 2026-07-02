@@ -11,30 +11,26 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Cleanup;
 
 //use Espo\Core\Cleanup\Cleanup;
 use Espo\Core\Utils\Config;
+use Espo\Core\Utils\DateTime as DateTimeUtil;
 use Espo\ORM\EntityManager;
 use DateTime;
 
 class WorkflowLog /*implements Cleanup*/
 {
-    private EntityManager $entityManager;
-    private Config $config;
 
     public function __construct(
-        EntityManager $entityManager,
-        Config $config
-    ) {
-        $this->entityManager= $entityManager;
-        $this->config = $config;
-    }
+        private EntityManager $entityManager,
+        private Config $config
+    ) {}
 
     public function process(): void
     {
@@ -46,7 +42,7 @@ class WorkflowLog /*implements Cleanup*/
             ->getQueryBuilder()
             ->delete()
             ->from('WorkflowLogRecord')
-            ->where(['createdAt<' => $datetime->format('Y-m-d H:i:s')])
+            ->where(['createdAt<' => $datetime->format(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT)])
             ->build();
 
         $this->entityManager

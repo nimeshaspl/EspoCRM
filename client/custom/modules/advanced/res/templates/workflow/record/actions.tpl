@@ -19,3 +19,14 @@
     </div>
 </div>
 {{/if}}
+
+<!--suppress CssUnusedSymbol -->
+<style>
+    .actions-container {
+        .actions {
+            .drag-handle {
+                cursor: grab;
+            }
+        }
+    }
+</style>

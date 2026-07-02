@@ -11,21 +11,28 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
+use Espo\Core\Formula\Exceptions\Error;
+use Espo\Core\InjectableFactory;
 use Espo\Modules\Advanced\Core\Bpmn\Utils\ConditionManager;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 use Espo\ORM\Entity;
 
 class EventIntermediateConditionalCatch extends Event
 {
+    /** @var string */
     protected $pendingStatus = BpmnFlowNode::STATUS_PENDING;
 
+    /**
+     * @throws Error
+     * @throws \Espo\Core\Exceptions\Error
+     */
     public function process(): void
     {
         $target = $this->getConditionsTarget();
@@ -60,6 +67,10 @@ class EventIntermediateConditionalCatch extends Event
         $this->getEntityManager()->saveEntity($flowNode);
     }
 
+    /**
+     * @throws Error
+     * @throws \Espo\Core\Exceptions\Error
+     */
     public function proceedPending(): void
     {
         $target = $this->getConditionsTarget();
@@ -91,7 +102,9 @@ class EventIntermediateConditionalCatch extends Event
 
     protected function getConditionManager(): ConditionManager
     {
-        $conditionManager = new ConditionManager($this->getContainer());
+        $conditionManager = $this->getContainer()
+            ->getByClass(InjectableFactory::class)
+            ->create(ConditionManager::class);
 
         $conditionManager->setCreatedEntitiesData($this->getCreatedEntitiesData());
 

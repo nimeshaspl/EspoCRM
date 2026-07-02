@@ -11,21 +11,23 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
 use Espo\Core\Exceptions\Error;
 
+use Espo\Core\Utils\DateTime as DateTimeUtil;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 use Exception;
 use DateTime;
 
 class EventIntermediateTimerCatch extends Event
 {
+    /** @var string */
     protected $pendingStatus = BpmnFlowNode::STATUS_PENDING;
 
     public function process(): void
@@ -36,8 +38,7 @@ class EventIntermediateTimerCatch extends Event
             $dt = new DateTime();
 
             $this->shiftDateTime($dt);
-        }
-        else if ($timerBase === 'formula') {
+        } else if ($timerBase === 'formula') {
             $timerFormula = $this->getAttributeValue('timerFormula');
 
             $formulaManager = $this->getFormulaManager();
@@ -58,14 +59,13 @@ class EventIntermediateTimerCatch extends Event
 
             try {
                 $dt = new DateTime($value);
-            }
-            catch (Exception $e) {
+            } catch (Exception) {
                 $this->setFailed();
 
                 throw new Error('Bpmn Flow: EventIntermediateTimer error.');
             }
         }
-        else if (strpos($timerBase, 'field:') === 0) {
+        else if (str_starts_with($timerBase, 'field:')) {
             $field = substr($timerBase, 6);
             $entity = $this->getTarget();
 
@@ -74,12 +74,10 @@ class EventIntermediateTimerCatch extends Event
 
                 $target = $this->getTarget();
 
-                $entity = method_exists($this->getEntityManager(), 'getRDBRepository') ?
-                    $this->getEntityManager()
-                        ->getRDBRepository($target->getEntityType())
-                        ->getRelation($target, $link)
-                        ->findOne() :
-                    $target->get($link);
+                $entity = $this->getEntityManager()
+                    ->getRDBRepository($target->getEntityType())
+                    ->getRelation($target, $link)
+                    ->findOne();
 
                 if (!$entity) {
                     $this->setFailed();
@@ -99,7 +97,7 @@ class EventIntermediateTimerCatch extends Event
             try {
                 $dt = new DateTime($value);
             }
-            catch (Exception $e) {
+            catch (Exception) {
                 $this->setFailed();
 
                 throw new Error('Bpmn Flow: EventIntermediateTimer error.');
@@ -117,13 +115,16 @@ class EventIntermediateTimerCatch extends Event
 
         $flowNode->set([
             'status' => $this->pendingStatus,
-            'proceedAt' => $dt->format('Y-m-d H:i:s')
+            'proceedAt' => $dt->format(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT)
         ]);
 
         $this->getEntityManager()->saveEntity($flowNode);
     }
 
-    protected function shiftDateTime(DateTime $dt)
+    /**
+     * @throws Error
+     */
+    protected function shiftDateTime(DateTime $dt): void
     {
         $timerShiftOperator = $this->getAttributeValue('timerShiftOperator');
         $timerShift = $this->getAttributeValue('timerShift');
@@ -139,7 +140,7 @@ class EventIntermediateTimerCatch extends Event
         }
 
         if ($timerShift) {
-            $modifyString = strval($timerShift) . ' ' . $timerShiftUnits;
+            $modifyString = $timerShift . ' ' . $timerShiftUnits;
 
             if ($timerShiftOperator === 'minus') {
                 $modifyString = '-' . $modifyString;
@@ -147,8 +148,8 @@ class EventIntermediateTimerCatch extends Event
 
             try {
                 $dt->modify($modifyString);
-            }
-            catch (Exception $e) {
+                /** @phpstan-ignore-next-line  */
+            } catch (Exception) {
                 $this->setFailed();
 
                 throw new Error('Bpmn Flow: EventIntermediateTimer error.');

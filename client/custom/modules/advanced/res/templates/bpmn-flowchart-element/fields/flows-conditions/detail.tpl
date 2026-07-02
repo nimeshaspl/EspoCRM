@@ -4,8 +4,16 @@
         <div>
             {{#if ../isEditMode}}
             <div class="btn-group pull-right">
-                <button class="btn btn-default{{#if isTop}} hidden{{/if}}" data-action="moveUp" data-id="{{id}}"><span class="fas fa-arrow-up"></span></button>
-                <button class="btn btn-default{{#if isBottom}} hidden{{/if}}" data-action="moveDown" data-id="{{id}}"><span class="fas fa-arrow-down"></span></button>
+                <button
+                    class="btn btn-default {{#if isTop}} hidden {{/if}} {{#if isBottom}} radius-right {{/if}}"
+                    data-action="moveUp"
+                    data-id="{{id}}"
+                ><span class="fas fa-arrow-up"></span></button>
+                <button
+                    class="btn btn-default {{#if isBottom}} hidden {{/if}} {{#if isTop}} radius-left {{/if}} "
+                    data-action="moveDown"
+                    data-id="{{id}}"
+                ><span class="fas fa-arrow-down"></span></button>
             </div>
             {{/if}}
             <h5>{{label}}</h5>

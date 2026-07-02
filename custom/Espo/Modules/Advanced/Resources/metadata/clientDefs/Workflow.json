@@ -24,6 +24,9 @@
             ]
         }
     },
+    "filterList": [
+        "active"
+    ],
     "dynamicLogic": {
         "fields": {
             "entityType": {
@@ -172,6 +175,22 @@
                     ]
                 }
             },
+            "manualStyle": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "in",
+                            "attribute": "type",
+                            "value": "manual"
+                        },
+                        {
+                            "type": "in",
+                            "attribute": "manualElementType",
+                            "value": "Button"
+                        }
+                    ]
+                }
+            },
             "schedulingApplyTimezone": {
                 "visible": {
                     "conditionGroup": [
@@ -179,6 +198,23 @@
                             "type": "in",
                             "attribute": "type",
                             "value": "scheduled"
+                        }
+                    ]
+                }
+            },
+            "processOrder": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "in",
+                            "attribute": "type",
+                            "value": [
+                                "afterRecordCreated",
+                                "afterRecordUpdated",
+                                "afterRecordSaved",
+                                "scheduled",
+                                "signal"
+                            ]
                         }
                     ]
                 }
@@ -195,7 +231,19 @@
                         }
                     ]
                 }
+            },
+            "scheduled": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "in",
+                            "attribute": "type",
+                            "value": "scheduled"
+                        }
+                    ]
+                }
             }
         }
-    }
+    },
+    "iconClass": "fas fa-code-commit"
 }

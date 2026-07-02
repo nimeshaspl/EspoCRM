@@ -7,13 +7,31 @@
                 {"name": "isActive"}
             ],
             [
+                {"name": "category"},
+                false
+            ]
+        ]
+    },
+    {
+        "rows": [
+            [
                 {"name": "entityType"},
                 {"name": "type"}
             ],
             [
-                false,
+                {"name": "processOrder"},
                 {"name": "signalName"}
             ],
+            [
+                {"name":"portalOnly"},
+                {"name":"portal"}
+            ]
+        ]
+    },
+    {
+        "name": "scheduled",
+        "label": "Scheduled Trigger",
+        "rows": [
             [
                 {"name": "targetReport"},
                 {"name": "scheduling"}
@@ -21,20 +39,6 @@
             [
                 false,
                 {"name": "schedulingApplyTimezone"}
-            ],
-            [
-                {"name":"portalOnly"},
-                {"name":"portal"}
-            ],
-            [
-                {"name": "category"},
-                false
-            ],
-            [
-                {
-                    "name": "description",
-                    "fullWidth": true
-                }
             ]
         ]
     },
@@ -77,7 +81,19 @@
                     "name": "manualDynamicLogic",
                     "label": "manualDynamicLogicInForm"
                 },
-                false
+                {
+                    "name": "manualStyle",
+                    "label": "manualStyleInForm"
+                }
+            ]
+        ]
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "description"
+                }
             ]
         ]
     }

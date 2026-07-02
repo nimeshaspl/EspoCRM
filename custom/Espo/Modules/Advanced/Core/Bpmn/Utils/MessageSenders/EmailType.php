@@ -11,15 +11,15 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Utils\MessageSenders;
 
-use Espo\Core\Container;
 use Espo\Core\Exceptions\Error;
+use Espo\Core\InjectableFactory;
 use Espo\Modules\Advanced\Core\Workflow\Actions\SendEmail;
 use Espo\ORM\Entity;
 use Espo\Modules\Advanced\Entities\BpmnProcess;
@@ -28,13 +28,14 @@ use stdClass;
 
 class EmailType
 {
-    private Container $container;
 
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-    }
+    public function __construct(
+        private InjectableFactory $injectableFactory,
+    ) {}
 
+    /**
+     * @throws Error
+     */
     public function process(
         Entity $target,
         BpmnFlowNode $flowNode,
@@ -43,7 +44,7 @@ class EmailType
         stdClass $variables
     ): void {
 
-        $elementData = $flowNode->get('elementData');
+        $elementData = $flowNode->getElementData();
 
         if (empty($elementData->from)) {
             throw new Error("No 'from'.");
@@ -63,6 +64,12 @@ class EmailType
             $replyTo = $elementData->replyTo;
         }
 
+        $cc = null;
+
+        if (!empty($elementData->cc)) {
+            $cc = $elementData->cc;
+        }
+
         if (empty($elementData->emailTemplateId)) {
             throw new Error("No 'emailTemplateId'.");
         }
@@ -79,12 +86,14 @@ class EmailType
             'type' => 'SendEmail',
             'from' => $from,
             'to' => $to,
+            'cc' => $cc,
             'replyTo' => $replyTo,
             'emailTemplateId' => $emailTemplateId,
             'doNotStore' => $doNotStore,
             'processImmediately' => true,
             'elementId' => $flowNode->get('elementId'),
             'optOutLink' => $elementData->optOutLink ?? false,
+            'attachmentsVariable' => $elementData->attachmentsVariable ?? null,
         ];
 
         if (property_exists($elementData, 'toEmailAddress')) {
@@ -99,25 +108,35 @@ class EmailType
             $actionData->replyToEmail = $elementData->replyToEmailAddress;
         }
 
-        if ($to && in_array($to, ['specifiedContacts', 'specifiedUsers', 'specifiedTeams'])) {
+        if (property_exists($elementData, 'ccEmailAddress')) {
+            $actionData->ccEmail = $elementData->ccEmailAddress;
+        }
+
+        if (in_array($to, ['specifiedContacts', 'specifiedUsers', 'specifiedTeams'])) {
             $actionData->toSpecifiedEntityIds = $elementData->{'to' . ucfirst($to) . 'Ids'};
         }
 
-        if ($replyTo && in_array($replyTo, ['specifiedContacts', 'specifiedUsers', 'specifiedTeams'])) {
+        // Not used. Not available on UI.
+        if (in_array($replyTo, ['specifiedContacts', 'specifiedUsers', 'specifiedTeams'])) {
             $actionData->replyToSpecifiedEntityIds = $elementData->{'replyTo' . ucfirst($replyTo) . 'Ids'};
         }
 
+        // Not used. Not available on UI.
+        if (in_array($cc, ['specifiedContacts', 'specifiedUsers', 'specifiedTeams'])) {
+            $actionData->ccSpecifiedEntityIds = $elementData->{'cc' . ucfirst($cc) . 'Ids'};
+        }
+
         $this->getActionImplementation()->process(
-            $target,
-            $actionData,
-            $createdEntitiesData,
-            $variables,
-            $process
+            entity: $target,
+            actionData: $actionData,
+            createdEntitiesData: $createdEntitiesData,
+            variables: $variables,
+            bpmnProcess: $process,
         );
     }
 
     private function getActionImplementation(): SendEmail
     {
-        return new SendEmail($this->container);
+        return $this->injectableFactory->create(SendEmail::class);
     }
 }

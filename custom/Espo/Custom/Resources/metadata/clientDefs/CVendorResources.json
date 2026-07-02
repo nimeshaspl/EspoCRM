@@ -9,6 +9,10 @@
         "vendor": {
             "layout": null,
             "selectPrimaryFilterName": null
+        },
+        "positionManagements": {
+            "layout": null,
+            "selectPrimaryFilterName": null
         }
     },
     "kanbanViewMode": false

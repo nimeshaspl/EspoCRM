@@ -11,35 +11,41 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
+use Espo\Core\Exceptions\Error;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 use Espo\Modules\Advanced\Entities\BpmnProcess;
 
+/**
+ * @noinspection PhpUnused
+ */
 class GatewayParallel extends Gateway
 {
+    /**
+     * @throws Error
+     */
     protected function processDivergent(): void
     {
         $flowNode = $this->getFlowNode();
 
-        $item = $flowNode->get('elementData');
+        $item = $flowNode->getElementData();
 
         $nextElementIdList = $item->nextElementIdList ?? [];
 
         if (count($nextElementIdList)) {
-            $flowNode->set('status', BpmnFlowNode::STATUS_IN_PROCESS);
-
+            $flowNode->setStatus(BpmnFlowNode::STATUS_IN_PROCESS);
             $this->getEntityManager()->saveEntity($flowNode);
 
             $nextFlowNodeList = [];
 
             foreach ($nextElementIdList as $nextElementId) {
-                $nextFlowNode = $this->prepareNextFlowNode($nextElementId, $flowNode->get('id'));
+                $nextFlowNode = $this->prepareNextFlowNode($nextElementId, $flowNode->getId());
 
                 if ($nextFlowNode) {
                     $nextFlowNodeList[] = $nextFlowNode;
@@ -64,41 +70,45 @@ class GatewayParallel extends Gateway
         $this->endProcessFlow();
     }
 
+    /**
+     * @throws Error
+     */
     protected function processConvergent(): void
     {
         $flowNode = $this->getFlowNode();
 
-        $item = $flowNode->get('elementData');
+        $item = $flowNode->getElementData();
 
         $previousElementIdList = $item->previousElementIdList;
         $convergingFlowCount = count($previousElementIdList);
 
-        $nextDivergentFlowNodeId = null;
+        //$nextDivergentFlowNodeId = null;
         $divergentFlowNode = null;
 
-        $divergedFlowCount = 1;
+        //$divergedFlowCount = 1;
 
-        if ($flowNode->get('divergentFlowNodeId')) {
+        if ($flowNode->getDivergentFlowNodeId()) {
+            /** @var ?BpmnFlowNode $divergentFlowNode */
             $divergentFlowNode = $this->getEntityManager()
-                ->getEntity('BpmnFlowNode', $flowNode->get('divergentFlowNodeId'));
+                ->getEntityById(BpmnFlowNode::ENTITY_TYPE, $flowNode->getDivergentFlowNodeId());
 
-            if ($divergentFlowNode) {
-                $divergentElementData = $divergentFlowNode->get('elementData');
+            /*if ($divergentFlowNode) {
+                $divergentElementData = $divergentFlowNode->getElementData();
 
                 $divergedFlowCount = count($divergentElementData->nextElementIdList ?? []);
-            }
+            }*/
         }
 
-        $concurentFlowNodeList = $this->getEntityManager()
-            ->getRepository(BpmnFlowNode::ENTITY_TYPE)
+        $concurrentFlowNodeList = $this->getEntityManager()
+            ->getRDBRepository(BpmnFlowNode::ENTITY_TYPE)
             ->where([
                 'elementId' => $flowNode->getElementId(),
                 'processId' => $flowNode->getProcessId(),
-                'divergentFlowNodeId' => $flowNode->get('divergentFlowNodeId'),
+                'divergentFlowNodeId' => $flowNode->getDivergentFlowNodeId(),
             ])
             ->find();
 
-        $concurrentCount = count($concurentFlowNodeList);
+        $concurrentCount = count(iterator_to_array($concurrentFlowNodeList));
 
         if ($concurrentCount < $convergingFlowCount) {
             $this->setRejected();
@@ -106,20 +116,21 @@ class GatewayParallel extends Gateway
             return;
         }
 
-        $isBalansingDivergent = true;
+        $isBalancingDivergent = true;
+
         if ($divergentFlowNode) {
-            $divergentElementData = $divergentFlowNode->get('elementData');
+            $divergentElementData = $divergentFlowNode->getElementData();
 
             if (isset($divergentElementData->nextElementIdList)) {
                 foreach ($divergentElementData->nextElementIdList as $forkId) {
                     if (
                         !$this->checkElementsBelongSingleFlow(
-                            $divergentFlowNode->get('elementId'),
+                            $divergentFlowNode->getElementId(),
                             $forkId,
-                            $flowNode->get('elementId')
+                            $flowNode->getElementId()
                         )
                     ) {
-                        $isBalansingDivergent = false;
+                        $isBalancingDivergent = false;
 
                         break;
                     }
@@ -127,15 +138,15 @@ class GatewayParallel extends Gateway
             }
         }
 
-        if ($isBalansingDivergent) {
-            if ($divergentFlowNode) {
-                $nextDivergentFlowNodeId = $divergentFlowNode->get('divergentFlowNodeId');
-            }
+        if ($isBalancingDivergent) {
+            $nextDivergentFlowNodeId = $divergentFlowNode?->getDivergentFlowNodeId();
 
             $this->processNextElement(null, $nextDivergentFlowNodeId);
+
+            return;
         }
-        else {
-            $this->processNextElement(null, false);
-        }
+
+        /** @noinspection PhpRedundantOptionalArgumentInspection */
+        $this->processNextElement(null, false);
     }
 }

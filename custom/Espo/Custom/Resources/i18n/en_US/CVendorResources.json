@@ -11,10 +11,12 @@
         "panCard": "Pan Card",
         "adharCard": "Adhar Card",
         "email": "Email",
-        "phoneNumber": "Phone Number"
+        "phoneNumber": "Phone Number",
+        "positionManagements": "Position Managements"
     },
     "links": {
-        "vendor": "Vendor"
+        "vendor": "Vendor",
+        "positionManagements": "Position Managements"
     },
     "labels": {
         "Create CVendorResources": "Create VendorResources"

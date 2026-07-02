@@ -158,5 +158,62 @@
         "noteText": null,
         "noteStyle": "info",
         "label": ""
+    },
+    {
+        "rows": [
+            [
+                {
+                    "name": "aiResponseStatus"
+                },
+                {
+                    "name": "aiResponse"
+                }
+            ],
+            [
+                {
+                    "name": "aiPrompt"
+                },
+                {
+                    "name": "leadOutreachStatus"
+                }
+            ],
+            [
+                {
+                    "name": "aiGeneratedEmailSubject"
+                },
+                {
+                    "name": "aiGeneratedEmailBody"
+                }
+            ],
+            [
+                {
+                    "name": "timezone"
+                },
+                {
+                    "name": "timezoneConfidence"
+                }
+            ],
+            [
+                {
+                    "name": "isSMSResponded"
+                },
+                {
+                    "name": "isEmailResponded"
+                }
+            ],
+            [
+                {
+                    "name": "emailUniqueCode"
+                },
+                false
+            ]
+        ],
+        "dynamicLogicVisible": null,
+        "style": "default",
+        "tabBreak": false,
+        "hidden": false,
+        "noteText": null,
+        "noteStyle": "info",
+        "customLabel": "AI Generated Content"
     }
 ]

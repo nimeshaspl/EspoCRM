@@ -11,15 +11,18 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 
+/**
+ * @noinspection PhpUnused
+ */
 class EventIntermediateConditionalBoundary extends EventIntermediateConditionalCatch
 {
     public function process(): void
@@ -33,24 +36,24 @@ class EventIntermediateConditionalBoundary extends EventIntermediateConditionalC
         );
 
         if ($result) {
-            if ($this->getAttributeValue('cancelActivity')) {
-                $this->getManager()->cancelActivityByBoundaryEvent($this->getFlowNode());
-            }
+            $cancel = $this->getAttributeValue('cancelActivity');
 
-            if (!$this->getAttributeValue('cancelActivity')) {
+            if (!$cancel) {
                 $this->createOppositeNode();
             }
 
             $this->processNextElement();
+
+            if ($cancel) {
+                $this->getManager()->cancelActivityByBoundaryEvent($this->getFlowNode());
+            }
 
             return;
         }
 
         $flowNode = $this->getFlowNode();
 
-        $flowNode->set([
-            'status' => BpmnFlowNode::STATUS_PENDING,
-        ]);
+        $flowNode->setStatus(BpmnFlowNode::STATUS_PENDING);
 
         $this->getEntityManager()->saveEntity($flowNode);
     }
@@ -75,37 +78,41 @@ class EventIntermediateConditionalBoundary extends EventIntermediateConditionalC
         }
 
         if ($result) {
-            if ($this->getAttributeValue('cancelActivity')) {
-                $this->getManager()->cancelActivityByBoundaryEvent($this->getFlowNode());
-            }
+            $cancel = $this->getAttributeValue('cancelActivity');
 
-            if (!$this->getAttributeValue('cancelActivity')) {
+            if (!$cancel) {
                 $this->createOppositeNode();
             }
 
             $this->processNextElement();
+
+            if ($cancel) {
+                $this->getManager()->cancelActivityByBoundaryEvent($this->getFlowNode());
+            }
         }
     }
 
-    protected function createOppositeNode($isNegative = false)
+    protected function createOppositeNode(bool $isNegative = false): void
     {
-        $flowNode = $this->getEntityManager()->getEntity(BpmnFlowNode::ENTITY_TYPE);
+        /** @var BpmnFlowNode $flowNode */
+        $flowNode = $this->getEntityManager()->getNewEntity(BpmnFlowNode::ENTITY_TYPE);
+
+        $flowNode->setStatus(BpmnFlowNode::STATUS_PENDING);
 
         $flowNode->set([
-            'status' => BpmnFlowNode::STATUS_PENDING,
-            'elementId' => $this->getFlowNode()->get('elementId'),
-            'elementType' => $this->getFlowNode()->get('elementType'),
-            'elementData' => $this->getFlowNode()->get('elementData'),
+            'elementId' => $this->getFlowNode()->getElementId(),
+            'elementType' => $this->getFlowNode()->getElementType(),
+            'elementData' => $this->getFlowNode()->getElementData(),
             'data' => [
                 'isOpposite' => !$isNegative,
             ],
-            'flowchartId' => $this->getProcess()->get('flowchartId'),
-            'processId' => $this->getProcess()->get('id'),
-            'previousFlowNodeElementType' => $this->getFlowNode()->get('previousFlowNodeElementType'),
-            'previousFlowNodeId' => $this->getFlowNode()->get('previousFlowNodeId'),
-            'divergentFlowNodeId' => $this->getFlowNode()->get('divergentFlowNodeId'),
-            'targetType' => $this->getFlowNode()->get('targetType'),
-            'targetId' => $this->getFlowNode()->get('targetId'),
+            'flowchartId' => $this->getProcess()->getFlowchartId(),
+            'processId' => $this->getProcess()->getId(),
+            'previousFlowNodeElementType' => $this->getFlowNode()->getPreviousFlowNodeElementType(),
+            'previousFlowNodeId' => $this->getFlowNode()->getPreviousFlowNodeId(),
+            'divergentFlowNodeId' => $this->getFlowNode()->getDivergentFlowNodeId(),
+            'targetType' => $this->getFlowNode()->getTargetType(),
+            'targetId' => $this->getFlowNode()->getTargetId(),
         ]);
 
         $this->getEntityManager()->saveEntity($flowNode);

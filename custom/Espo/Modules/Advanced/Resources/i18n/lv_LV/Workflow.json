@@ -35,7 +35,7 @@
     },
     "tooltips": {
         "requestUrl": "Pieejamās vietzīmes:\n* `{$attribute}`\n* `{$$$mainīgais}`",
-        "requestHeaders": "Papildu virsraksti.\n\nFormāts:\n````key: value`````\n\nPieejamās vietzīmes:\n* `{$attribute}``\n* `{$$mainīgais}`",
+        "requestHeaders": "Papildu virsraksti.\n\nFormāts:\n````key: value`````\n\nPieejamās vietzīmes:\n* `{$attribute}``\n* `{$$mainīgais}`\n* `{#secrets.name}`",
         "requestContent": "JSON formātā.\n\nPieejamās vietzīmes:\n* `{$attribute}`\n* `{$$$mainīgais}`",
         "portalOnly": "Ja atzīmēts, darbplūsma tiks aktivizēta tikai portālā.",
         "portal": "Konkrēts portāls, kurā tiks aktivizēta darbplūsma. Atstājiet tukšu, ja nepieciešams, lai tā darbotos jebkurā portālā.",
@@ -190,8 +190,8 @@
         "optOut": "Neobligātais parametrs: targetListId. Ja nav norādīts, tad apzīmē e-pasta adresi, kas atteikta.\n\n Piemērs:\n```{{\"targetListId\": \"TARGET_LIST_ID\"}`````",
         "convertCurrency": "Neobligātais parametrs: targetCurrency. Ja nav norādīts, tad tiks konvertēts uz noklusējuma valūtu.",
         "sendInEmail": "Parametri:\n* templateId - PDF veidnes ID\n* emailTemplateId - e-pasta veidnes ID\n* to - adresāts (izvēles parametrs); pēc noklusējuma tiks nosūtīts norēķinu kontaktpersonai vai kontam; piemērs: `link:account.assignedUser`\n\nPiemērs:\n\n```{\n    \"templateId\": \"TEMPLATE_ID\",\n    \"emailTemplateId\": \"EMAIL_TEMPLATE_ID\",\n    \"to\": \"link:billingContact\"\n}```",
-        "addQuoteItemList": "Piemērs\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
-        "addInvoiceItemList": "Piemērs\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
-        "addSalesOrderItemList": "Piemērs\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```"
+        "addQuoteItemList": "Piemērs\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
+        "addInvoiceItemList": "Piemērs\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
+        "addSalesOrderItemList": "Piemērs\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```"
     }
 }

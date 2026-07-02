@@ -11,13 +11,14 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\TemplateHelpers;
 
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
@@ -47,6 +48,7 @@ class Report implements Helper
      * @throws Forbidden
      * @throws NotFound
      * @throws Error
+     * @throws BadRequest
      */
     public function render(Data $data): Result
     {
@@ -68,7 +70,7 @@ class Report implements Helper
         }
 
         /** @var ?ReportEntity $report */
-        $report = $this->entityManager->getEntity(ReportEntity::ENTITY_TYPE, $id);
+        $report = $this->entityManager->getEntityById(ReportEntity::ENTITY_TYPE, $id);
 
         if (!$report) {
             throw new RuntimeException("Report $id not found.");
@@ -78,9 +80,9 @@ class Report implements Helper
             $report->getType() === ReportEntity::TYPE_GRID ||
             $report->getType() === ReportEntity::TYPE_JOINT_GRID
         ) {
-            if ($report->get('groupBy') && count($report->get('groupBy')) == 2) {
-                if ($column && $report->get('columns') && count($report->get('columns'))) {
-                    $column = $report->get('columns')[0];
+            if ($report->getGroupBy() && count($report->getGroupBy()) == 2) {
+                if ($column && $report->getColumns() && count($report->getColumns())) {
+                    $column = $report->getColumns()[0];
                 }
             }
         }
@@ -90,6 +92,10 @@ class Report implements Helper
         $service = $this->injectableFactory->create(Service::class);
 
         $data = $service->getReportResultsTableData($id, $where, $column, $user);
+
+        if (!$user) {
+            throw new RuntimeException("No user.");
+        }
 
         if ($flip) {
             $flipped = [];
@@ -104,12 +110,12 @@ class Report implements Helper
         }
 
         if ($borderColor) {
-            $tableStyle .= "border-color: {$borderColor};";
+            $tableStyle .= "border-color: $borderColor;";
         }
 
-        $tableStyle .= "border-collapse: collapse; width: {$width}";
+        $tableStyle .= "border-collapse: collapse; width: $width";
 
-        $html = "<table border=\"{$border}\" cellpadding=\"{$cellpadding}\" style=\"{$tableStyle}\">";
+        $html = "<table border=\"$border\" cellpadding=\"$cellpadding\" style=\"$tableStyle\">";
 
         foreach ($data as $i => $row) {
             $html .= '<tr>';

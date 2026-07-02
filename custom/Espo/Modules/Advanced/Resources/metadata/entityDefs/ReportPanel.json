@@ -39,6 +39,12 @@
             "type": "jsonObject",
             "notStorable": true
         },
+        "internalClassName": {
+            "type": "foreign",
+            "link": "report",
+            "field": "internalClassName",
+            "utility": true
+        },
         "order": {
             "type": "int",
             "minValue": 1,

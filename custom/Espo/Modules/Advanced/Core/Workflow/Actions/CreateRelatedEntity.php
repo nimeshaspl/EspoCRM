@@ -11,39 +11,40 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\ORM\Entity;
 use Espo\Core\Utils\Util;
+use Espo\ORM\Name\Attribute;
 use stdClass;
 
+/**
+ * @noinspection PhpUnused
+ */
 class CreateRelatedEntity extends CreateEntity
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
-        $entityManager = $this->getEntityManager();
-
         $linkEntityType = $this->getLinkEntityType($entity, $actionData->link);
 
         if (!isset($linkEntityType)) {
-            $GLOBALS['log']->error(
-                'Workflow\Actions\\'.$actionData->type.': ' .
-                'Cannot find an entity type of the link ['.$actionData->link.'] in the entity ' .
-                '[' . $entity->getEntityType() . '].');
+            $message = "Cannot get entity type for {$entity->getEntityType()}.$actionData->link.";
 
-            return false;
+            throw new Error($message);
         }
 
-        $newEntity = $entityManager->getEntity($linkEntityType);
+        $newEntity = $this->entityManager->getNewEntity($linkEntityType);
 
-        $data = $this->getDataToFill($newEntity, $actionData->fields);
-
-        $newEntity->set($data);
+        $data = $this->getEntityValuesToSet($newEntity, $actionData->fields);
+        $newEntity->setMultiple($data);
 
         $link = $actionData->link;
 
@@ -59,8 +60,7 @@ class CreateRelatedEntity extends CreateEntity
                     $newEntity->set($foreignLink. 'Id', $entity->getId());
 
                     $isRelated = true;
-                }
-                else if ($foreignRelationType === 'belongsToParent') {
+                } else if ($foreignRelationType === 'belongsToParent') {
                     $newEntity->set($foreignLink. 'Id', $entity->getId());
                     $newEntity->set($foreignLink. 'Type', $entity->getEntityType());
 
@@ -69,66 +69,67 @@ class CreateRelatedEntity extends CreateEntity
             }
         }
 
-        $newEntity->set('id', $this->generateId());
+        $newEntity->set(Attribute::ID, $this->generateId());
 
-        if (!empty($actionData->formula)) {
-            $this->getFormulaManager()->run($actionData->formula, $newEntity, $this->getFormulaVariables());
-        }
+        $this->processFormula($actionData, $newEntity);
 
-        $entityManager->saveEntity($newEntity, [
+        $saveOptions = [
             'workflowId' => $this->getWorkflowId(),
             'createdById' => $newEntity->get('createdById') ?? 'system',
-        ]);
+        ];
+
+        $this->entityManager->saveEntity($newEntity, $saveOptions);
 
         $newEntityId = $newEntity->getId();
 
-        if (!empty($newEntityId)) {
-            $newEntity = $entityManager->getEntityById($newEntity->getEntityType(), $newEntityId);
+        $newEntity = $this->entityManager->getEntityById($newEntity->getEntityType(), $newEntityId);
 
-            if (!$isRelated && $linkType === Entity::BELONGS_TO) {
-                $entity->set($link . 'Id', $newEntity->getId());
-                $entity->set($link . 'Name', $newEntity->get('name'));
+        if (!$isRelated && $linkType === Entity::BELONGS_TO) {
+            $entity->set($link . 'Id', $newEntity->getId());
+            $entity->set($link . 'Name', $newEntity->get('name'));
 
-                $this->getEntityManager()->saveEntity($entity, [
-                    'skipWorkflow' => true,
-                    'noStream' => true,
-                    'noNotifications' => true,
-                    'skipModifiedBy' => true,
-                    'skipCreatedBy' => true,
-                    'skipHooks' => true,
-                    'silent' => true,
-                ]);
+            $this->entityManager->saveEntity($entity, [
+                'skipWorkflow' => true,
+                'noStream' => true,
+                'noNotifications' => true,
+                'skipModifiedBy' => true,
+                'skipCreatedBy' => true,
+                'skipHooks' => true,
+                'silent' => true,
+            ]);
 
-                $isRelated = true;
-            }
-
-            if (!$isRelated) {
-                $entityManager
-                    ->getRDBRepository($entity->getEntityType())
-                    ->getRelation($entity, $actionData->link)
-                    ->relate($newEntity);
-            }
-
-            if ($this->createdEntitiesData && !empty($actionData->elementId) && !empty($actionData->id)) {
-                $this->createdEntitiesDataIsChanged = true;
-
-                $alias = $actionData->elementId . '_' . $actionData->id;
-
-                $this->createdEntitiesData->$alias = (object) [
-                    'entityType' => $newEntity->getEntityType(),
-                    'entityId' => $newEntity->get('id')
-                ];
-            }
+            $isRelated = true;
         }
 
-        return !empty($newEntityId);
+        if (!$isRelated) {
+            $this->entityManager
+                ->getRelation($entity, $actionData->link)
+                ->relate($newEntity);
+        }
+
+        if ($this->createdEntitiesData && !empty($actionData->elementId) && !empty($actionData->id)) {
+            $this->createdEntitiesDataIsChanged = true;
+
+            $alias = $actionData->elementId . '_' . $actionData->id;
+
+            $this->createdEntitiesData->$alias = (object) [
+                'entityType' => $newEntity->getEntityType(),
+                'entityId' => $newEntity->getId(),
+            ];
+        }
+
+        if ($this->variables) {
+            $this->variables->__lastCreatedEntityId = $newEntity->getId();
+        }
+
+        return true;
     }
 
     private function generateId(): string
     {
         if (
             interface_exists('Espo\\Core\\Utils\\Id\\RecordIdGenerator') &&
-            method_exists($this->injectableFactory, 'createResolved')
+            method_exists($this->injectableFactory, 'createResolved') /** @phpstan-ignore-line */
         ) {
             return $this->injectableFactory->createResolved('Espo\\Core\\Utils\\Id\\RecordIdGenerator')
                 ->generate();
@@ -142,12 +143,28 @@ class CreateRelatedEntity extends CreateEntity
      *
      * @return ?string
      */
-    protected function getLinkEntityType(Entity $entity, string $linkName)
+    protected function getLinkEntityType(CoreEntity $entity, string $linkName)
     {
         if ($entity->hasRelation($linkName)) {
             return $entity->getRelationParam($linkName, 'entity');
         }
 
         return null;
+    }
+
+    /**
+     * @throws Error
+     */
+    private function processFormula(stdClass $actionData, Entity $entity): void
+    {
+        if (empty($actionData->formula)) {
+            return;
+        }
+
+        try {
+            $this->formulaManager->run($actionData->formula, $entity, $this->getFormulaVariables());
+        } catch (FormulaError $e) {
+            throw new Error($e->getMessage(), previous: $e);
+        }
     }
 }

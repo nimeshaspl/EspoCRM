@@ -9,7 +9,23 @@
         },
         "status": {
             "type": "enum",
-            "options": ["Created", "Started", "Ended", "Paused", "Stopped", "Interrupted"],
+            "options": [
+                "Created",
+                "Started",
+                "Ended",
+                "Paused",
+                "Stopped",
+                "Interrupted"
+            ],
+            "style": {
+                "Started": "primary",
+                "Ended": "success",
+                "Paused": "warning",
+                "Stopped": "info",
+                "Interrupted": "info"
+            },
+            "displayAsLabel": true,
+            "labelType": "state",
             "default": "Created",
             "readOnly": true,
             "customizationDisabled": true
@@ -94,8 +110,20 @@
         },
         "workflowId": {
             "type": "varchar",
-            "maxLength": 24,
-            "customizationDisabled": true
+            "maxLength": 36,
+            "customizationDisabled": true,
+            "readOnly": true
+        },
+        "isLocked": {
+            "type": "bool",
+            "customizationDisabled": true,
+            "readOnly": true
+        },
+        "visitTimestamp": {
+            "type": "int",
+            "dbType": "bigint",
+            "customizationDisabled": true,
+            "readOnly": true
         },
         "assignedUser": {
             "type": "link",
@@ -201,6 +229,9 @@
         },
         "statusCreatedAt": {
             "columns": ["status", "createdAt"]
+        },
+        "isLockedVisitTimestamp": {
+            "columns": ["status", "isLocked", "visitTimestamp"]
         }
     }
 }

@@ -11,13 +11,14 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Hooks\Common;
 
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\Metadata;
 use Espo\Entities\EmailAddress;
@@ -29,16 +30,22 @@ use Espo\Modules\Advanced\Core\SignalManager;
 use Espo\Modules\Crm\Entities\Meeting;
 use Espo\ORM\Entity;
 
+/**
+ * @noinspection PhpUnused
+ */
 class Signal
 {
+    /** @var int */
     public static $order = 100;
 
+    /** @var string[] */
     private $ignoreEntityTypeList = [
         Notification::ENTITY_TYPE,
         EmailAddress::ENTITY_TYPE,
         PhoneNumber::ENTITY_TYPE,
     ];
 
+    /** @var string[] */
     private $ignoreRegularEntityTypeList = [
         Note::ENTITY_TYPE,
     ];
@@ -49,6 +56,9 @@ class Signal
         private SignalManager $signalManager
     ) {}
 
+    /**
+     * @param array<string, mixed> $options
+     */
     public function afterSave(Entity $entity, array $options): void
     {
         if ($this->toSkipSignal($options)) {
@@ -60,6 +70,10 @@ class Signal
         }
 
         if (in_array($entity->getEntityType(), $this->ignoreEntityTypeList)) {
+            return;
+        }
+
+        if (!$entity instanceof CoreEntity) {
             return;
         }
 
@@ -173,6 +187,9 @@ class Signal
         }
     }
 
+    /**
+     * @param array<string, mixed> $options
+     */
     public function afterRemove(Entity $entity, array $options): void
     {
         if ($this->toSkipSignal($options)) {
@@ -202,6 +219,10 @@ class Signal
         }
     }
 
+    /**
+     * @param array<string, mixed> $options
+     * @param array<string, mixed> $hookData
+     */
     public function afterRelate(Entity $entity, array $options, array $hookData): void
     {
         if ($this->toSkipSignal($options)) {
@@ -213,6 +234,10 @@ class Signal
         }
 
         if (in_array($entity->getEntityType(), $this->ignoreEntityTypeList)) {
+            return;
+        }
+
+        if (!$entity instanceof CoreEntity) {
             return;
         }
 
@@ -288,6 +313,10 @@ class Signal
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $options
+     * @param array<string, mixed> $hookData
+     */
     public function afterUnrelate(Entity $entity, array $options, array $hookData): void
     {
         if ($this->toSkipSignal($options)) {
@@ -299,6 +328,10 @@ class Signal
         }
 
         if (in_array($entity->getEntityType(), $this->ignoreEntityTypeList)) {
+            return;
+        }
+
+        if (!$entity instanceof CoreEntity) {
             return;
         }
 
@@ -370,6 +403,11 @@ class Signal
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $options
+     * @param array<string, mixed> $hookData
+     * @noinspection PhpUnused
+     */
     public function afterMassRelate(Entity $entity, array $options, array $hookData): void
     {
         if ($this->toSkipSignal($options)) {

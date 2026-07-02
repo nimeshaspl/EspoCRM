@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report;
@@ -32,28 +32,15 @@ use Espo\ORM\EntityManager;
 
 class TargetListSyncService
 {
-    private EntityManager $entityManager;
-    private Acl $acl;
-    private Metadata $metadata;
-    private ServiceContainer $serviceContainer;
-    private Service $service;
-    private InjectableFactory $injectableFactory;
 
     public function __construct(
-        EntityManager $entityManager,
-        Acl $acl,
-        Metadata $metadata,
-        ServiceContainer $serviceContainer,
-        Service $service,
-        InjectableFactory $injectableFactory
-    ) {
-        $this->entityManager = $entityManager;
-        $this->acl = $acl;
-        $this->metadata = $metadata;
-        $this->serviceContainer = $serviceContainer;
-        $this->service = $service;
-        $this->injectableFactory = $injectableFactory;
-    }
+        private EntityManager $entityManager,
+        private Acl $acl,
+        private Metadata $metadata,
+        private ServiceContainer $serviceContainer,
+        private Service $service,
+        private InjectableFactory $injectableFactory
+    ) {}
 
     /**
      * @throws Forbidden
@@ -87,6 +74,7 @@ class TargetListSyncService
             throw new Forbidden();
         }
 
+        /** @var \Espo\Modules\Crm\Tools\TargetList\RecordService $targetListService */
         $targetListService = class_exists("Espo\\Modules\\Crm\\Tools\\TargetList\\RecordService") ?
             $this->injectableFactory->create(RecordService::class) :
             $this->serviceContainer->get(TargetList::ENTITY_TYPE);

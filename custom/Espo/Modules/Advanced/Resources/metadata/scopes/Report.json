@@ -10,5 +10,6 @@
     "importable": true,
     "lastViewed": true,
     "pdfTemplate": true,
-    "exportFormatList": ["csv"]
+    "exportFormatList": ["csv"],
+    "stars": true
 }

@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Classes\Select\Report\AccessControlFilters;
@@ -27,19 +27,11 @@ use Espo\ORM\Query\SelectBuilder as QueryBuilder;
 
 class Mandatory implements Filter
 {
-    private User $user;
-    private Metadata $metadata;
-    private AclManager $aclManager;
-
     public function __construct(
-        User $user,
-        Metadata $metadata,
-        AclManager $aclManager
-    ) {
-        $this->user = $user;
-        $this->metadata = $metadata;
-        $this->aclManager = $aclManager;
-    }
+        private User $user,
+        private Metadata $metadata,
+        private AclManager $aclManager
+    ) {}
 
     public function apply(QueryBuilder $queryBuilder): void
     {
@@ -61,17 +53,20 @@ class Mandatory implements Filter
             }
 
             if ($forbiddenEntityTypeList !== []) {
-                $queryBuilder->where(['entityType!=' => $forbiddenEntityTypeList]);
+                $queryBuilder->where([
+                    'OR' => [
+                        ['entityType!=' => $forbiddenEntityTypeList],
+                        ['entityType' => null],
+                    ]
+                ]);
             }
 
             return;
         }
 
-        if ($this->user->getPortalId()) {
-            $queryBuilder
-                ->distinct()
-                ->leftJoin('portals', 'portalsAccess')
-                ->where(['portalsAccess.id' => $this->user->getPortalId()]);
-        }
+        $queryBuilder
+            ->distinct()
+            ->leftJoin('portals', 'portalsAccess')
+            ->where(['portalsAccess.id' => $this->user->getPortalId()]);
     }
 }

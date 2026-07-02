@@ -3,6 +3,8 @@
     "report": "Bericht",
     "column": "Summenspalte",
     "displayOnlyCount": "Nur Summe anzeigen",
-    "displayTotal": "Summe anzeigen"
+    "displayTotal": "Summe anzeigen",
+    "useSiMultiplier": "SI-Multiplikator",
+    "displayType": "Was soll angezeigt werden"
   }
 }

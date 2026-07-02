@@ -11,14 +11,15 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
 use Espo\Core\Exceptions\Error;
+use Espo\Core\InjectableFactory;
 use Espo\Modules\Advanced\Core\Workflow\Actions\Base as BaseAction;
 
 use Throwable;
@@ -26,90 +27,72 @@ use stdClass;
 
 class Task extends Activity
 {
-    private array $localVariableList = ['_lastHttpResponseBody'];
+    /** @var string[] */
+    private array $localVariableList = [
+        '_lastHttpResponseBody',
+        '__lastCreatedEntityId',
+    ];
 
     public function process(): void
     {
+        $actionList = $this->getAttributeValue('actionList');
+
+        if (!is_array($actionList)) {
+            $actionList = [];
+        }
+
+        $originalVariables = $this->getVariablesForFormula();
+
+        $variables = clone $originalVariables;
+
         try {
-            $actionList = $this->getAttributeValue('actionList');
-
-            if (!is_array($actionList)) {
-                $actionList = [];
-            }
-
-            $localVariables = (object) [];
-
             foreach ($actionList as $item) {
                 if (empty($item->type)) {
                     continue;
                 }
 
+                $this->addCreatedEntityDataToVariables($variables);
+
                 $actionImpl = $this->getActionImplementation($item->type);
 
+                /** @var stdClass $item */
                 $item = clone $item;
-                $item->elementId = $this->getFlowNode()->get('elementId');
+                $item->elementId = $this->getFlowNode()->getElementId();
+
                 $actionData = $item;
-                $originalVariables = $this->getVariablesForFormula();
-
-                $this->copyLocalVariables($localVariables, $originalVariables);
-
-                $target = $this->getTarget();
 
                 $actionImpl->process(
-                    $target,
-                    $actionData,
-                    $this->getCreatedEntitiesData(),
-                    $originalVariables,
-                    $this->getProcess()
+                    entity: $this->getTarget(),
+                    actionData: $actionData,
+                    createdEntitiesData: $this->getCreatedEntitiesData(),
+                    variables: $variables,
+                    bpmnProcess: $this->getProcess(),
                 );
 
-                $variables = $actionImpl->getVariablesBack();
-
-                // To preserve variables needed to be available within a task
-                // but not needed to be stored in a process.
-                $this->copyLocalVariables($variables, $localVariables);
-
-                foreach ($this->localVariableList as $var) {
-                    unset($variables->$var);
-                }
-
-                if (
-                    $actionImpl->isCreatedEntitiesDataChanged() ||
-                    $variables != $originalVariables // @todo Revise.
-                ) {
-                    $this->sanitizeVariables($variables);
-
-                    $this->getProcess()->set('createdEntitiesData', $actionImpl->getCreatedEntitiesData());
-                    $this->getProcess()->set('variables', $variables);
+                if ($actionImpl->isCreatedEntitiesDataChanged()) {
+                    $this->getProcess()->setCreatedEntitiesData($actionImpl->getCreatedEntitiesData());
 
                     $this->getEntityManager()->saveEntity($this->getProcess(), ['silent' => true]);
                 }
             }
         } catch (Throwable $e) {
-            $GLOBALS['log']->error(
-                'Process ' . $this->getProcess()->get('id') . ' element ' .
-                $this->getFlowNode()->get('elementId') . ': ' . $e->getMessage());
+            $message = "Process {$this->getProcess()->getId()}, element {$this->getFlowNode()->getId()}: " .
+                "{$e->getMessage()}";
+
+            $this->getLog()->error($message, ['exception' => $e]);
 
             $this->setFailedWithException($e);
 
             return;
         }
 
+        $this->processStoreVariables($variables, $originalVariables);
+
         $this->processNextElement();
     }
 
-    protected function copyLocalVariables(stdClass $source, stdClass $destination)
-    {
-        foreach ($this->localVariableList as $key) {
-            if (!property_exists($source, $key)) {
-                continue;
-            }
-
-            $destination->$key = $source->$key;
-        }
-    }
-
     /**
+     * @throws Error
      * @todo Use factory.
      */
     private function getActionImplementation(string $name): BaseAction
@@ -127,8 +110,11 @@ class Task extends Activity
             }
         }
 
-        /** @var BaseAction $impl */
-        $impl = new $className($this->getContainer());
+        /** @var class-string<BaseAction> $className */
+
+        $impl = $this->getContainer()
+            ->getByClass(InjectableFactory::class)
+            ->create($className);
 
         $workflowId = $this->getProcess()->get('workflowId');
 
@@ -137,5 +123,35 @@ class Task extends Activity
         }
 
         return $impl;
+    }
+
+    private function processStoreVariables(stdClass $variables, stdClass $originalVariables): void
+    {
+        foreach ($this->localVariableList as $name) {
+            unset($variables->$name);
+        }
+
+        // The same in TaskScript.
+        if ($this->getAttributeValue('isolateVariables')) {
+            $variableList = array_keys(get_object_vars($variables));
+            $returnVariableList = $this->getReturnVariableList();
+
+            foreach (array_diff($variableList, $returnVariableList) as $name) {
+                unset($variables->$name);
+
+                if (property_exists($originalVariables, $name)) {
+                    $variables->$name = $originalVariables->$name;
+                }
+            }
+        }
+
+        $this->sanitizeVariables($originalVariables);
+        $this->sanitizeVariables($variables);
+
+        if (serialize($variables) !== serialize($originalVariables)) {
+            $this->getProcess()->setVariables($variables);
+
+            $this->getEntityManager()->saveEntity($this->getProcess(), ['silent' => true]);
+        }
     }
 }

@@ -11,25 +11,27 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
 use Espo\Core\Exceptions\Error;
+use Espo\Core\InjectableFactory;
 use Espo\Modules\Advanced\Core\Bpmn\Utils\MessageSenders\EmailType;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 use Throwable;
 
+/**
+ * @noinspection PhpUnused
+ */
 class TaskSendMessage extends Activity
 {
     public function process(): void
     {
-        $this->getFlowNode()->set([
-            'status' => BpmnFlowNode::STATUS_PENDING,
-        ]);
+        $this->getFlowNode()->setStatus(BpmnFlowNode::STATUS_PENDING);
         $this->saveFlowNode();
     }
 
@@ -46,9 +48,10 @@ class TaskSendMessage extends Activity
                 $this->getVariables()
             );
         } catch (Throwable $e) {
-            $GLOBALS['log']->error(
-                'Process ' . $this->getProcess()->get('id') . ' element ' .
-                $this->getFlowNode()->get('elementId').' send message error: ' . $e->getMessage());
+            $message = "Process {$this->getProcess()->getId()}, element {$this->getFlowNode()->getElementId()}, " .
+                "send message error: {$e->getMessage()}";
+
+            $this->getLog()->error($message, ['exception' => $e]);
 
             $this->setFailedWithException($e);
 
@@ -62,8 +65,9 @@ class TaskSendMessage extends Activity
     }
 
     /**
-     * @todo Use factory.
      * @return EmailType
+     * @throws Error
+     * @todo Use factory.
      */
     private function getImplementation(): EmailType
     {
@@ -75,7 +79,8 @@ class TaskSendMessage extends Activity
 
         $messageType = str_replace('\\', '', $messageType);
 
-        $className = 'Espo\\Modules\\Advanced\\Core\\Bpmn\\Utils\\MessageSenders\\' . $messageType . 'Type';
+        /** @var class-string<EmailType> $className */
+        $className = "Espo\\Modules\\Advanced\\Core\\Bpmn\\Utils\\MessageSenders\\{$messageType}Type";
 
         if (!class_exists($className)) {
             throw new Error(
@@ -83,6 +88,9 @@ class TaskSendMessage extends Activity
                 $this->getFlowNode()->get('elementId'). ' send message not found implementation class.');
         }
 
-        return new $className($this->getContainer());
+
+        return $this->getContainer()
+            ->getByClass(InjectableFactory::class)
+            ->create($className);
     }
 }

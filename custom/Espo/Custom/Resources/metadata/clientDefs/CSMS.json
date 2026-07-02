@@ -1,0 +1,12 @@
+{
+    "controller": "controllers/record",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "relationshipPanels": {
+        "dataMaster": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
+}

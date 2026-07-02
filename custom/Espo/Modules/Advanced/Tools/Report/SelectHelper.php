@@ -11,16 +11,23 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report;
 
 use DateTime;
 use DateTimeZone;
+use Espo\Core\Binding\BindingContainerBuilder;
+use Espo\Core\Binding\ContextualBinder;
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Forbidden;
+use Espo\Core\InjectableFactory;
+use Espo\Core\ORM\Type\FieldType;
+use Espo\Core\Select\Applier\AdditionalApplier;
+use Espo\Core\Select\SearchParams;
 use Espo\Core\Select\Where\Converter;
 use Espo\Core\Select\Where\ConverterFactory;
 use Espo\Core\Select\Where\Item as WhereItem;
@@ -33,6 +40,7 @@ use Espo\Modules\Advanced\Tools\Report\GridType\Helper as GridHelper;
 use Espo\Modules\Advanced\Tools\Report\GridType\Util;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
+use Espo\ORM\Name\Attribute;
 use Espo\ORM\Query\Part\Expression;
 use Espo\ORM\Query\Part\Order;
 use Espo\ORM\Query\Part\Selection;
@@ -49,34 +57,17 @@ class SelectHelper
 
     private const ATTR_HAVING = '_having';
 
-    private Config $config;
-    private Metadata $metadata;
-    private Util $gridUtil;
-    private EntityManager $entityManager;
-    private GridHelper $gridHelper;
-    private FieldUtil $fieldUtil;
-    private User $user;
-    private ConverterFactory $converterFactory;
-
     public function __construct(
-        Config $config,
-        Metadata $metadata,
-        Util $gridUtil,
-        EntityManager $entityManager,
-        GridHelper $gridHelper,
-        FieldUtil $fieldUtil,
-        User $user,
-        ConverterFactory $converterFactory
-    ) {
-        $this->config = $config;
-        $this->metadata = $metadata;
-        $this->gridUtil = $gridUtil;
-        $this->entityManager = $entityManager;
-        $this->gridHelper = $gridHelper;
-        $this->fieldUtil = $fieldUtil;
-        $this->user = $user;
-        $this->converterFactory = $converterFactory;
-    }
+        private Config $config,
+        private Metadata $metadata,
+        private Util $gridUtil,
+        private EntityManager $entityManager,
+        private GridHelper $gridHelper,
+        private FieldUtil $fieldUtil,
+        private User $user,
+        private ConverterFactory $converterFactory,
+        private InjectableFactory $injectableFactory,
+    ) {}
 
     /**
      * @return array{0: WhereItem, 1: WhereItem}
@@ -114,6 +105,9 @@ class SelectHelper
         return [$whereItem, $havingItem];
     }
 
+    /**
+     * @throws Forbidden
+     */
     public function handleOrderByForList(string $orderBy, string $order, SelectBuilder $queryBuilder): void
     {
         $entityType = $queryBuilder->build()->getFrom();
@@ -129,14 +123,18 @@ class SelectHelper
             null;
 
         if (
-            in_array($fieldType, ['link', 'file', 'image']) &&
+            in_array($fieldType, [
+                FieldType::LINK,
+                FieldType::FILE,
+                FieldType::IMAGE,
+            ]) &&
             !$queryBuilder->hasLeftJoinAlias($orderBy)
         ) {
             $queryBuilder->leftJoin($orderBy);
         }
 
-        if (strpos($orderBy, '_') !== false) {
-            if (strpos($orderBy, ':') !== false) {
+        if (str_contains($orderBy, '_')) {
+            if (str_contains($orderBy, ':')) {
                 throw new Forbidden("Functions are not allowed in orderBy.");
             }
 
@@ -144,10 +142,12 @@ class SelectHelper
 
             $this->addSelect($orderBy, $queryBuilder);
 
+            /** @var 'ASC'|'DESC' $order */
+
             $queryBuilder
                 ->order([])
                 ->order($orderBy, $order)
-                ->order('id', $order);
+                ->order(Attribute::ID, $order);
 
             return;
         }
@@ -171,7 +171,14 @@ class SelectHelper
             throw new RuntimeException("Bad foreign order by '$item'.");
         }
 
-        if (in_array($data->fieldType, ['link', 'linkParent', 'image', 'file'])) {
+        if (
+            in_array($data->fieldType, [
+                FieldType::LINK,
+                FieldType::IMAGE,
+                FieldType::FILE,
+                FieldType::LINK_PARENT,
+            ])
+        ) {
             return $item . 'Id';
         }
 
@@ -201,11 +208,11 @@ class SelectHelper
         $function = null;
         $argument = $item;
 
-        if (strpos($item, ':') !== false) {
+        if (str_contains($item, ':')) {
             [$function, $argument] = explode(':', $item);
         }
 
-        if (strpos($item, '(') !== false && strpos($item, ':') !== false) {
+        if (str_contains($item, '(') && str_contains($item, ':')) {
             $this->handleLeftJoins($item, $entityType, $queryBuilder, true);
 
             $queryBuilder
@@ -241,10 +248,16 @@ class SelectHelper
             $item = $function . ':' . $argument;
         }
 
-        if (strpos($item, '.') === false) {
+        if (!str_contains($item, '.')) {
             $fieldType = $this->metadata->get(['entityDefs', $entityType, 'fields', $argument, 'type']);
 
-            if (in_array($fieldType, ['link', 'file', 'image'])) {
+            if (
+                in_array($fieldType, [
+                    FieldType::LINK,
+                    FieldType::FILE,
+                    FieldType::IMAGE,
+                ])
+            ) {
                 if (!$queryBuilder->hasLeftJoinAlias($item)) {
                     $queryBuilder->leftJoin($item);
                 }
@@ -256,7 +269,7 @@ class SelectHelper
                 return;
             }
 
-            if ($fieldType === 'linkParent') {
+            if ($fieldType === FieldType::LINK_PARENT) {
                 if (!$queryBuilder->hasLeftJoinAlias($item)) {
                     // @todo Revise
                     $queryBuilder->leftJoin($item);
@@ -271,7 +284,7 @@ class SelectHelper
                 return;
             }
 
-            if ($function && in_array($fieldType, ['datetime', 'datetimeOptional'])) {
+            if ($function && in_array($fieldType, [FieldType::DATETIME, FieldType::DATETIME_OPTIONAL])) {
                 $tzOffset = (string) $this->getTimeZoneOffset();
 
                 if ($tzOffset) {
@@ -333,7 +346,7 @@ class SelectHelper
                 }
             }
 
-            if ($function && in_array($foreignFieldType, ['datetime', 'datetimeOptional'])) {
+            if ($function && in_array($foreignFieldType, [FieldType::DATETIME, FieldType::DATETIME_OPTIONAL])) {
                 $tzOffset = (string) $this->getTimeZoneOffset();
 
                 if ($tzOffset) {
@@ -366,7 +379,7 @@ class SelectHelper
         bool $skipDistinct = false
     ): void {
 
-        if (strpos($item, ':') !== false) {
+        if (str_contains($item, ':')) {
             $argumentList = QueryComposerUtil::getAllAttributesFromComplexExpression($item);
 
             foreach ($argumentList as $argument) {
@@ -380,7 +393,7 @@ class SelectHelper
             ->getDefs()
             ->getEntity($entityType);
 
-        if (strpos($item, '.') !== false) {
+        if (str_contains($item, '.')) {
             [$relation,] = explode('.', $item);
 
             if ($queryBuilder->hasLeftJoinAlias($relation)) {
@@ -397,8 +410,13 @@ class SelectHelper
 
             if (
                 !$skipDistinct &&
-                in_array($relationType, [Entity::HAS_MANY, Entity::MANY_MANY, Entity::HAS_CHILDREN])
+                in_array($relationType, [
+                    Entity::HAS_MANY,
+                    Entity::MANY_MANY,
+                    Entity::HAS_CHILDREN,
+                ])
             ) {
+                // @todo Remove when v8.5 is min. supported.
                 $queryBuilder->distinct();
             }
 
@@ -422,8 +440,9 @@ class SelectHelper
 
     /**
      * @param string[] $columns
+     * @param bool $isList Should be true only for List report. Should not be true for Sub-List.
      */
-    public function handleColumns(array $columns, SelectBuilder $queryBuilder): void
+    public function handleColumns(array $columns, SelectBuilder $queryBuilder, bool $isList = false): void
     {
         $entityType = $queryBuilder->build()->getFrom();
 
@@ -432,20 +451,23 @@ class SelectHelper
         }
 
         foreach ($columns as $item) {
-            $this->handleColumnsItem($item, $entityType, $queryBuilder);
+            $this->handleColumnsItem($item, $entityType, $queryBuilder, $isList);
         }
     }
 
     /**
-     * @todo Use the selectDefs attribute dependency map.
+     * @todo Use the selectDefs attribute dependency map? Or not needed as already applied with the select manager.
      */
     private function handleColumnsItem(
         string $item,
         string $entityType,
-        SelectBuilder $queryBuilder
+        SelectBuilder $queryBuilder,
+        bool $isList = false,
     ): void {
 
         $columnData = $this->gridHelper->getDataFromColumnName($entityType, $item);
+
+        $entityDefs = $this->entityManager->getDefs()->getEntity($entityType);
 
         if ($columnData->function && !$columnData->link && $columnData->field) {
             $this->addSelect($item, $queryBuilder);
@@ -456,7 +478,13 @@ class SelectHelper
         if ($columnData->link) {
             $this->handleLeftJoins($item, $entityType, $queryBuilder);
 
-            if (in_array($columnData->fieldType, ['link', 'file', 'image'])) {
+            if (
+                in_array($columnData->fieldType, [
+                    FieldType::LINK,
+                    FieldType::FILE,
+                    FieldType::IMAGE,
+                ])
+            ) {
                 $this->addSelect($item . 'Id', $queryBuilder);
 
                 return;
@@ -467,13 +495,23 @@ class SelectHelper
             return;
         }
 
+        if ($isList) {
+            return;
+        }
+
         if (str_contains($item, ':') && str_contains($item, '.')) {
             $this->handleLeftJoins($item, $entityType, $queryBuilder);
         }
 
         $type = $columnData->fieldType;
 
-        if (in_array($type, ['link', 'file', 'image', 'linkOne'])) {
+        if (
+            in_array($type, [
+                FieldType::LINK,
+                FieldType::FILE,
+                FieldType::IMAGE,
+            ])
+        ) {
             $this->addSelect($item . 'Name', $queryBuilder);
             $this->addSelect($item . 'Id', $queryBuilder);
 
@@ -484,17 +522,20 @@ class SelectHelper
             return;
         }
 
-        if ($type === 'linkParent') {
+        if ($type === FieldType::LINK_PARENT) {
             $this->addSelect($item . 'Type', $queryBuilder);
             $this->addSelect($item . 'Id', $queryBuilder);
 
             return;
         }
 
-        if ($type === 'currency') {
+        if ($type === FieldType::CURRENCY) {
             $this->addSelect($item, $queryBuilder);
-            $this->addSelect($item . 'Currency', $queryBuilder);
-            $this->addSelect($item . 'Converted', $queryBuilder);
+
+            if (!$entityDefs->tryGetField($item)?->getParam('notStorable')) {
+                $this->addSelect($item . 'Currency', $queryBuilder);
+                $this->addSelect($item . 'Converted', $queryBuilder);
+            }
 
             return;
         }
@@ -510,7 +551,7 @@ class SelectHelper
             return;
         }
 
-        if ($type === 'personName') {
+        if ($type === FieldType::PERSON_NAME) {
             $this->addSelect($item, $queryBuilder);
             $this->addSelect('first' . ucfirst($item), $queryBuilder);
             $this->addSelect('last' . ucfirst($item), $queryBuilder);
@@ -518,8 +559,14 @@ class SelectHelper
             return;
         }
 
-        if ($type === 'address') {
-            $pList = ['city', 'country', 'postalCode', 'street', 'state'];
+        if ($type === FieldType::ADDRESS) {
+            $pList = [
+                'city',
+                'country',
+                'postalCode',
+                'street',
+                'state',
+            ];
 
             foreach ($pList as $p) {
                 $this->addSelect($item . ucfirst($p), $queryBuilder);
@@ -528,14 +575,17 @@ class SelectHelper
             return;
         }
 
-        if ($type === 'datetimeOptional') {
+        if ($type === FieldType::DATETIME_OPTIONAL) {
             $this->addSelect($item, $queryBuilder);
             $this->addSelect($item . 'Date', $queryBuilder);
 
             return;
         }
 
-        if ($type === 'linkMultiple' || $type === 'attachmentMultiple') {
+        if (
+            $type === FieldType::LINK_MULTIPLE ||
+            $type === FieldType::ATTACHMENT_MULTIPLE
+        ) {
             return;
         }
 
@@ -581,12 +631,12 @@ class SelectHelper
     {
         $entityDefs = $this->entityManager->getDefs()->getEntity($entityType);
 
-        if (strpos($item, 'LIST:') !== false) {
+        if (str_contains($item, 'LIST:')) {
             // @todo Check is actual as processed afterwards.
 
             $orderBy = substr($item, 5);
 
-            if (strpos($orderBy, '.') !== false) {
+            if (str_contains($orderBy, '.')) {
                 [$rel, $field] = explode('.', $orderBy);
 
                 if (!$entityDefs->hasRelation($rel)) {
@@ -620,11 +670,11 @@ class SelectHelper
             return;
         }
 
-        if (strpos($item, 'ASC:') !== false) {
+        if (str_contains($item, 'ASC:')) {
             $orderBy = substr($item, 4);
             $order = 'ASC';
         }
-        else if (strpos($item, 'DESC:') !== false) {
+        else if (str_contains($item, 'DESC:')) {
             $orderBy = substr($item, 5);
             $order = 'DESC';
         }
@@ -636,7 +686,7 @@ class SelectHelper
         $orderEntityType = $entityType;
         $link = null;
 
-        if (strpos($orderBy, '.') !== false) {
+        if (str_contains($orderBy, '.')) {
             [$link, $field] = explode('.', $orderBy);
 
             if (!$entityDefs->hasRelation($link)) {
@@ -658,7 +708,13 @@ class SelectHelper
         $fieldType = $entityDefs->hasField($field) ?
             $entityDefs->getField($field)->getType() : null;
 
-        if (in_array($fieldType, ['link', 'file', 'image'])) {
+        if (
+            in_array($fieldType, [
+                FieldType::LINK,
+                FieldType::FILE,
+                FieldType::IMAGE,
+            ])
+        ) {
             /*if ($link) {
                 continue;
             }*/
@@ -673,7 +729,7 @@ class SelectHelper
             return;
         }
 
-        if ($fieldType === 'linkParent') {
+        if ($fieldType === FieldType::LINK_PARENT) {
             if ($link) {
                 return;
             }
@@ -687,13 +743,14 @@ class SelectHelper
 
         $queryBuilder->order($orderBy, $order);
     }
+
     /**
-     * @throws Forbidden
+     * @throws BadRequest
      */
     public function handleFiltersWhere(
         WhereItem $whereItem,
-        SelectBuilder $queryBuilder,
-        bool $isGrid = false
+        SelectBuilder $queryBuilder/*,
+        bool $isGrid = false*/
     ): void {
         $entityType = $queryBuilder->build()->getFrom();
 
@@ -701,20 +758,32 @@ class SelectHelper
             throw new LogicException("No from.");
         }
 
-        $this->applyLeftJoinsFromWhere($whereItem, $queryBuilder);
+        $this->applyWhereFilterAdditionalAppliers($entityType, $whereItem, $queryBuilder);
 
-        $queryBuilder->where(
-            $this->createConverter($entityType)->convert($queryBuilder, $whereItem)
-        );
+        // Supposed to be applied by the scanner.
+        //$this->applyLeftJoinsFromWhere($whereItem, $queryBuilder);
 
-        if (!$isGrid) {
+        $params = $this->supportsHasManySubQuery() ?
+            new Converter\Params(useSubQueryIfMany: true) : null;
+
+        $whereClause = $this->createConverter($entityType)
+            ->convert($queryBuilder, $whereItem, $params);
+
+        $queryBuilder->where($whereClause);
+
+        /*if (!$isGrid) {
             // Distinct is already supposed to be applied by the scanner.
             $this->applyDistinctFromWhere($whereItem, $queryBuilder);
-        }
+        }*/
+    }
+
+    private function supportsHasManySubQuery(): bool
+    {
+        return class_exists("Espo\\Core\\Select\\Where\\Converter\\Params");
     }
 
     /**
-     * @throws Forbidden
+     * @throws BadRequest
      */
     public function handleFiltersHaving(
         WhereItem $havingItem,
@@ -731,10 +800,13 @@ class SelectHelper
             return;
         }
 
-        $havingClause = $this->createConverter($entityType)->convert($queryBuilder, $havingItem);
+        $converter = $this->createConverter($entityType);
 
         if ($isGrid) {
-            $this->applyLeftJoinsFromWhere($havingItem, $queryBuilder);
+            // Supposed to be applied by the scanner.
+            //$this->applyLeftJoinsFromWhere($havingItem, $queryBuilder);
+
+            $havingClause = $converter->convert($queryBuilder, $havingItem);
 
             $queryBuilder->having($havingClause);
 
@@ -744,15 +816,19 @@ class SelectHelper
         $subQueryBuilder = SelectBuilder::create()
             ->from($entityType, lcfirst($entityType))
             ->select('id')
-            ->group('id')
-            ->having($havingClause);
+            ->group('id');
 
-        $this->applyLeftJoinsFromWhere($havingItem, $subQueryBuilder);
+        $havingClause = $converter->convert($subQueryBuilder, $havingItem);
+
+        $subQueryBuilder->having($havingClause);
+
+        // Supposed to be applied by the scanner.
+        //$this->applyLeftJoinsFromWhere($havingItem, $subQueryBuilder);
 
         $queryBuilder->where(['id=s' => $subQueryBuilder->build()->getRaw()]);
     }
 
-    public function applyLeftJoinsFromWhere(WhereItem $item, SelectBuilder $queryBuilder): void
+    /*public function applyLeftJoinsFromWhere(WhereItem $item, SelectBuilder $queryBuilder): void
     {
         $entityType = $queryBuilder->build()->getFrom();
 
@@ -760,9 +836,9 @@ class SelectHelper
             throw new LogicException();
         }
 
-        if ($queryBuilder->build()->isDistinct()) {
-            return;
-        }
+        //if ($queryBuilder->build()->isDistinct()) {
+        //    return;
+        //}
 
         if (in_array($item->getType(), [self::WHERE_TYPE_OR, self::WHERE_TYPE_AND])) {
             foreach ($item->getItemList() as $listItem) {
@@ -777,22 +853,31 @@ class SelectHelper
         }
 
         $this->handleLeftJoins($item->getAttribute(), $entityType, $queryBuilder, true);
-    }
+    }*/
 
+    /**
+     * @deprecated As of v3.4.7.
+     * @todo Remove when v8.5 is min. supported.
+     */
     public function applyDistinctFromWhere(WhereItem $item, SelectBuilder $queryBuilder): void
     {
-        $entityType = $queryBuilder->build()->getFrom();
-
-        if (!$entityType) {
-            throw new LogicException();
+        if ($this->supportsHasManySubQuery()) {
+            return;
         }
 
         if ($queryBuilder->build()->isDistinct()) {
             return;
         }
 
+        $entityType = $queryBuilder->build()->getFrom();
+
+        if (!$entityType) {
+            throw new LogicException();
+        }
+
         if (in_array($item->getType(), [self::WHERE_TYPE_OR, self::WHERE_TYPE_AND])) {
             foreach ($item->getItemList() as $listItem) {
+                /** @noinspection PhpDeprecationInspection */
                 $this->applyDistinctFromWhere($listItem, $queryBuilder);
             }
 
@@ -808,7 +893,7 @@ class SelectHelper
 
     private function handleDistinct(string $item, string $entityType, SelectBuilder $queryBuilder): void
     {
-        if (strpos($item, ':') !== false) {
+        if (str_contains($item, ':')) {
             $argumentList = QueryComposerUtil::getAllAttributesFromComplexExpression($item);
 
             foreach ($argumentList as $argument) {
@@ -818,7 +903,7 @@ class SelectHelper
             return;
         }
 
-        if (strpos($item, '.') === false) {
+        if (!str_contains($item, '.')) {
             return;
         }
 
@@ -855,7 +940,7 @@ class SelectHelper
             $dateTime->modify('first day of january');
             $tzOffset = $dateTimeZone->getOffset($dateTime) / 3600;
         }
-        catch (Exception $e) {
+        catch (Exception) {
             return 0;
         }
 
@@ -865,5 +950,48 @@ class SelectHelper
     private function createConverter(string $entityType): Converter
     {
         return $this->converterFactory->create($entityType, $this->user);
+    }
+
+    /**
+     * @return class-string<AdditionalApplier>[]
+     */
+    private function getWhereFiltersApplierClassNameList(string $entityType): array
+    {
+        /** @var class-string<AdditionalApplier>[] */
+        return $this->metadata
+            ->get("app.advancedReport.entityParams.$entityType.whereFilterAdditionalApplierClassNameList") ?? [];
+    }
+
+    /**
+     * @param class-string<AdditionalApplier> $className
+     */
+    private function createAdditionalApplier(string $entityType, string $className): AdditionalApplier
+    {
+        return $this->injectableFactory->createWithBinding(
+            $className,
+            BindingContainerBuilder::create()
+                ->bindInstance(User::class, $this->user)
+                ->inContext($className, function (ContextualBinder $binder) use ($entityType) {
+                    $binder->bindValue('$entityType', $entityType);
+                })
+                ->build()
+        );
+    }
+
+    private function applyWhereFilterAdditionalAppliers(
+        string $entityType,
+        WhereItem $whereItem,
+        SelectBuilder $queryBuilder,
+    ): void {
+
+        $additionalApplierClassNameList = $this->getWhereFiltersApplierClassNameList($entityType);
+
+        foreach ($additionalApplierClassNameList as $className) {
+            $applier = $this->createAdditionalApplier($entityType, $className);
+
+            $searchParams = SearchParams::create()->withWhere($whereItem);
+
+            $applier->apply($queryBuilder, $searchParams);
+        }
     }
 }

@@ -11,14 +11,16 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Entities;
 
+use Espo\Core\Field\DateTime;
 use Espo\Core\ORM\Entity;
+use stdClass;
 
 class Workflow extends Entity
 {
@@ -28,6 +30,12 @@ class Workflow extends Entity
     public const TYPE_SCHEDULED = 'scheduled';
     public const TYPE_SEQUENTIAL = 'sequential';
     public const TYPE_SIGNAL = 'signal';
+    public const TYPE_AFTER_RECORD_SAVED = 'afterRecordSaved';
+    public const TYPE_AFTER_RECORD_CREATED = 'afterRecordCreated';
+    public const TYPE_AFTER_RECORD_UPDATED = 'afterRecordUpdated';
+
+    public const MANUAL_ACCESS_ADMIN = 'admin';
+    public const MANUAL_ACCESS_READ = 'read';
 
     public function getName(): ?string
     {
@@ -57,5 +65,47 @@ class Workflow extends Entity
     public function getScheduling(): ?string
     {
         return $this->get('scheduling');
+    }
+
+    public function getSignalName(): ?string
+    {
+        return $this->get('signalName');
+    }
+
+    public function getManualAccessRequired(): ?string
+    {
+        return $this->get('manualAccessRequired');
+    }
+
+    /**
+     * @return ?stdClass[]
+     */
+    public function getManualDynamicLogicConditionGroup(): ?array
+    {
+        $value = $this->get('manualDynamicLogic');
+
+        if (!$value instanceof stdClass) {
+            return null;
+        }
+
+        return $value->conditionGroup ?? [];
+    }
+
+    public function getSchedulingApplyTimezone(): bool
+    {
+        return (bool) $this->get('schedulingApplyTimezone');
+    }
+
+    public function getLastRun(): ?DateTime
+    {
+        /** @var ?DateTime */
+        return $this->getValueObject('lastRun');
+    }
+
+    public function setLastRun(?DateTime $lastRun): self
+    {
+        $this->setValueObject('lastRun', $lastRun);
+
+        return $this;
     }
 }

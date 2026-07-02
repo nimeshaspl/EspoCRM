@@ -11,19 +11,24 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Hooks\Report;
 
 use Espo\Modules\Advanced\Entities\Report;
-use Espo\Modules\Advanced\Entities\Report as ReportEntity;
+use Espo\Modules\Advanced\Tools\Report\GridType\Data;
+use Espo\Modules\Advanced\Tools\Report\Internal\InternalReportHelper;
 use Espo\ORM\Entity;
 
 class Prepare
 {
+    public function __construct(
+        private InternalReportHelper $internalReportHelper,
+    ) {}
+
     /**
      * @param Report $entity
      */
@@ -40,16 +45,40 @@ class Prepare
         }
 
         if (
-            $entity->get('type') === ReportEntity::TYPE_GRID &&
+            $entity->getType() === Report::TYPE_GRID &&
             ($entity->has('chartOneColumns') || $entity->has('chartOneY2Columns'))
         ) {
             $this->handleChartDataList($entity);
         }
+
+        if ($entity->getInternalClassName()) {
+            $entity->set('isInternal', true);
+
+            if ($entity->isAttributeChanged('internalClassName')) {
+                $this->internalReportHelper->populateFields($entity);
+            }
+        }
+
+        if (
+            $entity->getType() !== Report::TYPE_GRID ||
+            count($entity->getGroupBy()) < 2
+        ) {
+            $entity->setTableMode(Data::TABLE_MODE_REGULAR);
+        }
+
+        if (
+            $entity->getType() === Report::TYPE_GRID &&
+            count($entity->getGroupBy()) >= 2 &&
+            $entity->getTableMode() === Data::TABLE_MODE_NORMALIZED
+        ) {
+            $entity->setChartType(null);
+        }
+
     }
 
     private function handleChartDataList(Report $entity): void
     {
-        $groupBy = $entity->get('groupBy') ?? [];
+        $groupBy = $entity->getGroupBy();
 
         if (count($groupBy) > 1) {
             /** @noinspection PhpRedundantOptionalArgumentInspection */
@@ -87,7 +116,7 @@ class Prepare
             }
         }
 
-        $chartType = $entity->get('chartType');
+        $chartType = $entity->getChartType();
 
         if (!in_array($chartType, ['BarVertical', 'BarHorizontal', 'Line'])) {
             $newY2 = null;

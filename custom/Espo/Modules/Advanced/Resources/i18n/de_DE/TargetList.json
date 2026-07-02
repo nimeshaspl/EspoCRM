@@ -11,7 +11,8 @@
     "syncWithReports": "Synchronisation mit Berichten"
   },
   "tooltips": {
-    "syncWithReportsUnlink": "Datensätze die nicht im Bericht enthalten sind werden aus der Kontaktliste entfernt",
-    "syncWithReports": "Kontaktliste wird mit den Resultaten des gewählten Berichts synchronisiert"
+    "syncWithReportsEnabled": "Automatische Synchronisierung mit einem Listenbericht aktivieren.",
+    "syncWithReportsUnlink": "Datensätze die nicht im Bericht enthalten sind werden aus der Kontaktliste entfernt.",
+    "syncWithReports": "Kontaktliste wird mit den Resultaten des gewählten Berichts synchronisiert."
   }
 }

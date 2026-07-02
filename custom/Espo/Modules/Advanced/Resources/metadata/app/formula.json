@@ -23,29 +23,38 @@
         "workflow\\targetEntity\\isAttributeChanged": "Espo\\Modules\\Advanced\\Core\\Workflow\\Formula\\Functions\\TargetEntityGroup\\IsAttributeChangedType",
         "workflow\\targetEntity\\isAttributeNotChanged": "Espo\\Modules\\Advanced\\Core\\Workflow\\Formula\\Functions\\TargetEntityGroup\\IsAttributeNotChangedType",
         "workflow\\signalParam": "Espo\\Modules\\Advanced\\Core\\Workflow\\Formula\\Functions\\WorkflowGroup\\SignalParamType",
-        "report\\recordAttribute": "Espo\\Modules\\Advanced\\Core\\Workflow\\Formula\\Functions\\ReportGroup\\RecordAttribute"
+        "workflow\\lastCreatedEntityId": "Espo\\Modules\\Advanced\\Core\\Workflow\\Formula\\Functions\\WorkflowGroup\\LastCreatedEntityIdType",
+        "workflow\\alert": "Espo\\Modules\\Advanced\\Core\\Workflow\\Formula\\Functions\\WorkflowGroup\\AlertType",
+        "report\\recordAttribute": "Espo\\Modules\\Advanced\\Core\\Workflow\\Formula\\Functions\\ReportGroup\\RecordAttribute",
+        "report\\export": "Espo\\Modules\\Advanced\\Core\\Workflow\\Formula\\Functions\\ReportGroup\\Export"
     },
     "functionList": [
         "__APPEND__",
+        {
+            "name": "report\\export",
+            "insertText": "report\\export('REPORT_ID')",
+            "returnType": "string",
+            "unsafe": true
+        },
         {
             "name": "report\\recordAttribute",
             "unsafe": true
         },
         {
             "name": "bpm\\processEntity\\attribute",
-            "insertText": "bpm\\processEntity\\attribute(ATTRIBUTE_NAME)",
+            "insertText": "bpm\\processEntity\\attribute('ATTRIBUTE_NAME')",
             "returnType": "mixed",
             "unsafe": true
         },
         {
             "name": "bpm\\targetEntity\\attribute",
-            "insertText": "bpm\\targetEntity\\attribute(ATTRIBUTE_NAME)",
+            "insertText": "bpm\\targetEntity\\attribute('ATTRIBUTE_NAME)'",
             "returnType": "mixed",
             "unsafe": true
         },
         {
             "name": "bpm\\createdEntity\\attribute",
-            "insertText": "bpm\\createdEntity\\attribute(ALIAS_ID, ATTRIBUTE_NAME)",
+            "insertText": "bpm\\createdEntity\\attribute('ALIAS_ID', 'ATTRIBUTE_NAME')",
             "returnType": "mixed",
             "unsafe": true
         },
@@ -73,12 +82,12 @@
         },
         {
             "name": "workflow\\targetEntity\\attribute",
-            "insertText": "workflow\\targetEntity\\attribute(ATTRIBUTE_NAME)",
+            "insertText": "workflow\\targetEntity\\attribute('ATTRIBUTE_NAME')",
             "unsafe": true
         },
         {
             "name": "workflow\\targetEntity\\attributeFetched",
-            "insertText": "workflow\\targetEntity\\attributeFetched(ATTRIBUTE_NAME)",
+            "insertText": "workflow\\targetEntity\\attributeFetched('ATTRIBUTE_NAME')",
             "unsafe": true
         },
         {
@@ -102,6 +111,17 @@
             "name": "workflow\\signalParam",
             "insertText": "workflow\\signalParam(NAME)",
             "returnType": "mixed",
+            "unsafe": true
+        },
+        {
+            "name": "workflow\\lastCreatedEntityId",
+            "insertText": "workflow\\lastCreatedEntityId()",
+            "returnType": "string|null",
+            "unsafe": true
+        },
+        {
+            "name": "workflow\\alert",
+            "insertText": "workflow\\alert(MESSAGE)",
             "unsafe": true
         }
     ]

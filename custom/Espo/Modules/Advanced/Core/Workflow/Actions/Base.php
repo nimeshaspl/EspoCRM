@@ -11,24 +11,28 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use Espo\Core\AclManager;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Formula\Manager as FormulaManager;
 use Espo\Core\InjectableFactory;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Core\ServiceFactory;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\DateTime;
+use Espo\Core\Utils\Log;
 use Espo\Core\Utils\Metadata;
 use Espo\Entities\User;
-use Espo\Modules\Advanced\Core\Workflow\EntityHelper;
+use Espo\Modules\Advanced\Tools\Workflow\Core\EntityHelper;
+use Espo\Modules\Advanced\Tools\Workflow\Core\FieldValueHelper;
 use Espo\Modules\Advanced\Core\Workflow\Helper;
 use Espo\Modules\Advanced\Core\Workflow\Utils;
 use Espo\Modules\Advanced\Entities\BpmnProcess;
@@ -36,19 +40,16 @@ use Espo\Modules\Advanced\Tools\Workflow\Core\RecipientIds;
 use Espo\Modules\Advanced\Tools\Workflow\Core\RecipientProvider;
 use Espo\Modules\Advanced\Tools\Workflow\Core\TargetProvider;
 use Espo\ORM\Entity;
-use Espo\Core\Container;
 use Espo\ORM\EntityManager;
 
+use Exception;
+use RuntimeException;
 use stdClass;
 
 abstract class Base
 {
-    private Container $container;
-    protected EntityManager $entityManager;
-    protected InjectableFactory $injectableFactory;
-
     private ?string $workflowId = null;
-    protected ?Entity $entity = null;
+    protected ?CoreEntity $entity = null;
     protected ?stdClass $action = null;
     protected ?stdClass $createdEntitiesData = null;
     protected bool $createdEntitiesDataIsChanged = false;
@@ -56,28 +57,44 @@ abstract class Base
     protected ?stdClass $preparedVariables = null;
     protected ?BpmnProcess $bpmnProcess = null;
 
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
+    public function __construct(
+        protected EntityManager $entityManager,
+        protected InjectableFactory $injectableFactory,
+        protected ServiceFactory $serviceFactory,
+        protected Metadata $metadata,
+        protected Config $config,
+        protected FormulaManager $formulaManager,
+        protected User $user,
+        protected Helper $workflowHelper,
+        protected EntityHelper $entityHelper,
+        protected FieldValueHelper $fieldValueHelper,
+        protected Log $log,
+        protected AclManager $aclManager,
+    ) {}
 
-        /** @var EntityManager $entityManager */
-        $entityManager = $container->get('entityManager');
-        /** @var InjectableFactory $injectableFactory */
-        $injectableFactory = $container->get('injectableFactory');
+    /**
+     * @param array<string, mixed> $options Save options.
+     * @throws Error
+     */
+    abstract protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool;
 
-        $this->entityManager = $entityManager;
-        $this->injectableFactory = $injectableFactory;
-    }
-
-    abstract protected function run(Entity $entity, stdClass $actionData): bool;
-
+    /**
+     * @param array<string, mixed> $options
+     * @throws Error
+     */
     public function process(
         Entity $entity,
         stdClass $actionData,
         ?stdClass $createdEntitiesData = null,
         ?stdClass $variables = null,
-        ?BpmnProcess $bpmnProcess = null
-    ) {
+        ?BpmnProcess $bpmnProcess = null,
+        array $options = [],
+    ): void {
+
+        if (!$entity instanceof CoreEntity) {
+            throw new RuntimeException();
+        }
+
         $this->entity = $entity;
         $this->action = $actionData;
         $this->createdEntitiesData = $createdEntitiesData;
@@ -88,29 +105,27 @@ abstract class Base
             $actionData->cid = 0;
         }
 
-        $GLOBALS['log']->debug(
-            'Workflow\Actions: Start ['.$actionData->type.'] with cid ['.$actionData->cid.'] for entity ['.
-            $entity->getEntityType().', '.$entity->get('id').'].'
-        );
+        $cid = $actionData->cid ?? 0;
+        $actionType = $actionData->type;
 
-        $result = $this->run($entity, $actionData);
+        $this->debugLog('Start', $actionType, $cid, $entity);
 
-        $GLOBALS['log']->debug(
-            'Workflow\Actions: End ['.$actionData->type.'] with cid ['.$actionData->cid.'] for entity ['.
-            $entity->getEntityType().', '.$entity->get('id').'].'
-        );
+        $result = $this->run($entity, $actionData, $options);
+
+        $this->debugLog('End', $actionType, $cid, $entity);
 
         if (!$result) {
-            $GLOBALS['log']->debug(
-                'Workflow['.$this->getWorkflowId().']: Action failed [' . $actionData->type .
-                '] with cid [' . $actionData->cid . '].'
-            );
+            $this->debugLog('Failed', $actionType, $cid, $entity);
         }
     }
 
-    protected function getContainer(): Container
+    private function debugLog(string $type, string $actionType, int $cid, Entity $entity): void
     {
-        return $this->container;
+        $id = $entity->hasId() ? $entity->getId() : '(new)';
+
+        $message = "Workflow {$this->getWorkflowId()}, $actionType, $type, cid $cid, {$entity->getEntityType()} $id";
+
+        $this->log->debug($message);
     }
 
     public function isCreatedEntitiesDataChanged(): bool
@@ -123,7 +138,7 @@ abstract class Base
         return $this->createdEntitiesData;
     }
 
-    public function setWorkflowId($workflowId)
+    public function setWorkflowId(?string $workflowId): void
     {
         $this->workflowId = $workflowId;
     }
@@ -133,42 +148,7 @@ abstract class Base
         return $this->workflowId;
     }
 
-    protected function getEntityManager(): EntityManager
-    {
-        return $this->entityManager;
-    }
-
-    protected function getServiceFactory(): ServiceFactory
-    {
-        /** @var ServiceFactory */
-        return $this->container->get('serviceFactory');
-    }
-
-    protected function getMetadata(): Metadata
-    {
-        /** @var Metadata */
-        return $this->container->get('metadata');
-    }
-
-    protected function getConfig(): Config
-    {
-        /** @var Config */
-        return $this->container->get('config');
-    }
-
-    protected function getFormulaManager(): FormulaManager
-    {
-        /** @var FormulaManager */
-        return $this->container->get('formulaManager');
-    }
-
-    protected function getUser(): User
-    {
-        /** @var User */
-        return $this->container->get('user');
-    }
-
-    protected function getEntity(): Entity
+    protected function getEntity(): CoreEntity
     {
         return $this->entity;
     }
@@ -176,18 +156,6 @@ abstract class Base
     protected function getActionData(): stdClass
     {
         return $this->action;
-    }
-
-    protected function getHelper(): Helper
-    {
-        /** @var Helper */
-        return $this->container->get('workflowHelper');
-    }
-
-    protected function getEntityHelper(): EntityHelper
-    {
-        /** @var EntityHelper */
-        return $this->getHelper()->getEntityHelper();
     }
 
     protected function clearSystemVariables(stdClass $variables): void
@@ -257,7 +225,7 @@ abstract class Base
             }
 
             if ($this->variables) {
-                foreach ($this->variables as $k => $v) {
+                foreach (get_object_vars($this->variables) as $k => $v) {
                     $o->$k = $v;
                 }
             }
@@ -269,7 +237,10 @@ abstract class Base
     }
 
     /**
-     * Get execute time defined in workflow
+     * Get execute time defined in workflow.
+     *
+     * @param stdClass $data
+     * @throws Error
      */
     protected function getExecuteTime($data): string
     {
@@ -289,16 +260,25 @@ abstract class Base
                 $field = $execution->field ?? null;
 
                 if ($field) {
-                    $executeTime = Utils::getFieldValue($this->getEntity(), $field);
+                    $executeTime = $this->fieldValueHelper->getValue(
+                        entity: $this->getEntity(),
+                        path: $field,
+                        workflowId: $this->workflowId,
+                    );
+
                     $attributeType = Utils::getAttributeType($this->getEntity(), $field);
-                    $timezone = $this->getConfig()->get('timeZone') ?? 'UTC';
+                    $timezone = $this->config->get('timeZone') ?? 'UTC';
 
                     if ($attributeType === 'date') {
-                        $executeTime = (new DateTimeImmutable($executeTime))
-                            ->setTimezone(new DateTimeZone($timezone))
-                            ->setTime(0, 0)
-                            ->setTimezone(new DateTimeZone('UTC'))
-                            ->format(DateTime::SYSTEM_DATE_TIME_FORMAT);
+                        try {
+                            $executeTime = (new DateTimeImmutable($executeTime))
+                                ->setTimezone(new DateTimeZone($timezone))
+                                ->setTime(0, 0)
+                                ->setTimezone(new DateTimeZone('UTC'))
+                                ->format(DateTime::SYSTEM_DATE_TIME_FORMAT);
+                        } catch (Exception $e) {
+                            throw new Error($e->getMessage(), previous: $e);
+                        }
                     }
                 }
 
@@ -306,16 +286,15 @@ abstract class Base
                 $shiftUnit = $execution->shiftUnit ?? 'days';
 
                 $executeTime = Utils::shiftDays(
-                    $execution->shiftDays,
-                    $executeTime,
-                    'datetime',
-                    $shiftUnit
+                    shiftDays: $execution->shiftDays,
+                    input: $executeTime,
+                    unit: $shiftUnit,
                 );
 
                 break;
 
             default:
-                throw new Error("Workflow[{$this->getWorkflowId()}]: Unknown execution type [$execution->type]");
+                throw new Error("Workflow {$this->getWorkflowId()}: Unknown execution type [$execution->type]");
         }
 
         return $executeTime;
@@ -328,6 +307,9 @@ abstract class Base
         return $provider->getCreated($target, $this->createdEntitiesData);
     }
 
+    /**
+     * @throws Error
+     */
     protected function getFirstTargetFromTargetItem(Entity $entity, ?string $target): ?Entity
     {
         foreach ($this->getTargetsFromTargetItem($entity, $target) as $it) {
@@ -339,6 +321,7 @@ abstract class Base
 
     /**
      * @return iterable<Entity>
+     * @throws Error
      */
     protected function getTargetsFromTargetItem(Entity $entity, ?string $target): iterable
     {
@@ -349,7 +332,9 @@ abstract class Base
 
     protected function getRecipients(Entity $entity, string $target): RecipientIds
     {
-        $provider = $this->injectableFactory->create(RecipientProvider::class);
+        $provider = $this->injectableFactory->createWith(RecipientProvider::class, [
+            'workflowId' => $this->getWorkflowId(),
+        ]);
 
         return $provider->get($entity, $target);
     }

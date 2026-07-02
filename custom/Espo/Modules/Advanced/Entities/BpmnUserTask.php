@@ -11,13 +11,15 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Entities;
 
+use Espo\Core\Field\LinkMultiple;
+use Espo\Core\Field\LinkParent;
 use Espo\Core\ORM\Entity;
 
 class BpmnUserTask extends Entity
@@ -29,5 +31,61 @@ class BpmnUserTask extends Entity
     public function getElementType(): string
     {
         return $this->get('elementType');
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->set('name', $name);
+
+        return $this;
+    }
+
+    public function setTeams(LinkMultiple $teams): self
+    {
+        $this->setValueObject('teams', $teams);
+
+        return $this;
+    }
+
+    public function setTarget(?LinkParent $target): self
+    {
+        $this->setValueObject('target', $target);
+
+        return $this;
+    }
+
+    public function setFlowNodeId(?string $flowNodeId): self
+    {
+        $this->set('flowNodeId', $flowNodeId);
+
+        return $this;
+    }
+
+    public function setProcessId(?string $processId): self
+    {
+        $this->set('processId', $processId);
+
+        return $this;
+    }
+
+    public function setActionType(?string $actionType): self
+    {
+        $this->set('actionType', $actionType);
+
+        return $this;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->set('description', $description);
+
+        return $this;
+    }
+
+    public function setInstructions(?string $instructions): self
+    {
+        $this->set('instructions', $instructions);
+
+        return $this;
     }
 }

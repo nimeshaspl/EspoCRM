@@ -11,20 +11,25 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report;
 
+use Espo\Core\Acl\GlobalRestriction;
 use Espo\Core\Acl\Table as AclTable;
+use Espo\Core\AclManager;
+use Espo\Core\Currency\ConfigDataProvider as CurrencyConfig;
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Exceptions\NotFound;
 use Espo\Core\FieldProcessing\ListLoadProcessor;
 use Espo\Core\FieldProcessing\Loader\Params as LoaderParams;
 use Espo\Core\InjectableFactory;
+use Espo\Core\ORM\Type\FieldType;
 use Espo\Core\Record\ServiceContainer as RecordServiceContainer;
 use Espo\Core\Select\SearchParams;
 use Espo\Core\Utils\Acl\UserAclManagerProvider;
@@ -32,11 +37,11 @@ use Espo\Core\Utils\Config;
 use Espo\Core\Utils\Log;
 use Espo\Core\Utils\Metadata;
 use Espo\Entities\User;
-use Espo\Modules\Advanced\Core\ORM\CustomEntityFactory;
 use Espo\Modules\Advanced\Core\ORM\SthCollection;
 use Espo\Modules\Advanced\Entities\Report;
 use Espo\Modules\Advanced\Reports\GridReport;
 use Espo\Modules\Advanced\Reports\ListReport;
+use Espo\Modules\Advanced\Tools\Report\GridType\ColumnData;
 use Espo\Modules\Advanced\Tools\Report\GridType\GridBuilder;
 use Espo\Modules\Advanced\Tools\Report\GridType\Helper as GridHelper;
 use Espo\Modules\Advanced\Tools\Report\GridType\Data as GridData;
@@ -56,82 +61,45 @@ use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\ORM\Query\Part\Expression;
 use Espo\Core\Select\Where\Item as WhereItem;
-
 use Espo\ORM\Query\SelectBuilder;
+use Espo\ORM\QueryComposer\Util;
 use Exception;
 use PDOException;
 use PDO;
+use stdClass;
 
 class Service
 {
     private const GRID_SUB_LIST_LIMIT = 500;
 
-    private ?CustomEntityFactory $customEntityFactory = null;
-
-    private EntityManager $entityManager;
-    private Metadata $metadata;
-    private Config $config;
-    private User $user;
-    private InjectableFactory $injectableFactory;
-    private RecordServiceContainer $recordServiceContainer;
-    private ResultHelper $gridResultHelper;
-    private GridHelper $gridHelper;
-    private GridBuilder $gridBuilder;
-    private GridUtil $gridUtil;
-    private ReportHelper $reportHelper;
-    private ListQueryPreparator $listQueryPreparator;
-    private SubReportQueryPreparator $subReportQueryPreparator;
-    private ListLoadProcessor $listLoadProcessor;
-    private Log $log;
-    private GridQueryPreparator $gridQueryPreparator;
-    private SubListQueryPreparator $subListQueryPreparator;
-    private UserAclManagerProvider $userAclManagerProvider;
-
     public function __construct(
-        EntityManager $entityManager,
-        Metadata $metadata,
-        Config $config,
-        User $user,
-        InjectableFactory $injectableFactory,
-        UserAclManagerProvider $userAclManagerProvider,
-        RecordServiceContainer $recordServiceContainer,
-        ResultHelper $gridResultHelper,
-        GridHelper $gridHelper,
-        GridBuilder $gridBuilder,
-        GridUtil $gridUtil,
-        ReportHelper $reportHelper,
-        ListQueryPreparator $listQueryPreparator,
-        SubReportQueryPreparator $subReportQueryPreparator,
-        ListLoadProcessor $listLoadProcessor,
-        Log $log,
-        GridQueryPreparator $gridQueryPreparator,
-        SubListQueryPreparator $subListQueryPreparator
-    ) {
-        $this->entityManager = $entityManager;
-        $this->metadata = $metadata;
-        $this->config = $config;
-        $this->user = $user;
-        $this->injectableFactory = $injectableFactory;
-        $this->userAclManagerProvider = $userAclManagerProvider;
-        $this->recordServiceContainer = $recordServiceContainer;
-        $this->gridResultHelper = $gridResultHelper;
-        $this->gridHelper = $gridHelper;
-        $this->gridBuilder = $gridBuilder;
-        $this->gridUtil = $gridUtil;
-        $this->reportHelper = $reportHelper;
-        $this->listQueryPreparator = $listQueryPreparator;
-        $this->subReportQueryPreparator = $subReportQueryPreparator;
-        $this->listLoadProcessor = $listLoadProcessor;
-        $this->log = $log;
-        $this->gridQueryPreparator = $gridQueryPreparator;
-        $this->subListQueryPreparator = $subListQueryPreparator;
-    }
+        private EntityManager $entityManager,
+        private Metadata $metadata,
+        private Config $config,
+        private User $user,
+        private InjectableFactory $injectableFactory,
+        private UserAclManagerProvider $userAclManagerProvider,
+        private RecordServiceContainer $recordServiceContainer,
+        private ResultHelper $gridResultHelper,
+        private GridHelper $gridHelper,
+        private GridBuilder $gridBuilder,
+        private GridUtil $gridUtil,
+        private ReportHelper $reportHelper,
+        private ListQueryPreparator $listQueryPreparator,
+        private SubReportQueryPreparator $subReportQueryPreparator,
+        private ListLoadProcessor $listLoadProcessor,
+        private Log $log,
+        private GridQueryPreparator $gridQueryPreparator,
+        private SubListQueryPreparator $subListQueryPreparator,
+        private CurrencyConfig $currencyConfig,
+        private AclManager $aclManager,
+        private AccessHelper $accessHelper,
+    ) {}
 
     /**
      * Fetch a report. Access control is applied if a user is passed.
      *
      * @throws Forbidden
-     * @throws Error
      * @throws NotFound
      */
     private function fetchReportForRun(string $id, ?User $user = null): Report
@@ -143,7 +111,7 @@ class Service
             throw new NotFound("Report $id not found.");
         }
 
-        $this->reportHelper->checkReportCanBeRunToRun($report);
+        $this->reportHelper->checkReportCanBeRun($report);
 
         if (!$user) {
             return $report;
@@ -173,49 +141,23 @@ class Service
      * @throws Error
      * @throws Forbidden
      * @throws NotFound
+     * @throws BadRequest
      */
     public function runList(
         string $id,
         ?SearchParams $searchParams = null,
         ?User $user = null,
-        ?ListRunParams $runParams = null
+        ?ListRunParams $runParams = null,
     ): ListResult {
 
         $runParams = $runParams ?? ListRunParams::create();
-
         $report = $this->fetchReportForRun($id, $user);
 
-        if ($report->isInternal()) {
-            $impl = $this->reportHelper->createInternalReport($report);
-
-            if (!$impl instanceof ListReport) {
-                throw new Error("Bad report class.");
-            }
-
-            return $impl->run($searchParams, $user);
-        }
-
-        if ($report->getType() !== Report::TYPE_LIST) {
-            throw new Error("Can't run non-List report as List.");
-        }
-
-        if (!$report->getTargetEntityType()) {
-            throw new Error("No entity type in report $id.");
-        }
-
-        if (
-            $searchParams &&
-            $searchParams->getWhere() &&
-            !$runParams->skipRuntimeFiltersCheck()
-        ) {
-            $this->reportHelper->checkRuntimeFilters($searchParams->getWhere(), $report);
-        }
-
-        return $this->executeListReport(
-            $this->reportHelper->fetchListDataFromReport($report),
-            $searchParams,
-            $runParams,
-            $user
+        return $this->reportRunList(
+            report: $report,
+            searchParams: $searchParams,
+            user: $user,
+            runParams: $runParams,
         );
     }
 
@@ -225,13 +167,14 @@ class Service
      * @throws Error
      * @throws Forbidden
      * @throws NotFound
+     * @throws BadRequest
      */
     public function runSubReportList(
         string $id,
         SearchParams $searchParams,
         SubReportParams $subReportParams,
         ?User $user = null,
-        ?ListRunParams $runParams = null
+        ?ListRunParams $runParams = null,
     ): ListResult {
 
         $report = $this->fetchReportForRun($id, $user);
@@ -262,11 +205,11 @@ class Service
         }
 
         return $this->executeSubReportList(
-            $this->reportHelper->fetchGridDataFromReport($report),
-            $searchParams,
-            $subReportParams,
-            $runParams,
-            $user
+            data: $this->reportHelper->fetchGridDataFromReport($report),
+            searchParams: $searchParams,
+            subReportParams: $subReportParams,
+            runParams: $runParams,
+            user: $user,
         );
     }
 
@@ -277,21 +220,22 @@ class Service
      * @throws Error
      * @throws Forbidden
      * @throws NotFound
+     * @throws BadRequest
      */
     public function runGrid(
         string $id,
         ?WhereItem $whereItem = null,
         ?User $user = null,
-        GridRunParams $runParams = null,
-        ?array $idWhereMap = null
+        ?GridRunParams $runParams = null,
+        ?array $idWhereMap = null,
     ): GridResult {
 
         return $this->runGridOrJoint(
-            $id,
-            $whereItem,
-            $user,
-            $runParams,
-            $idWhereMap
+            id: $id,
+            whereItem: $whereItem,
+            user: $user,
+            runParams: $runParams,
+            idWhereMap: $idWhereMap,
         );
     }
 
@@ -302,55 +246,25 @@ class Service
      * @throws Error
      * @throws Forbidden
      * @throws NotFound
+     * @throws BadRequest
      */
     private function runGridOrJoint(
         string $id,
         ?WhereItem $whereItem = null,
         ?User $user = null,
         ?GridRunParams $runParams = null,
-        ?array $idWhereMap = null
+        ?array $idWhereMap = null,
     ): GridResult {
 
         $report = $this->fetchReportForRun($id, $user);
 
-        if ($report->isInternal()) {
-            $impl = $this->reportHelper->createInternalReport($report);
-
-            if (!$impl instanceof GridReport) {
-                throw new Error("Bad report class.");
-            }
-
-            return $impl->run($whereItem, $user);
-        }
-
-        if (
-            $whereItem &&
-            (!$runParams || !$runParams->skipRuntimeFiltersCheck())
-        ) {
-            $this->reportHelper->checkRuntimeFilters($whereItem, $report);
-        }
-
-        switch ($report->getType()) {
-            case Report::TYPE_GRID:
-
-                return $this->executeGridReport(
-                    $this->reportHelper->fetchGridDataFromReport($report),
-                    $whereItem,
-                    $user
-                );
-
-            case Report::TYPE_JOINT_GRID:
-
-                return $this->injectableFactory
-                    ->createWith(JointGridExecutor::class, ['service' => $this])
-                    ->execute(
-                        $this->reportHelper->fetchJointDataFromReport($report),
-                        $user,
-                        $idWhereMap
-                    );
-        }
-
-        throw new Error("Unknown type.");
+        return $this->reportRunGridOrJoint(
+            report: $report,
+            whereItem: $whereItem,
+            user: $user,
+            runParams: $runParams,
+            idWhereMap: $idWhereMap,
+        );
     }
 
     private function getForeignFieldType(string $entityType, string $link, string $field): ?string
@@ -389,6 +303,7 @@ class Service
     /**
      * @throws Forbidden
      * @throws Error
+     * @throws BadRequest
      */
     public function prepareSelectBuilder(Report $report, ?User $user = null): SelectBuilder
     {
@@ -400,6 +315,7 @@ class Service
     /**
      * @throws Forbidden
      * @throws Error
+     * @throws BadRequest
      */
     private function executeListReport(
         ListData $data,
@@ -419,7 +335,7 @@ class Service
             $newColumnList = [];
 
             foreach ($runParams->getCustomColumnList() as $item) {
-                if (strpos($item, '.') !== false) {
+                if (str_contains($item, '.')) {
                     if (!in_array($item, $initialColumnList)) {
                         break;
                     }
@@ -434,16 +350,21 @@ class Service
         if (!$searchParams->getOrderBy()) {
             if ($data->getOrderBy()) {
                 [$order, $orderBy] = explode(':', $data->getOrderBy());
-            }
-            else {
+            } else {
                 $orderBy = $this->metadata->get(['entityDefs', $entityType, 'collection', 'orderBy']);
                 $order = $this->metadata->get(['entityDefs', $entityType, 'collection', 'order']);
             }
 
+            if ($order) {
+                $order = strtoupper($order);
+            }
+
+            /** @var 'ASC'|'DESC'|null $order */
+
             if ($orderBy) {
                 $searchParams = $searchParams
                     ->withOrderBy($orderBy)
-                    ->withOrder(strtoupper($order));
+                    ->withOrder($order);
             }
         }
 
@@ -458,7 +379,7 @@ class Service
         $foreignLinkFieldDataList = [];
 
         foreach ($data->getColumns() as $column) {
-            if (strpos($column, '.') === false) {
+            if (!str_contains($column, '.')) {
                 $fieldType = $this->metadata->get(['entityDefs', $entityType, 'fields', $column, 'type']);
 
                 if (in_array($fieldType, ['linkMultiple', 'attachmentMultiple'])) {
@@ -476,14 +397,14 @@ class Service
             $foreignAttribute = $link . '_' . $attribute;
             $foreignType = $this->getForeignFieldType($entityType, $link, $attribute);
 
-            if (in_array($foreignType, ['image', 'file', 'link'])) {
+            if (in_array($foreignType, [FieldType::IMAGE, FieldType::FILE, FieldType::LINK])) {
                 $additionalAttributeDefs[$foreignAttribute . 'Id'] = [
-                    'type' => 'foreign'
+                    'type' => 'foreign',
                 ];
 
-                if ($foreignType === 'link') {
+                if ($foreignType === FieldType::LINK) {
                     $additionalAttributeDefs[$foreignAttribute . 'Name'] = [
-                        'type' => 'varchar'
+                        'type' => 'varchar',
                     ];
 
                     $foreignEntityType = $this->getForeignLinkForeignEntityType($entityType, $link, $attribute);
@@ -491,12 +412,11 @@ class Service
                     if ($foreignEntityType) {
                         $foreignLinkFieldDataList[] = (object) [
                             'name' => $foreignAttribute,
-                            'entityType' => $foreignEntityType
+                            'entityType' => $foreignEntityType,
                         ];
                     }
                 }
-            }
-            else {
+            } else {
                 $additionalAttributeDefs[$foreignAttribute] = [
                     'type' => $foreignAttributeType,
                     'relation' => $link,
@@ -508,14 +428,10 @@ class Service
         $query = $queryBuilder->build();
 
         try {
-            $sth = $this->entityManager
-                ->getQueryExecutor()
-                ->execute($query);
-        }
-        catch (PDOException $e) {
+            $sth = $this->entityManager->getQueryExecutor()->execute($query);
+        } catch (PDOException $e) {
             $this->handlePDOException($e);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $this->handleExecuteQueryException($e);
         }
 
@@ -524,70 +440,30 @@ class Service
             ->clone($query)
             ->count();
 
-        $collection = $this->entityManager
-            ->getCollectionFactory()
-            ->create($entityType);
+        $collection = $this->injectableFactory->createWith(SthCollection::class, [
+            'sth' => $sth,
+            'entityType' => $entityType,
+            'attributeDefs' => $additionalAttributeDefs,
+            'linkMultipleFieldList' => $linkMultipleFieldList,
+            'foreignLinkFieldDataList' => $foreignLinkFieldDataList,
+            'user' => $user,
+        ]);
 
-        $entityDefs = $this->entityManager->getMetadata()->get($entityType) ?? [];
-        $attributeDefs = $entityDefs['attributes'] ?? $entityDefs['fields'] ?? [];
-        $attributeDefs = array_merge($attributeDefs, $additionalAttributeDefs);
+        if (!$runParams->returnSthCollection()) {
+            $newCollection = $this->entityManager->getCollectionFactory()->create($entityType);
 
-        if ($runParams->isExport() || $runParams->returnSthCollection()) {
-            $collection = new SthCollection(
-                $sth,
-                $entityType,
-                $this->entityManager,
-                $attributeDefs,
-                $linkMultipleFieldList,
-                $foreignLinkFieldDataList,
-                $this->getCustomEntityFactory()
-            );
-        }
-        else {
-            while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                $rowData = [];
-
-                foreach ($row as $attr => $value) {
-                    $attribute = str_replace('.', '_', $attr);
-                    $rowData[$attribute] = $value;
-                }
-
-                $entity = $this->getCustomEntityFactory()->create($entityType, $attributeDefs);
-
-                $entity->set($rowData);
-                $entity->setAsFetched();
-
-                $this->listLoadProcessor->process($entity);
-
-                foreach ($linkMultipleFieldList as $field) {
-                    $entity->loadLinkMultipleField($field);
-                }
-
-                foreach ($foreignLinkFieldDataList as $item) {
-                    $foreignId = $entity->get($item->name . 'Id');
-
-                    if ($foreignId) {
-                        $foreignEntity = $this->entityManager
-                            ->getRDBRepository($item->entityType)
-                            ->where(['id' => $foreignId])
-                            ->select(['name'])
-                            ->findOne();
-
-                        if ($foreignEntity) {
-                            $entity->set($item->name . 'Name', $foreignEntity->get('name'));
-                        }
-                    }
-                }
-
-                $collection[] = $entity;
+            foreach ($collection as $entity) {
+                $newCollection[] = $entity;
             }
+
+            $collection = $newCollection;
         }
 
         return new ListResult(
-            $collection,
-            $count,
-            $data->getColumns(),
-            $data->getColumnsData()
+            collection: $collection,
+            total: $count,
+            columns: $data->getColumns(),
+            columnsData: $data->getColumnsData(),
         );
     }
 
@@ -600,7 +476,7 @@ class Service
 
     /**
      * @throws Forbidden
-     * @throws Error
+     * @throws BadRequest
      */
     private function executeSubReportList(
         GridData $data,
@@ -647,14 +523,17 @@ class Service
     }
 
     /**
-     * @throws Forbidden
      * @throws Error
+     * @throws Forbidden
+     * @throws BadRequest
      */
     public function executeGridReport(
         GridData $data,
         ?WhereItem $where,
-        ?User $user = null
+        ?User $user = null,
     ): GridResult {
+
+        $this->assertGridReportAccess($user, $data);
 
         $groupValueMap = [];
         $numericColumnList = [];
@@ -670,8 +549,11 @@ class Service
         foreach ($data->getColumns() as $item) {
             if ($this->gridHelper->isColumnSummary($item, $data)) {
                 $summaryColumnList[] = $item;
+
+                continue;
             }
-            else if ($this->gridHelper->isColumnSubList($item, $data->getGroupBy()[0] ?? null)) {
+
+            if ($this->gridHelper->isColumnEligibleForSubList($item, $data)) {
                 $subListColumnList[] = $item;
             }
         }
@@ -721,11 +603,9 @@ class Service
             $sth = $this->entityManager
                 ->getQueryExecutor()
                 ->execute($query);
-        }
-        catch (PDOException $e) {
+        } catch (PDOException $e) {
             $this->handlePDOException($e);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $this->handleExecuteQueryException($e);
         }
 
@@ -743,75 +623,78 @@ class Service
         $columnTypeMap = [];
         $columnDecimalPlacesMap = [];
         $columnNameMap = [];
+        $groupNameMap = [];
         $nonSummaryColumnList = array_values(array_diff($data->getColumns(), $summaryColumnList));
         $emptyStringGroupExcluded = false;
 
         $groupList = array_map(
-            function (Expression $expr): string {
-                return $expr->getValue();
-            },
+            fn (Expression $expr): string => $expr->getValue(),
             $query->getGroup()
         );
 
         $this->gridResultHelper->fixRows($rows, $groupList, $emptyStringGroupExcluded);
         $this->gridResultHelper->populateGroupValueMap($data, $groupList, $rows, $groupValueMap);
         $this->gridResultHelper->populateGrouping($data, $groupList, $rows, $where, $grouping);
-        $this->gridResultHelper->populateRows($data, $groupList, $grouping, $rows);
+        $this->gridResultHelper->populateRows($data, $groupList, $grouping, $rows, $nonSummaryColumnList);
         $this->gridResultHelper->populateGroupValueMapByLinkColumns($data, $linkColumnList, $rows, $groupValueMap);
         $this->gridResultHelper->populateGroupValueMapForDateFunctions($data, $grouping, $groupValueMap);
         $this->gridResultHelper->populateColumnInfo($data, $columnTypeMap, $columnDecimalPlacesMap, $columnNameMap);
+        $this->gridResultHelper->populateGroupNameMap($data, $groupNameMap);
         $this->gridResultHelper->sortGrouping($data, $grouping, $groupValueMap);
 
         $reportData = $this->gridBuilder->build(
-            $data,
-            $rows,
-            $groupList,
-            $columnToBuildList,
-            $sums,
-            $cellValueMaps
+            data: $data,
+            rows: $rows,
+            groupList: $groupList,
+            columns: $columnToBuildList,
+            sums: $sums,
+            cellValueMaps: $cellValueMaps,
         );
 
         $nonSummaryData = $this->gridBuilder->buildNonSummary(
-            $data->getColumns(),
-            $summaryColumnList,
-            $data,
-            $rows,
-            $groupList,
-            $cellValueMaps,
-            $nonSummaryColumnGroupMap
+            columnList: $data->getColumns(),
+            summaryColumnList: $summaryColumnList,
+            data: $data,
+            rows: $rows,
+            groupList: $groupList,
+            cellValueMaps: $cellValueMaps,
+            nonSummaryColumnGroupMap: $nonSummaryColumnGroupMap,
         );
 
         $subListData = $this->executeGridReportSubList(
-            $grouping[0],
-            $subListColumnList,
-            $data,
-            $where,
-            $user
+            groupValueList: $grouping[0],
+            columnList: $subListColumnList,
+            data: $data,
+            where: $where,
+            user: $user,
         );
 
         $resultObject = new GridResult(
-            $data->getEntityType(),
-            $data->getGroupBy(),
-            $data->getColumns(),
-            $numericColumnList,
-            $summaryColumnList,
-            $nonSummaryColumnList,
-            $subListColumnList,
-            $aggregatedColumnList,
-            $nonSummaryColumnGroupMap, // stdClass
-            $subListData, // object<stdClass[]>
-            (object) $sums, // object<int|float>
-            $groupValueMap, // array<string, array<string, mixed>>
-            $columnNameMap, // array<string, string>
-            $columnTypeMap, // array<string, string>
-            $cellValueMaps, // object<object> (when grouping by link)
-            $grouping, // array{string[]}|array{string[], string[]}
-            $reportData, // object<object>|object<object<object>>
-            $nonSummaryData, // object<object<object>>
-            $data->getChartType(),
-            $data->getChartDataList(), // stdClass[]
-            (object) $columnDecimalPlacesMap, // object<?int>,
-            $emptyStringGroupExcluded
+            entityType: $data->getEntityType(),
+            groupByList: $data->getGroupBy(),
+            columnList: $data->getColumns(),
+            numericColumnList: $numericColumnList,
+            summaryColumnList: $summaryColumnList,
+            nonSummaryColumnList: $nonSummaryColumnList,
+            subListColumnList: $subListColumnList,
+            aggregatedColumnList: $aggregatedColumnList,
+            nonSummaryColumnGroupMap: $nonSummaryColumnGroupMap, // stdClass
+            subListData: $subListData, // object<stdClass[]>
+            sums: (object) $sums, // object<int|float>
+            groupValueMap: $groupValueMap, // array<string, array<string, mixed>>
+            columnNameMap: $columnNameMap, // array<string, string>
+            columnTypeMap: $columnTypeMap, // array<string, string>
+            cellValueMaps: $cellValueMaps, // object<object> (when grouping by link)
+            grouping: $grouping, // array{string[]}|array{string[], string[]}
+            reportData: $reportData, // object<object>|object<object<object>>
+            nonSummaryData: $nonSummaryData, // object<object<object>>
+            chartType: $data->getChartType(),
+            chartDataList: $data->getChartDataList(), // stdClass[]
+            columnDecimalPlacesMap: (object) $columnDecimalPlacesMap, // object<?int>,
+            emptyStringGroupExcluded: $emptyStringGroupExcluded,
+            currency: $this->currencyConfig->getDefaultCurrency(),
+            groupNameMap: $groupNameMap,
+            tableMode: $data->getTableMode(),
         );
 
         $resultObject->setSuccess($data->getSuccess());
@@ -831,6 +714,7 @@ class Service
 
     /**
      * @return never-return
+     * @throws Error
      */
     private function throwError(string $reason, string $message): void
     {
@@ -851,14 +735,17 @@ class Service
     /**
      * @param string[] $groupValueList
      * @param string[] $columnList
-     * @return object // object<stdClass[]>
+     * @return stdClass // object<stdClass[]>
+     *
+     * @throws Forbidden
+     * @throws BadRequest
      */
     private function executeGridReportSubList(
         array $groupValueList,
         array $columnList,
         GridData $data,
         ?WhereItem $where,
-        ?User $user = null
+        ?User $user = null,
     ): object {
 
         if ($columnList === []) {
@@ -869,11 +756,11 @@ class Service
 
         foreach ($groupValueList as $groupValue) {
             $result->$groupValue = $this->executeGridReportSubListItem(
-                $groupValue,
-                $columnList,
-                $data,
-                $where,
-                $user
+                groupValue: $groupValue,
+                columnList: $columnList,
+                data: $data,
+                where: $where,
+                user: $user,
             );
         }
 
@@ -882,15 +769,20 @@ class Service
 
     /**
      * @param ?scalar $groupValue
+     * @param string[] $columnList
+     * @return stdClass[]
+     *
      * @throws Forbidden
-     * @throws Error
+     * @throws BadRequest
+     *
+     * @todo Add complex expression support. E.g. `LOWER:(name)`.
      */
     private function executeGridReportSubListItem(
         $groupValue,
         array $columnList,
         GridData $data,
         ?WhereItem $where,
-        ?User $user = null
+        ?User $user = null,
     ): array {
 
         if ($groupValue === '') {
@@ -899,20 +791,30 @@ class Service
 
         $realColumnList = array_map(
             function (string $column): string {
-                return strpos($column, ':') === false ?
+                return !str_contains($column, ':') ?
                     $column :
                     explode(':', $column)[1];
             },
             $columnList
         );
 
+        $realColumnList = array_filter($realColumnList, function ($it) {
+            if (str_starts_with($it, '(')) {
+                return false;
+            }
+
+            return true;
+        });
+
+        $realColumnList = array_values($realColumnList);
+
         $query = $this->subListQueryPreparator->prepare(
-            $data,
-            $groupValue,
-            $columnList,
-            $realColumnList,
-            $where,
-            $user
+            data: $data,
+            groupValue: $groupValue,
+            columnList: $columnList,
+            realColumnList: $realColumnList,
+            where: $where,
+            user: $user,
         );
 
         $linkColumnList = $this->gridHelper->obtainLinkColumnListFromColumns($data, $realColumnList);
@@ -926,7 +828,7 @@ class Service
                 continue;
             }
 
-            if (strpos($column, ':') !== false) {
+            if (str_contains($column, ':')) {
                 $columnAttributeMap[$column] = explode(':', $column)[1];
 
                 continue;
@@ -962,12 +864,13 @@ class Service
     }
 
     /**
-     * @return scalar
+     * @return scalar|string[]
      */
-    private function getCellDisplayValueFromEntity(Entity $entity, string $attribute, object $columnData)
+    private function getCellDisplayValueFromEntity(Entity $entity, string $attribute, ColumnData $columnData)
     {
         if ($columnData->fieldType === 'datetimeOptional' && $entity->get($attribute . 'Date')) {
             $attribute = $attribute . 'Date';
+
             $columnData->fieldType = 'date';
         }
 
@@ -975,9 +878,11 @@ class Service
     }
 
     /**
+     * @return array<string, array<int, mixed>>
      * @throws Forbidden
      * @throws NotFound
      * @throws Error
+     * @throws BadRequest
      */
     public function getReportResultsTableData(
         string $id,
@@ -986,8 +891,7 @@ class Service
         ?User $user = null
     ): array {
 
-        /** @var ?Report $report */
-        $report = $this->entityManager->getEntityById(Report::ENTITY_TYPE, $id);
+        $report = $this->entityManager->getRDBRepositoryByClass(Report::class)->getById($id);
 
         if (!$report) {
             throw new NotFound();
@@ -1001,26 +905,19 @@ class Service
             }
 
             $result = $this->runList($id, $searchParams, $user);
-        }
-        else {
+        } else {
             $result = $this->runGrid($id, $where, $user);
         }
 
-        $resultData = $result;
-
         if ($result instanceof ListResult) {
+            /** @var array<string, mixed> $resultData */
             $resultData = [];
 
             foreach ($result->getCollection() as $e) {
                 $resultData[] = get_object_vars($e->getValueMap());
             }
-        }
-
-        /** @var ?Report $report */
-        $report = $this->entityManager->getEntity(Report::ENTITY_TYPE, $id);
-
-        if (!$report) {
-            throw new NotFound();
+        } else {
+            $resultData = $result;
         }
 
         $data = (object) [
@@ -1030,54 +927,170 @@ class Service
 
         $service = $this->injectableFactory->create(SendingService::class);
 
+        /** @var GridResult|array<int, mixed> $resultData */
+
         $service->buildData($data, $resultData, $report);
 
         return $data->tableData ?? [];
     }
 
-    private function getCustomEntityFactory(): CustomEntityFactory
-    {
-        if (!$this->customEntityFactory) {
-            $this->customEntityFactory = new CustomEntityFactory(
-                $this->injectableFactory,
-                $this->entityManager
-            );
-        }
-
-        return $this->customEntityFactory;
-    }
-
     /**
      * @return never-return
+     * @throws Error
      */
     private function handlePDOException(PDOException $e): void
     {
-        if ((int)$e->getCode() === 42000) {
-            $message = strpos($e->getMessage(), ': 1055') !== false ?
+        if ((int) $e->getCode() === 42000) {
+            $message = str_contains($e->getMessage(), ': 1055') ?
                 'onlyFullGroupByError' :
                 'sqlSyntaxError';
 
-            $this->log->error($e->getMessage());
+            $this->log->error($e->getMessage(), ['exception' => $e]);
             $this->throwError('sqlSyntaxError', $message);
         }
 
         if ($e->getCode() === '42S22') {
-            $this->log->error($e->getMessage());
+            $this->log->error($e->getMessage(), ['exception' => $e]);
             $this->throwError('invalidColumnError', 'invalidColumnError');
         }
 
-        $this->log->error($e->getMessage());
+        $this->log->error($e->getMessage(), ['exception' => $e]);
         $this->throwError('executionError', 'executionError');
     }
 
     /**
      * @return never-return
+     * @throws Error
      */
     private function handleExecuteQueryException(Exception $e): void
     {
         $msg = $e->getMessage() . "; file: {$e->getFile()}; line: {$e->getLine()}";
 
-        $this->log->error($msg);
+        $this->log->error($msg, ['exception' => $e]);
         $this->throwError('executionError', 'executionError');
+    }
+
+    /**
+     * @throws BadRequest
+     * @throws Error
+     * @throws Forbidden
+     */
+    public function reportRunList(
+        Report $report,
+        ?SearchParams $searchParams,
+        ?User $user,
+        ?ListRunParams $runParams = null,
+    ): ListResult {
+
+        $runParams ??= ListRunParams::create();
+
+        if ($report->isInternal()) {
+            $impl = $this->reportHelper->createInternalReport($report);
+
+            if (!$impl instanceof ListReport) {
+                throw new Error("Bad report class.");
+            }
+
+            return $impl->run($searchParams, $user);
+        }
+
+        if ($report->getType() !== Report::TYPE_LIST) {
+            throw new Error("Can't run non-List report as List.");
+        }
+
+        if (!$report->getTargetEntityType()) {
+            $id = $report->getId();
+
+            throw new Error("No entity type in report $id.");
+        }
+
+        if (
+            $searchParams &&
+            $searchParams->getWhere() &&
+            !$runParams->skipRuntimeFiltersCheck()
+        ) {
+            $this->reportHelper->checkRuntimeFilters($searchParams->getWhere(), $report);
+        }
+
+        return $this->executeListReport(
+            data: $this->reportHelper->fetchListDataFromReport($report),
+            searchParams: $searchParams,
+            runParams: $runParams,
+            user: $user,
+        );
+    }
+
+    /**
+     * @param ?array<string, ?WhereItem> $idWhereMap
+     * @throws BadRequest
+     * @throws Error
+     * @throws Forbidden
+     */
+    public function reportRunGridOrJoint(
+        Report $report,
+        ?WhereItem $whereItem,
+        ?User $user,
+        ?GridRunParams $runParams = null,
+        ?array $idWhereMap = null,
+    ): GridResult {
+
+        if ($report->isInternal()) {
+            $impl = $this->reportHelper->createInternalReport($report);
+
+            if (!$impl instanceof GridReport) {
+                throw new Error("Bad report class.");
+            }
+
+            return $impl->run($whereItem, $user);
+        }
+
+        if (
+            $whereItem &&
+            (!$runParams || !$runParams->skipRuntimeFiltersCheck())
+        ) {
+            $this->reportHelper->checkRuntimeFilters($whereItem, $report);
+        }
+
+        switch ($report->getType()) {
+            case Report::TYPE_GRID:
+                return $this->executeGridReport(
+                    $this->reportHelper->fetchGridDataFromReport($report),
+                    $whereItem,
+                    $user
+                );
+
+            case Report::TYPE_JOINT_GRID:
+                return $this->injectableFactory
+                    ->createWith(JointGridExecutor::class, ['service' => $this])
+                    ->execute(
+                        $this->reportHelper->fetchJointDataFromReport($report),
+                        $user,
+                        $idWhereMap
+                    );
+        }
+
+        throw new Error("Unknown type.");
+    }
+
+    /**
+     * @throws Forbidden
+     */
+    private function assertGridReportAccess(?User $user, GridData $data): void
+    {
+        $entityType = $data->getEntityType();
+
+        $attributes = array_merge($data->getGroupBy(), $data->getColumns());
+
+        if (!$data->applyAcl()) {
+            $user = null;
+        }
+
+        foreach ($attributes as $item) {
+            $attributes = Util::getAllAttributesFromComplexExpression($item);
+
+            foreach ($attributes as $attribute) {
+                $this->accessHelper->assertAccessToAttribute($user, $entityType, $attribute);
+            }
+        }
     }
 }

@@ -19,4 +19,3 @@
     {{/tableTag}}
     <p>&nbsp;</p>
 {{/each}}
-

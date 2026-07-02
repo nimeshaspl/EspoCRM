@@ -6,12 +6,16 @@
         "status": "Status",
         "candidateManagement": "Candidate Management",
         "candidateManagements": "Candidate Managements",
-        "parent": "Parent"
+        "parent": "Parent",
+        "vendorResourceses": "Vendor Resourceses",
+        "jobType": "Job Type",
+        "jobDescription": "Job Description"
     },
     "links": {
         "candidateManagement": "Candidate Management",
         "candidateManagements": "Candidate Managements",
-        "parent": "Parent"
+        "parent": "Parent",
+        "vendorResourceses": "Vendor Resourceses"
     },
     "labels": {
         "Create PositionManagement": "Create Position Management"
@@ -24,6 +28,11 @@
             "Open": "Open",
             "On Hold": "On Hold",
             "Fulfiled": "Fulfiled"
+        },
+        "jobType": {
+            "Fulltime": "Fulltime",
+            "Contract": "Contract",
+            "Any": "Any"
         }
     }
 }

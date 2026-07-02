@@ -11,44 +11,58 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Utils;
 
 use Espo\Core\Exceptions\Error;
-use Espo\Core\Container;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
 use Espo\Core\Formula\Manager as FormulaManager;
+use Espo\Core\InjectableFactory;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Modules\Advanced\Core\Workflow\Conditions\Base;
 use Espo\ORM\Entity;
 
+use RuntimeException;
 use stdClass;
 
 class ConditionManager
 {
     private ?stdClass $createdEntitiesData = null;
 
+    private const TYPE_AND = 'and';
+    private const TYPE_OR = 'or';
+
+    /** @var string[]  */
     private array $requiredOptionList = [
         'comparison',
         'fieldToCompare',
     ];
 
-    private Container $container;
+    public function __construct(
+        private InjectableFactory $injectableFactory,
+        private FormulaManager $formulaManager,
+    ) {}
 
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-    }
-
+    /**
+     * @param ?stdClass[] $conditionsAll
+     * @param ?stdClass[] $conditionsAny
+     * @throws Error
+     */
     public function check(
         Entity $entity,
         ?array $conditionsAll = null,
-        ?array$conditionsAny = null,
+        ?array $conditionsAny = null,
         ?string $conditionsFormula = null,
-        stdClass $variables = null
+        ?stdClass $variables = null,
     ): bool {
+
+        if (!$entity instanceof CoreEntity) {
+            throw new RuntimeException();
+        }
 
         $result = true;
 
@@ -60,21 +74,21 @@ class ConditionManager
             $result &= $this->checkConditionsAny($entity, $conditionsAny);
         }
 
-        if (!empty($conditionsFormula)) {
+        if ($conditionsFormula !== null && $conditionsFormula !== '') {
             $result &= $this->checkConditionsFormula($entity, $conditionsFormula, $variables);
         }
 
         return (bool) $result;
     }
 
-    public function checkConditionsAll(Entity $entity, array $conditionList): bool
+    /**
+     * @param stdClass[] $items
+     * @throws Error
+     */
+    public function checkConditionsAll(CoreEntity $entity, array $items): bool
     {
-        if (!isset($conditionList)) {
-            return true;
-        }
-
-        foreach ($conditionList as $condition) {
-            if (!$this->processCheck($entity, $condition)) {
+        foreach ($items as $item) {
+            if (!$this->processCheck($entity, $item)) {
                 return false;
             }
         }
@@ -82,14 +96,18 @@ class ConditionManager
         return true;
     }
 
-    public function checkConditionsAny(Entity $entity, array $conditionList): bool
+    /**
+     * @param stdClass[] $items
+     * @throws Error
+     */
+    public function checkConditionsAny(CoreEntity $entity, array $items): bool
     {
-        if (empty($conditionList)) {
+        if ($items === []) {
             return true;
         }
 
-        foreach ($conditionList as $condition) {
-            if ($this->processCheck($entity, $condition)) {
+        foreach ($items as $item) {
+            if ($this->processCheck($entity, $item)) {
                 return true;
             }
         }
@@ -97,7 +115,10 @@ class ConditionManager
         return false;
     }
 
-    public function checkConditionsFormula(Entity $entity, $formula, $variables = null): bool
+    /**
+     * @throws Error
+     */
+    public function checkConditionsFormula(Entity $entity, ?string $formula, ?stdClass $variables = null): bool
     {
         if (empty($formula)) {
             return true;
@@ -105,7 +126,7 @@ class ConditionManager
 
         $formula = trim($formula, " \t\n\r");
 
-        if (substr($formula, -1) === ';') {
+        if (str_ends_with($formula, ';')) {
             $formula = substr($formula, 0, -1);
         }
 
@@ -127,18 +148,38 @@ class ConditionManager
             $o->__createdEntitiesData = $this->createdEntitiesData;
         }
 
-        return $this->getFormulaManager()->run($formula, $entity, $o);
+        try {
+            return $this->getFormulaManager()->run($formula, $entity, $o);
+        } catch (FormulaError $e) {
+            throw new Error($e->getMessage(), previous: $e);
+        }
     }
 
-    private function processCheck(Entity $entity, stdClass $condition): bool
+    /**
+     * @throws Error
+     */
+    private function processCheck(CoreEntity $entity, stdClass $item): bool
     {
-        if (!$this->validate($condition)) {
+        if (!$this->validate($item)) {
             return false;
         }
 
-        $compareImpl = $this->getConditionImplementation($condition->comparison);
+        $type = $item->type ?? null;
 
-        return $compareImpl->process($entity, $condition, $this->createdEntitiesData);
+        if ($type === self::TYPE_AND || $type === self::TYPE_OR) {
+            /** @var stdClass[] $value */
+            $value = $item->value ?? [];
+
+            if ($type === self::TYPE_OR) {
+                return $this->checkConditionsAny($entity, $value);
+            }
+
+            return $this->checkConditionsAll($entity, $value);
+        }
+
+        $impl = $this->getConditionImplementation($item->comparison);
+
+        return $impl->process($entity, $item, $this->createdEntitiesData);
     }
 
     /**
@@ -155,22 +196,35 @@ class ConditionManager
             $className .= 'Type';
 
             if (!class_exists($className)) {
-                throw new Error('ConditionManager: Class ' . $className . ' does not exist.');
+                throw new Error("ConditionManager: Class $className does not exist.");
             }
         }
 
-        return new $className($this->getContainer());
+        /** @var class-string<Base> $className */
+
+        return $this->injectableFactory->create($className);
     }
 
-    public function setCreatedEntitiesData(stdClass $createdEntitiesData)
+    public function setCreatedEntitiesData(stdClass $createdEntitiesData): void
     {
         $this->createdEntitiesData = $createdEntitiesData;
     }
 
-    private function validate($options): bool
+    private function validate(stdClass $item): bool
     {
+        if (
+            isset($item->type) &&
+            in_array($item->type, [self::TYPE_OR, self::TYPE_AND])
+        ) {
+            if (!isset($item->value) || !is_array($item->value)) {
+                return false;
+            }
+
+            return true;
+        }
+
         foreach ($this->requiredOptionList as $optionName) {
-            if (!property_exists($options, $optionName)) {
+            if (!property_exists($item, $optionName)) {
                 return false;
             }
         }
@@ -178,14 +232,8 @@ class ConditionManager
         return true;
     }
 
-    private function getContainer(): Container
-    {
-        return $this->container;
-    }
-
     private function getFormulaManager(): FormulaManager
     {
-        /** @var FormulaManager */
-        return $this->getContainer()->get('formulaManager');
+        return $this->formulaManager;
     }
 }

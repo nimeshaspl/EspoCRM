@@ -31,7 +31,7 @@
     "workflowLogRecords": "Journal"
   },
   "tooltips": {
-    "requestHeaders": "En-têtes supplémentaires.\n\nFormat :\n````clé: valeur```\n\nCaractères génériques disponibles :\n*`{$attribute}`\n*`{$$variable}`",
+    "requestHeaders": "En-têtes supplémentaires.\n\nFormat :\n````clé: valeur```\n\nCaractères génériques disponibles :\n*`{$attribute}`\n*`{$$variable}`\n* `{#secrets.name}`",
     "requestContent": "Au format JSON.\n\nCaractères génériques disponibles :\n* `{$attribute}`\n* `{$$variable}`",
     "portalOnly": "Si coché, le flux de travail sera déclenché uniquement dans le portail.",
     "portal": "Portail spécifique où le flux de travail sera déclenché. Laissez vide si vous en avez besoin qu'il fonctionne dans n'importe quel portail.",
@@ -180,8 +180,8 @@
     "optOut": "Paramètre facultatif : targetListId. Si non spécifié, marque alors une adresse comme e-mail désactivée.\n\n Exemple :\n`` `{\" targetListId \":\" TARGET_LIST_ID \"}` ``",
     "convertCurrency": "Paramètre facultatif : targetCurrency. S'il n'est pas spécifié, il sera converti dans la devise par défaut.",
     "sendInEmail": "Paramètres :\n* templateId - ID du modèle PDF\n* emailTemplateId - ID du modèle d'e-mail\n* to - destinataire (paramètre facultatif) ; par défaut, sera envoyé au contact de facturation ou au compte ; exemple : `link:account.assignedUser`\n\nExemple\n\n``` {\n    \"templateId\": TEMPLATE_ID\",\n    \"emailTemplateId\":\"EMAIL_TEMPLATE_ID\",\n    \"to\": \"link:billingContact\"\n } ```",
-    "addQuoteItemList": "Exemple : \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
-    "addInvoiceItemList": "Exemple : \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
-    "addSalesOrderItemList": "Exemple : \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"procuctId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```"
+    "addQuoteItemList": "Exemple : \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
+    "addInvoiceItemList": "Exemple : \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
+    "addSalesOrderItemList": "Exemple : \n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```"
   }
 }

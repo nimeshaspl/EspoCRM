@@ -33,7 +33,7 @@
         }
     },
     "presetFilters": {
-        "actual": "Actual",
+        "actual": "Open",
         "resolved": "Resolved",
         "canceled": "Canceled"
     }

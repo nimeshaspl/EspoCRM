@@ -11,20 +11,24 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Reports;
 
+use Espo\Core\Exceptions\BadRequest;
+use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Field\DateTime;
 use Espo\Core\Select\SearchParams;
 use Espo\Core\Select\SelectBuilderFactory;
 use Espo\Core\Select\Where\Item as WhereItem;
 use Espo\Core\Utils\Language;
 use Espo\Core\Utils\Metadata;
+use Espo\Entities\Team;
 use Espo\Entities\User;
+use Espo\Modules\Advanced\Entities\Report;
 use Espo\Modules\Advanced\Tools\Report\GridType\Result;
 use Espo\Modules\Advanced\Tools\Report\ListType\Result as ListResult;
 use Espo\Modules\Advanced\Tools\Report\ListType\SubReportParams;
@@ -32,12 +36,17 @@ use Espo\Modules\Crm\Entities\Call;
 use Espo\Modules\Crm\Entities\Lead;
 use Espo\Modules\Crm\Entities\Meeting;
 use Espo\ORM\EntityManager;
+use Espo\ORM\Name\Attribute;
 use Espo\ORM\Query\Part\Condition as C;
 use Espo\ORM\Query\Part\Expression as E;
 use Espo\ORM\Query\Part\Order;
 use Espo\ORM\Query\Part\WhereItem as WherePart;
 use Espo\ORM\Query\SelectBuilder;
+use RuntimeException;
 
+/**
+ * @noinspection PhpUnused
+ */
 class LeadsByLastActivity implements GridReport
 {
     /** @var array<int, ?array{int, ?int}> */
@@ -54,33 +63,25 @@ class LeadsByLastActivity implements GridReport
     /** @var string[] */
     private array $ignoreStatusList;
 
-    private EntityManager $entityManager;
-    private Metadata $metadata;
-    private Language $language;
-    private SelectBuilderFactory $selectBuilderFactory;
-
     public function __construct(
-        EntityManager $entityManager,
-        Metadata $metadata,
-        Language $language,
-        SelectBuilderFactory $selectBuilderFactory
+        private EntityManager $entityManager,
+        private Metadata $metadata,
+        private Language $language,
+        private SelectBuilderFactory $selectBuilderFactory,
+        private Report $report,
     ) {
-        $this->entityManager = $entityManager;
-        $this->metadata = $metadata;
-        $this->language = $language;
-        $this->selectBuilderFactory = $selectBuilderFactory;
-
-        $this->ignoreStatusList = $this->metadata
-            ->get(['entityDefs', 'Lead', 'fields', 'status', 'notActualOptions']) ?? [];
+        $this->ignoreStatusList = $this->metadata->get("entityDefs.Lead.fields.status.notActualOptions") ?? [];
     }
 
     private function executeSubReport(
         SearchParams $searchParams,
         SubReportParams $subReportParams,
-        ?User $user
+        ?User $user,
     ): ListResult {
 
+        /** @var string $groupValue */
         $groupValue = $subReportParams->getGroupValue();
+
         $groupIndex = $subReportParams->getGroupIndex();
 
         $selectBuilder = $this->selectBuilderFactory
@@ -93,7 +94,11 @@ class LeadsByLastActivity implements GridReport
             $selectBuilder->forUser($user);
         }
 
-        $queryBuilder = $selectBuilder->buildQueryBuilder();
+        try {
+            $queryBuilder = $selectBuilder->buildQueryBuilder();
+        } catch (BadRequest|Forbidden $e) {
+            throw new RuntimeException($e->getMessage(), 0, $e);
+        }
 
         if (!$groupIndex) {
             if ($groupValue === '-') {
@@ -104,10 +109,18 @@ class LeadsByLastActivity implements GridReport
                 if (empty($range[1])) {
                     $range[1] = null;
                 }
+
+                foreach ($range as $i => $it) {
+                    if ($it !== null) {
+                        $range[$i] = intval($it);
+                    }
+                }
             }
         }
 
         if (!$groupIndex) {
+            /** @var ?array{?int, ?int} $range */
+
             $queryBuilder->where(
                 $this->getWherePart($range)
             );
@@ -117,10 +130,11 @@ class LeadsByLastActivity implements GridReport
             if ($subReportParams->hasGroupValue2()) {
                 $queryBuilder->where(['status' => $subReportParams->getGroupValue2()]);
             }
-        }
-        else {
+        } else {
             $queryBuilder->where(['status' => $groupValue]);
         }
+
+        $this->applyTeamFilter($queryBuilder);
 
         $query = $queryBuilder->build();
 
@@ -139,7 +153,6 @@ class LeadsByLastActivity implements GridReport
 
     public function runSubReport(SearchParams $searchParams, SubReportParams $subReportParams, ?User $user): ListResult
     {
-
         return $this->executeSubReport($searchParams, $subReportParams, $user);
     }
 
@@ -177,7 +190,7 @@ class LeadsByLastActivity implements GridReport
         }
 
         $columnNameMap = [
-            'COUNT:id' => $this->language->translate('COUNT', 'functions', 'Report')
+            'COUNT:id' => $this->language->translateLabel('COUNT', 'functions', 'Report'),
         ];
 
         $groupValueMap = [
@@ -190,6 +203,8 @@ class LeadsByLastActivity implements GridReport
         }
 
         foreach ($grouping[1] as $status) {
+            /** @var string $status */
+
             $groupValueMap['status'][$status] = $this->language->translateOption($status, 'status', 'Lead');
         }
 
@@ -198,7 +213,11 @@ class LeadsByLastActivity implements GridReport
         $sum = 0;
 
         foreach ($grouping[0] as $group) {
-            if (!isset($group1Sums[$group]) || !isset($group1Sums[$group][$columns[0]])) {
+            if (
+                !isset($group1Sums[$group]) ||
+                /** @phpstan-ignore-next-line  */
+                !isset($group1Sums[$group][$columns[0]])
+            ) {
                 $group1Sums[$group][$columns[0]] = 0;
             }
 
@@ -220,25 +239,22 @@ class LeadsByLastActivity implements GridReport
         $reportData = (object) $reportData;
 
         $result = new Result(
-            Lead::ENTITY_TYPE,
-            $groupBy,
-            $columns,
-            $columns,
-            $columns,
-            [],
-            [],
-            [],
-            null,
-            null,
-            $sums,
-            $groupValueMap,
-            $columnNameMap,
-            [],
-            null,
-            $grouping,
-            $reportData,
-            null,
-            null
+            entityType: Lead::ENTITY_TYPE,
+            groupByList: $groupBy,
+            columnList: $columns,
+            numericColumnList: $columns,
+            summaryColumnList: $columns,
+            nonSummaryColumnList: [],
+            subListColumnList: [],
+            aggregatedColumnList: [],
+            sums: $sums,
+            groupValueMap: $groupValueMap,
+            columnNameMap: $columnNameMap,
+            columnTypeMap: [],
+            grouping: $grouping,
+            reportData: $reportData,
+            chartType: 'BarVertical',
+            noSubReport: false,
         );
 
         $result->setGroup1Sums((object) $group1Sums);
@@ -248,6 +264,10 @@ class LeadsByLastActivity implements GridReport
         return $result;
     }
 
+    /**
+     * @param int $i
+     * @return string
+     */
     private function getStringRange($i): string
     {
         $range = $this->rangeList[$i];
@@ -259,23 +279,26 @@ class LeadsByLastActivity implements GridReport
         return $range[0] . '-' .  $range[1];
     }
 
-    private function getRangeTranslation($i)
+    /**
+     * @param int $i
+     */
+    private function getRangeTranslation($i): string
     {
         $range = $this->rangeList[$i];
 
         if ($range === null) {
-            return $this->language->translate('never', 'labels', 'Report');
+            return $this->language->translateLabel('never', 'labels', 'Report');
         }
 
         if (empty($range[1])) {
-            return '>' . $range[0] . ' ' . $this->language->translate('days', 'labels', 'Report');
+            return '>' . $range[0] . ' ' . $this->language->translateLabel('days', 'labels', 'Report');
         }
 
-        return $range[0] . '-' . $range[1] . ' ' . $this->language->translate('days', 'labels', 'Report');
+        return $range[0] . '-' . $range[1] . ' ' . $this->language->translateLabel('days', 'labels', 'Report');
     }
 
     /**
-     * @param ?array{int, int} $range
+     * @param ?array{?int, ?int} $range
      */
     private function getWherePart(?array $range): WherePart
     {
@@ -354,7 +377,7 @@ class LeadsByLastActivity implements GridReport
         if (!$range[1]) {
             $day = DateTime::createNow()
                 ->addDays(- $range[0])
-                ->getString();
+                ->toString();
 
             return C::or(
                 C::and(
@@ -370,11 +393,11 @@ class LeadsByLastActivity implements GridReport
 
         $day1 = DateTime::createNow()
             ->addDays(- $range[0])
-            ->getString();
+            ->toString();
 
         $day2 = DateTime::createNow()
             ->addDays(- $range[1])
-            ->getString();
+            ->toString();
 
         return C::or(
             C::and(
@@ -400,7 +423,7 @@ class LeadsByLastActivity implements GridReport
         foreach ($this->rangeList as $i => $range) {
             $where = $this->getWherePart($range);
 
-            $query = SelectBuilder::create()
+            $queryBuilder = SelectBuilder::create()
                 ->from(Lead::ENTITY_TYPE)
                 ->select(
                     E::count(E::column('id')),
@@ -409,8 +432,11 @@ class LeadsByLastActivity implements GridReport
                 ->select('status')
                 ->where(['status!=' => $this->ignoreStatusList])
                 ->where($where)
-                ->group('status')
-                ->build();
+                ->group('status');
+
+            $this->applyTeamFilter($queryBuilder);
+
+            $query = $queryBuilder->build();
 
             $sth = $this->entityManager->getQueryExecutor()->execute($query);
 
@@ -421,6 +447,7 @@ class LeadsByLastActivity implements GridReport
                     $resultData[$dateString] = [];
                 }
 
+                /** @var string $status */
                 $status = $row['status'];
 
                 $resultData[$dateString][$status] = [
@@ -430,5 +457,34 @@ class LeadsByLastActivity implements GridReport
         }
 
         return $resultData;
+    }
+
+    private function getFilterTeamId(): ?string
+    {
+        return $this->report->getInternalParams()->teamId ?? null;
+    }
+
+    private function applyTeamFilter(SelectBuilder $queryBuilder): void
+    {
+        $teamId = $this->getFilterTeamId();
+
+        if (!$teamId) {
+            return;
+        }
+
+        $queryBuilder->where(
+            C::in(
+                E::column(Attribute::ID),
+                SelectBuilder::create()
+                    ->select('entityId')
+                    ->from(Team::RELATIONSHIP_ENTITY_TEAM)
+                    ->where([
+                        'entityType' => Lead::ENTITY_TYPE,
+                        'teamId' => $teamId,
+                        'deleted' => false,
+                    ])
+                    ->build()
+            )
+        );
     }
 }

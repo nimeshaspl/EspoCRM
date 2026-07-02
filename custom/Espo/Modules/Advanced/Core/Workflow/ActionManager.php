@@ -11,15 +11,16 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow;
 
 use Espo\Core\Exceptions\Error;
 
+use Espo\Modules\Advanced\Core\Workflow\Actions\Base;
 use Exception;
 use stdClass;
 
@@ -31,15 +32,12 @@ class ActionManager extends BaseManager
     /**
      * @param stdClass[] $actions Actions.
      * @param array<string, mixed> $variables Formula variables to pass.
+     * @param array<string, mixed> $options Save options.
      * @throws Error
      */
-    public function runActions(array $actions, array $variables = []): void
+    public function runActions(array $actions, array $variables = [], array $options = []): void
     {
-        if (!isset($actions)) {
-            return;
-        }
-
-        $this->log->debug("Start workflow rule [{$this->getWorkflowId()}].");
+        $this->log->debug("Workflow {$this->getWorkflowId()}: Start actions.");
 
         $actualVariables = (object) [];
 
@@ -51,50 +49,73 @@ class ActionManager extends BaseManager
         $processId = $this->getProcessId();
 
         foreach ($actions as $action) {
-            $this->runAction($action, $processId, $actualVariables);
+            $this->runAction(
+                actionData: $action,
+                processId: $processId,
+                variables: $actualVariables,
+                options: $options,
+            );
         }
 
-        $this->log->debug("End workflow rule [{$this->getWorkflowId()}].");
+        $this->log->debug("Workflow {$this->getWorkflowId()}: End actions.");
     }
 
     /**
+     * @param array<string, mixed> $options
      * @throws Error
      */
-    private function runAction(stdClass $actionData, ?string $processId, stdClass $variables): void
-    {
-        $entity = $this->getEntity($processId);
+    private function runAction(
+        stdClass $actionData,
+        ?string $processId,
+        stdClass $variables,
+        array $options = [],
+    ): void {
 
-        $entityType = $entity->getEntityType();
+        $entity = $this->getEntity($processId);
 
         if (!$this->validate($actionData)) {
             $workflowId = $this->getWorkflowId($processId);
 
-            $this->log->warning("Workflow [$workflowId]: invalid action data, [$entityType].");
+            $this->log->warning("Workflow {workflowId}: Invalid action data.", [
+                'workflowId' => $workflowId,
+            ]);
 
             return;
         }
 
-        $actionImpl = $this->getImpl($actionData->type, $processId);
+        $actionImpl = $this->createConditionOrAction($actionData->type, $processId);
 
-        if (!isset($actionImpl)) {
-            return;
+        if (!$actionImpl instanceof Base) {
+            throw new Error("Not action class.");
         }
 
         try {
-            $actionImpl->process($entity, $actionData, null, $variables);
+            $actionImpl->process(
+                entity: $entity,
+                actionData: $actionData,
+                variables: $variables,
+                options: $options,
+            );
 
             $this->copyVariables($actionImpl->getVariablesBack(), $variables);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $workflowId = $this->getWorkflowId($processId);
             $type = $actionData->type;
             $cid = $actionData->cid;
 
-            $this->log->error("Workflow [$workflowId]: Action failed, [$type] [$cid], {$e->getMessage()}.");
+            $this->log->error("Workflow {workflowId}: Action failed, {type} {cid}, {message}.", [
+                'exception' => $e,
+                'workflowId' => $workflowId,
+                'type' => $type,
+                'cid' => $cid,
+                'message' => $e->getMessage(),
+            ]);
+
+            throw new Error("Workflow action failed.", 500, $e);
         }
     }
 
-    private function copyVariables(object $source, object $destination)
+    private function copyVariables(object $source, object $destination): void
     {
         foreach (get_object_vars($destination) as $k => $v) {
             unset($destination->$k);

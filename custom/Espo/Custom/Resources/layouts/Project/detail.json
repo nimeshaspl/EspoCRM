@@ -57,6 +57,11 @@
                 {
                     "name": "pendingAmountForInvoice"
                 }
+            ],
+            [
+                {
+                    "name": "accountNote"
+                }
             ]
         ],
         "style": "default",

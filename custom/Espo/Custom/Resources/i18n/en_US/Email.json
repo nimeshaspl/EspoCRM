@@ -1,7 +1,10 @@
 {
     "fields": {
         "cParentAnother": "Parent Another",
-        "cDataMaster": "Data Master"
+        "cDataMaster": "Data Master",
+        "cIsEmailOpened": "Is Email Opened",
+        "cEmailOpenedAt": "Email Opened At",
+        "cEmailUniqueCode": "Email Unique Code"
     },
     "links": {
         "cParentAnother": "Parent Another",

@@ -7,6 +7,7 @@
         "description": "Description"
     },
     "links": {
-        "payPackage": "Pay Package"
+        "payPackage": "Pay Package",
+        "employees": "Employees"
     }
 }

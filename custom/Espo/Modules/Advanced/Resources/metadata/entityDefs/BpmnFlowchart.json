@@ -8,6 +8,10 @@
         "description": {
             "type": "text"
         },
+        "category": {
+            "type": "link",
+            "view": "views/fields/link-category-tree"
+        },
         "targetType": {
             "type": "enum",
             "required": true,
@@ -91,6 +95,11 @@
             "foreign": "flowchart",
             "utility": true,
             "layoutRelationshipsDisabled": true
+        },
+        "category": {
+            "type": "belongsTo",
+            "foreign": "flowcharts",
+            "entity": "BpmnFlowchartCategory"
         },
         "assignedUser": {
             "type": "belongsTo",

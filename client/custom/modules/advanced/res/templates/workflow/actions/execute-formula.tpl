@@ -4,7 +4,7 @@
         <div class="col-md-1">
             <button class="btn btn-default btn-sm btn-icon" type="button" data-action='editAction'><span class="fas fa-pencil-alt fa-sm"></span></button>
             <div>
-                <a class="btn btn-text btn-sm btn-icon drag-handle"><span class="fas fa-magnet fa-sm"></span></a>
+                <a class="btn btn-text btn-sm btn-icon drag-handle"><span class="fas fa-grip fa-sm fa-rotate-90"></span></a>
             </div>
         </div>
     {{/unless}}

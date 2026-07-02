@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Workflow\Core;
@@ -22,10 +22,10 @@ use Espo\Core\InjectableFactory;
 use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Core\Record\ServiceFactory;
 use Espo\Entities\User;
-use Espo\Modules\Advanced\Core\Workflow\Utils;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
 use Espo\Tools\Stream\Service;
+use RuntimeException;
 
 class RecipientProvider
 {
@@ -33,6 +33,8 @@ class RecipientProvider
         private EntityManager $entityManager,
         private InjectableFactory $injectableFactory,
         private ServiceFactory $serviceFactory,
+        private FieldValueHelper $fieldValueHelper,
+        private ?string $workflowId = null,
     ) {}
 
     public function get(Entity $entity, string $target): RecipientIds
@@ -89,6 +91,7 @@ class RecipientProvider
                 /** @noinspection PhpUndefinedMethodInspection */
                 return new RecipientIds(
                     User::ENTITY_TYPE,
+                    /** @phpstan-ignore-next-line  */
                     $this->serviceFactory->create('Stream')->getEntityFolowerIdList($targetEntity)
                 );
             }
@@ -110,8 +113,8 @@ class RecipientProvider
             )
         ) {
             $collection = $this->entityManager
-                ->getRDBRepository($entity->getEntityType())
-                ->getRelation($entity, $link)
+                ->getRDBRepository($targetEntity->getEntityType())
+                ->getRelation($targetEntity, $link)
                 ->select(['id'])
                 ->sth()
                 ->find();
@@ -128,7 +131,16 @@ class RecipientProvider
             return new RecipientIds($entityType, $ids);
         }
 
-        $fieldEntity = Utils::getFieldValue($targetEntity, $link, true, $this->entityManager);
+        if (!$targetEntity instanceof CoreEntity) {
+            throw new RuntimeException();
+        }
+
+        $fieldEntity = $this->fieldValueHelper->getValue(
+            entity: $targetEntity,
+            path: $link,
+            returnEntity: true,
+            workflowId: $this->workflowId,
+        );
 
         if ($fieldEntity instanceof Entity) {
             return new RecipientIds($fieldEntity->getEntityType(), [$fieldEntity->getId()], true);

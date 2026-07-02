@@ -11,9 +11,9 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Business\Workflow\AssignmentRules;
@@ -27,6 +27,7 @@ use Espo\Modules\Advanced\Tools\Report\ReportHelper;
 use Espo\Modules\Advanced\Tools\Report\Service;
 use Espo\ORM\Entity;
 use Espo\ORM\EntityManager;
+use Espo\ORM\Query\Part\WhereItem;
 use Espo\ORM\Query\SelectBuilder;
 
 use PDO;
@@ -55,6 +56,7 @@ class LeastBusy
     }
 
     /**
+     * @param array<int|string, mixed>|WhereItem|null $whereClause
      * @return array<string, mixed>
      * @throws Forbidden
      * @throws Error
@@ -64,7 +66,7 @@ class LeastBusy
         string $targetTeamId,
         ?string $targetUserPosition,
         ?string $listReportId = null,
-        ?array $whereClause = null
+        $whereClause = null
     ): array {
 
         $team = $this->entityManager->getEntityById(Team::ENTITY_TYPE, $targetTeamId);
@@ -115,7 +117,7 @@ class LeastBusy
                 throw new Error("No report $listReportId.");
             }
 
-            $this->reportHelper->checkReportCanBeRunToRun($report);
+            $this->reportHelper->checkReportCanBeRun($report);
 
             $selectBuilder = $this->reportService->prepareSelectBuilder($report);
         }
@@ -155,7 +157,13 @@ class LeastBusy
             $counts[$id] = $row['COUNT:id'];
         }
 
-        $minCount = min(array_values($counts));
+        $countValues = array_values($counts);
+
+        if (!count($countValues)) {
+            return [];
+        }
+
+        $minCount = min($countValues);
         $minCountIdList = [];
 
         foreach ($counts as $id => $count) {
@@ -164,11 +172,11 @@ class LeastBusy
             }
         }
 
-        $attributes = [];
-
         if (!count($minCountIdList)) {
-            return $attributes;
+            return [];
         }
+
+        $attributes = [];
 
         $attributes['assignedUserId'] = $minCountIdList[array_rand($minCountIdList)];
 

@@ -11,21 +11,24 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
 use DateTimeImmutable;
+use Espo\Core\Acl\GlobalRestriction;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\ORM\Entity as CoreEntity;
+use Espo\Core\ORM\Type\FieldType;
 use Espo\Core\Utils\DateTime;
 use Espo\Entities\Attachment;
 use Espo\Modules\Advanced\Core\Workflow\Utils;
 use Espo\ORM\Entity;
 use Espo\Repositories\Attachment as AttachmentRepository;
+use RuntimeException;
 use stdClass;
 
 abstract class BaseEntity extends Base
@@ -35,33 +38,38 @@ abstract class BaseEntity extends Base
      *
      * @throws Error
      */
-    protected function getValue(string $fieldName, Entity $filledEntity): mixed
+    private function getValue(string $field, Entity $targetEntity): stdClass|string|null
     {
         $actionData = $this->getActionData();
         $entity = $this->getEntity();
 
-        if (!isset($actionData->fields->$fieldName)) {
+        if (!$targetEntity instanceof CoreEntity) {
+            throw new RuntimeException("No Core Entity.");
+        }
+
+        if (!isset($actionData->fields->$field)) {
             return null;
         }
 
-        $fieldParams = $actionData->fields->$fieldName;
+        $fieldParams = $actionData->fields->$field;
 
-        $fieldValue = null;
+        /** @var stdClass|null $values */
+        $values = null;
 
         switch ($fieldParams->subjectType) {
             case 'value':
-                if (isset($fieldParams->attributes) && is_object($fieldParams->attributes)) {
-                    $fieldValue = $fieldParams->attributes;
+                if (isset($fieldParams->attributes) && $fieldParams->attributes instanceof stdClass) {
+                    $values = $fieldParams->attributes;
                 }
 
                 break;
 
             case 'field':
-                $fieldValue = $this->getEntityHelper()->getFieldValues(
-                    $entity,
-                    $filledEntity,
-                    $fieldParams->field,
-                    $fieldName
+                $values = $this->entityHelper->getFieldValues(
+                    fromEntity: $entity,
+                    toEntity: $targetEntity,
+                    fromField: $fieldParams->field,
+                    toField: $field,
                 );
 
                 $toShift = isset($fieldParams->shiftDays) || isset($fieldParams->shiftUnit);
@@ -69,17 +77,23 @@ abstract class BaseEntity extends Base
                 if ($toShift) {
                     $shiftDays = $fieldParams->shiftDays ?? 0;
                     $shiftUnit = $fieldParams->shiftUnit ?? null;
-                    $timezone = $this->getConfig()->get('timeZone');
+                    $timezone = $this->config->get('timeZone');
 
-                    foreach (get_object_vars($fieldValue) as $attribute => $value) {
-                        $attributeType = $filledEntity->getAttributeType($attribute);
+                    foreach (get_object_vars($values) as $attribute => $value) {
+                        $attributeType = $targetEntity->getAttributeType($attribute) ?? 'datetime';
 
-                        $fieldValue->$attribute = Utils::shiftDays(
-                            $shiftDays,
-                            $value,
-                            $attributeType,
-                            $shiftUnit,
-                            $timezone
+                        if (!in_array($attributeType, ['date', 'datetime'])) {
+                            $attributeType = 'date';
+                        }
+
+                        /** @var 'date'|'datetime' $attributeType */
+
+                        $values->$attribute = Utils::shiftDays(
+                            shiftDays: $shiftDays,
+                            input: $value,
+                            type: $attributeType,
+                            unit: $shiftUnit,
+                            timezone: $timezone,
                         );
                     }
                 }
@@ -87,51 +101,105 @@ abstract class BaseEntity extends Base
                 break;
 
             case 'today':
-                $attributeType = Utils::getAttributeType($filledEntity, $fieldName);
+                $attributeType = Utils::getAttributeType($targetEntity, $field);
                 $shiftUnit = $fieldParams->shiftUnit ?? 'days';
-                $timezone = $this->getConfig()->get('timeZone');
+                $timezone = $this->config->get('timeZone');
+
+                if (!in_array($attributeType, ['date', 'datetime'])) {
+                    $attributeType = 'datetime';
+                }
+
+                /** @var 'date'|'datetime' $attributeType */
 
                 return Utils::shiftDays(
-                    $fieldParams->shiftDays,
-                    null,
-                    $attributeType,
-                    $shiftUnit,
-                    $timezone
+                    shiftDays: $fieldParams->shiftDays,
+                    type: $attributeType,
+                    unit: $shiftUnit,
+                    timezone: $timezone,
                 );
 
             default:
-                throw new Error( "Workflow[{$this->getWorkflowId()}]: Unknown fieldName for a field '$fieldName'.");
+                throw new Error( "Workflow[{$this->getWorkflowId()}]: Unknown fieldName for a field '$field'.");
         }
 
-        return $fieldValue;
+        $fieldType = $this->entityHelper->getFieldType($targetEntity, $field);
+
+        $actionType = $fieldParams->actionType ?? null;
+
+        if (
+            ($actionType === 'add' || $actionType === 'remove') &&
+            $values instanceof stdClass &&
+            in_array($fieldType, [
+                FieldType::LINK_MULTIPLE,
+                FieldType::ARRAY,
+                FieldType::MULTI_ENUM,
+                FieldType::CHECKLIST,
+            ])
+        ) {
+            if ($fieldType === FieldType::LINK_MULTIPLE) {
+                $attr = $field . 'Ids';
+                $setIds = $targetEntity->getLinkMultipleIdList($field);
+            } else {
+                $attr = $field;
+                $setIds = $targetEntity->get($attr) ?? [];
+            }
+
+            $ids = $values->$attr ?? [];
+
+            if ($actionType === 'remove') {
+                $values->$attr = array_values(array_unique(array_diff($setIds, $ids)));
+            } else {
+                $values->$attr = array_values(array_unique(array_merge($setIds, $ids)));
+            }
+        }
+
+        return $values;
     }
 
     /**
-     * Get data to fill.
+     * Get values to be set to the entity. Checks whether the entity type is writable.
+     * Filters restricted attributes.
      *
+     * @param Entity $entity An entity data will be set to.
      * @param array<string, mixed>|stdClass|null $fields
      * @return array<string, mixed>
+     * @throws Error
      */
-    protected function getDataToFill(Entity $entity, $fields): array
+    protected function getEntityValuesToSet(Entity $entity, $fields): array
     {
-        $data = [];
+        $this->assertEntityTypyWrite($entity->getEntityType());
 
-        if (empty($fields)) {
-            return $data;
+        $values = [];
+
+        if (!$fields) {
+            return $values;
         }
 
         if (!$entity instanceof CoreEntity) {
-            return $data;
+            return $values;
         }
 
-        $metadataFields = $this->getMetadata()->get(['entityDefs', $entity->getEntityType(), 'fields']);
+        $metadataFields = $this->metadata->get(['entityDefs', $entity->getEntityType(), 'fields']);
         $metadataFieldList = array_keys($metadataFields);
 
-        foreach ($fields as $field => $fieldParams) {
-            $fieldType = $this->getEntityHelper()->getFieldType($entity, $field);
+        if ($fields instanceof stdClass) {
+            $fields = get_object_vars($fields);
+        }
 
-            if ($fieldType === 'attachmentMultiple') {
-                $data = $this->getDataToFillAttachmentMultiple($field, $entity, $data);
+        foreach ($fields as $field => $fieldParams) {
+            $fieldType = $this->entityHelper->getFieldType($entity, $field);
+
+            if ($fieldType === FieldType::ATTACHMENT_MULTIPLE) {
+                $values = $this->getDataToFillAttachmentMultiple($field, $entity, $values);
+
+                continue;
+            }
+
+            if (
+                $fieldType === FieldType::FILE ||
+                $fieldType === FieldType::IMAGE
+            ) {
+                $values = $this->getDataToFillFile($field, $entity, $values);
 
                 continue;
             }
@@ -144,28 +212,32 @@ abstract class BaseEntity extends Base
                 $fieldValue = $this->getValue($field, $entity);
 
                 if (is_object($fieldValue)) {
-                    $data = array_merge($data, get_object_vars($fieldValue));
+                    $values = array_merge($values, get_object_vars($fieldValue));
+
+                    continue;
                 }
-                else {
-                    $data[$field] = $fieldValue;
-                }
+
+                $values[$field] = $fieldValue;
             }
         }
 
         foreach ($fields as $field => $fieldParams) {
-            $fieldType = $this->getEntityHelper()->getFieldType($entity, $field);
+            $fieldType = $this->entityHelper->getFieldType($entity, $field);
 
             if ($fieldType === 'duration') {
-                $this->fillDataDuration($field, $entity, $data);
+                $this->fillDataDuration($field, $entity, $values);
             }
         }
 
-        return $data;
+        $this->filterWriteRestrictedAttributes($entity->getEntityType(), $values);
+
+        return $values;
     }
 
     /**
      * @param array<string, mixed> $data
      * @return array<string, mixed>
+     * @throws Error
      */
     private function getDataToFillAttachmentMultiple(string $field, CoreEntity $entity, array $data): array
     {
@@ -173,27 +245,32 @@ abstract class BaseEntity extends Base
             return $data;
         }
 
+        $attachmentData = $this->getValue($field, $entity);
+
+        if (!$attachmentData instanceof stdClass) {
+            return $data;
+        }
+
         $copiedIdList = [];
         $idListFieldName = $field . 'Ids';
 
-        $attachmentData = $this->getValue($field, $entity);
-
         /** @var AttachmentRepository $repository */
-        $repository = $this->getEntityManager()->getRepository(Attachment::ENTITY_TYPE);
+        $repository = $this->entityManager->getRepository(Attachment::ENTITY_TYPE);
 
-        if (!empty($attachmentData) && is_array($attachmentData->$idListFieldName)) {
+        if (is_array($attachmentData->$idListFieldName)) {
             foreach ($attachmentData->$idListFieldName as $attachmentId) {
-                /** @var ?Attachment $attachment */
-                $attachment = $this->getEntityManager()->getEntityById(Attachment::ENTITY_TYPE, $attachmentId);
+                $attachment = $this->entityManager
+                    ->getRDBRepositoryByClass(Attachment::class)
+                    ->getById($attachmentId);
 
                 if (!$attachment) {
                     continue;
                 }
 
                 $attachment = $repository->getCopiedAttachment($attachment);
-                $attachment->set('field', $field);
+                $attachment->setTargetField($field);
 
-                $this->getEntityManager()->saveEntity($attachment);
+                $this->entityManager->saveEntity($attachment);
 
                 $copiedIdList[] = $attachment->getId();
             }
@@ -202,6 +279,52 @@ abstract class BaseEntity extends Base
         $attachmentData->$idListFieldName = $copiedIdList;
 
         return array_merge($data, get_object_vars($attachmentData));
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     * @throws Error
+     */
+    private function getDataToFillFile(string $field, CoreEntity $entity, array $data): array
+    {
+        $idAttr = $field . 'Id';
+        $nameAttr = $field . 'Name';
+
+        $inputData = $this->getValue($field, $entity) ?? (object) [];
+
+        $id = $inputData->$idAttr ?? null;
+
+        if (!$id) {
+            return array_merge($data, [
+                $idAttr => null,
+                $nameAttr => null,
+            ]);
+        }
+
+        /** @var AttachmentRepository $repository */
+        $repository = $this->entityManager->getRepository(Attachment::ENTITY_TYPE);
+
+        $attachment = $this->entityManager
+            ->getRDBRepositoryByClass(Attachment::class)
+            ->getById($id);
+
+        if (!$attachment) {
+            return array_merge($data, [
+                $idAttr => null,
+                $nameAttr => null,
+            ]);
+        }
+
+        $copy = $repository->getCopiedAttachment($attachment);
+        $copy->setTargetField($field);
+
+        $this->entityManager->saveEntity($copy);
+
+        return array_merge($data, [
+            $idAttr => $copy->getId(),
+            $nameAttr => $copy->getName(),
+        ]);
     }
 
     /**
@@ -217,8 +340,8 @@ abstract class BaseEntity extends Base
             return;
         }
 
-        $startField = $this->getMetadata()->get("entityDefs.$entityType.fields.$field.start");
-        $endField = $this->getMetadata()->get("entityDefs.$entityType.fields.$field.end");
+        $startField = $this->metadata->get("entityDefs.$entityType.fields.$field.start");
+        $endField = $this->metadata->get("entityDefs.$entityType.fields.$field.end");
 
         $startDateAttribute = $startField . 'Date';
         $endDateAttribute = $endField . 'Date';
@@ -231,6 +354,7 @@ abstract class BaseEntity extends Base
                 ->modify("+$duration seconds")
                 ->format(DateTime::SYSTEM_DATE_TIME_FORMAT);
 
+            /** @phpstan-ignore-next-line parameterByRef.type */
             $data[$endField] = $dateEnd;
         }
 
@@ -241,7 +365,30 @@ abstract class BaseEntity extends Base
                 ->modify("+$days days")
                 ->format(DateTime::SYSTEM_DATE_FORMAT);
 
+            /** @phpstan-ignore-next-line parameterByRef.type */
             $data[$endDateAttribute] = $dateEndDate;
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     */
+    private function filterWriteRestrictedAttributes(string $entityType, array &$values): void
+    {
+        $attributes = $this->aclManager->getScopeRestrictedFieldList($entityType, GlobalRestriction::TYPE_FORBIDDEN);
+
+        foreach ($attributes as $attribute) {
+            unset($values[$attribute]);
+        }
+    }
+
+    /**
+     * @throws Error
+     */
+    private function assertEntityTypyWrite(string $entityType): void
+    {
+        if ($this->metadata->get("entityAcl.$entityType.systemWriteForbidden")) {
+            throw new Error("Write to $entityType is forbidden.");
         }
     }
 }

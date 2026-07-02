@@ -5,10 +5,10 @@
     },
     {
         "name": "targetType",
-        "width": 30
+        "width": 20
     },
     {
         "name": "isActive",
-        "width": 15
+        "width": 10
     }
 ]

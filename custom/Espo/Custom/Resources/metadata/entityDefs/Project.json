@@ -228,6 +228,11 @@
             "min": 1,
             "audited": true,
             "isCustom": true
+        },
+        "accountNote": {
+            "type": "wysiwyg",
+            "audited": true,
+            "isCustom": true
         }
     },
     "links": {

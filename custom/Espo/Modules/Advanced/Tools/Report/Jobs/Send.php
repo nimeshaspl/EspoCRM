@@ -11,13 +11,17 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\Jobs;
 
+use Espo\Core\Exceptions\BadRequest;
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Exceptions\Forbidden;
+use Espo\Core\Exceptions\NotFound;
 use Espo\Core\Job\Job;
 use Espo\Core\Job\Job\Data;
 use Espo\Core\Select\SearchParams;
@@ -30,6 +34,7 @@ use Espo\Modules\Advanced\Tools\Report\ListType\Result as ListResult;
 use Espo\Modules\Advanced\Tools\Report\SendingService;
 use Espo\Modules\Advanced\Tools\Report\Service;
 use Espo\ORM\EntityManager;
+use LogicException;
 use RuntimeException;
 
 class Send implements Job
@@ -59,6 +64,12 @@ class Send implements Job
         $this->log = $log;
     }
 
+    /**
+     * @throws BadRequest
+     * @throws Error
+     * @throws Forbidden
+     * @throws NotFound
+     */
     public function run(Data $data): void
     {
         $data = $data->getRaw();
@@ -84,14 +95,20 @@ class Send implements Job
             $searchParams = SearchParams::create()
                 ->withMaxSize($this->getSendingListMaxCount());
 
-            $orderByList = $report->get('orderByList');
+            $orderByList = $report->getOrderByList();
 
             if ($orderByList) {
                 $arr = explode(':', $orderByList);
 
+                /**
+                 * @var 'ASC'|'DESC' $orderDirection
+                 * @noinspection PhpRedundantVariableDocTypeInspection
+                 */
+                $orderDirection = strtoupper($arr[0]);
+
                 $searchParams = $searchParams
                     ->withOrderBy($arr[1])
-                    ->withOrder(strtoupper($arr[0]));
+                    ->withOrder($orderDirection);
             }
 
             $result = $this->service->runList($reportId, $searchParams, $user);
@@ -117,6 +134,10 @@ class Send implements Job
 
                 return;
             }
+        }
+
+        if ($reportResult instanceof ListResult) {
+            throw new LogicException();
         }
 
         $attachmentId = $this->sendingService->getExportAttachmentId($report, $result, null, $user);

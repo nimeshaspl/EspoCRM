@@ -11,49 +11,42 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow;
 
 use Espo\Core\Exceptions\Error;
 
-use Espo\Core\Container;
+use Espo\Core\Formula\Manager as FormulaManager;
+use Espo\Core\InjectableFactory;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Core\Utils\Log;
-use Espo\ORM\Entity;
+use Espo\Modules\Advanced\Core\Bpmn\Utils\ConditionManager as BpmnConditionManager;
 
 abstract class BaseManager
 {
     protected string $dirName = 'Dummy';
-
-    private Container $container;
-    private ?string $processId;
-    /** @var ?array<string, Entity> */
-    private ?array $entityMap;
-    /** @var array<string, string> */
-    private ?array $workflowIdList;
-    /** @var array<string, class-string> */
+    private ?string $processId = null;
+    /** @var ?array<string, CoreEntity> */
+    private ?array $entityMap = null;
+    /** @var ?array<string, string> */
+    private ?array $workflowIdList = null;
+    /** @var array<string, class-string<Actions\Base|Conditions\Base>> */
     private array $actionClassNameMap = [];
+    /** @var string[] */
     protected array $requiredOptions = [];
 
-    protected Log $log;
+    public function __construct(
+        protected Log $log,
+        private InjectableFactory $injectableFactory,
+        protected FormulaManager $formulaManager,
+        protected BpmnConditionManager $conditionManager,
+    ) {}
 
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-
-        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
-        $this->log = $this->container->get('log');
-    }
-
-    protected function getContainer(): Container
-    {
-        return $this->container;
-    }
-
-    public function setInitData($workflowId, Entity $entity): void
+    public function setInitData(string $workflowId, CoreEntity $entity): void
     {
         $this->processId = $workflowId . '-'. $entity->getId();
 
@@ -61,6 +54,9 @@ abstract class BaseManager
         $this->entityMap[$this->processId] = $entity;
     }
 
+    /**
+     * @throws Error
+     */
     protected function getProcessId(): ?string
     {
         if (empty($this->processId)) {
@@ -70,6 +66,9 @@ abstract class BaseManager
         return $this->processId;
     }
 
+    /**
+     * @throws Error
+     */
     protected function getWorkflowId(?string $processId = null): string
     {
         if (!isset($processId)) {
@@ -83,7 +82,10 @@ abstract class BaseManager
         return $this->workflowIdList[$processId];
     }
 
-    protected function getEntity(?string $processId = null): Entity
+    /**
+     * @throws Error
+     */
+    protected function getEntity(?string $processId = null): CoreEntity
     {
         if (!isset($processId)) {
             $processId = $this->getProcessId();
@@ -96,6 +98,10 @@ abstract class BaseManager
         return $this->entityMap[$processId];
     }
 
+    /**
+     * @return class-string<Actions\Base|Conditions\Base>
+     * @throws Error
+     */
     private function getClassName(string $name): string
     {
         if (!isset($this->actionClassNameMap[$name])) {
@@ -117,6 +123,8 @@ abstract class BaseManager
                 }
             }
 
+            /** @var class-string<Actions\Base|Conditions\Base> $className */
+
             $this->actionClassNameMap[$name] = $className;
         }
 
@@ -125,8 +133,9 @@ abstract class BaseManager
 
     /**
      * @return Actions\Base|Conditions\Base
+     * @throws Error
      */
-    protected function getImpl(string $name, ?string $processId = null): object
+    protected function createConditionOrAction(string $name, ?string $processId = null): object
     {
         $name = ucfirst($name);
 
@@ -141,7 +150,7 @@ abstract class BaseManager
         $className = $this->getClassName($name);
 
         /** @var Actions\Base|Conditions\Base $obj */
-        $obj = new $className($this->getContainer());
+        $obj = $this->injectableFactory->create($className);
 
         $obj->setWorkflowId($workflowId);
 
@@ -157,11 +166,5 @@ abstract class BaseManager
         }
 
         return true;
-    }
-
-    protected function getLog(): Log
-    {
-        /** @var Log */
-        return $this->getContainer()->get('log');
     }
 }

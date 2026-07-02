@@ -11,15 +11,19 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
+use stdClass;
 use Throwable;
 
+/**
+ * @noinspection PhpUnused
+ */
 class TaskScript extends Activity
 {
     public function process(): void
@@ -33,37 +37,61 @@ class TaskScript extends Activity
         }
 
         if (!is_string($formula)) {
-            $GLOBALS['log']->error('Process ' . $this->getProcess()->get('id') . ', formula should be string.');
+            $message = "Process {$this->getProcess()->getId()}, formula should be string.";
+
+            $this->getLog()->error($message);
 
             $this->setFailed();
 
             return;
         }
 
-        try {
-            $variables = $this->getVariablesForFormula();
+        $originalVariables = $this->getVariablesForFormula();
 
+        $variables = clone $originalVariables;
+
+        try {
             $this->getFormulaManager()->run($formula, $this->getTarget(), $variables);
 
-            $this->getEntityManager()
-                ->saveEntity($this->getTarget(), [
-                    'skipWorkflow' => true,
-                    'skipModifiedBy' => true,
-                ]);
+            $this->getEntityManager()->saveEntity($this->getTarget(), [
+                'skipWorkflow' => true,
+                'skipModifiedBy' => true,
+            ]);
+        } catch (Throwable $e) {
+            $message = "Process {$this->getProcess()->getId()} formula error: {$e->getMessage()}";
 
-            $this->sanitizeVariables($variables);
-
-            $this->getProcess()->set('variables', $variables);
-            $this->getEntityManager()->saveEntity($this->getProcess(), ['silent' => true]);
-        }
-        catch (Throwable $e) {
-            $GLOBALS['log']->error('Process ' . $this->getProcess()->get('id') . ' formula error: ' . $e->getMessage());
+            $this->getLog()->error($message, ['exception' => $e]);
 
             $this->setFailedWithException($e);
 
             return;
         }
 
+        $this->processStoreVariables($variables, $originalVariables);
+
         $this->processNextElement();
+    }
+
+    private function processStoreVariables(stdClass $variables, stdClass $originalVariables): void
+    {
+        // The same in Task.
+        if ($this->getAttributeValue('isolateVariables')) {
+            $variableList = array_keys(get_object_vars($variables));
+            $returnVariableList = $this->getReturnVariableList();
+
+            foreach (array_diff($variableList, $returnVariableList) as $name) {
+                unset($variables->$name);
+
+                if (property_exists($originalVariables, $name)) {
+                    $variables->$name = $originalVariables->$name;
+                }
+            }
+        }
+
+        $this->sanitizeVariables($variables);
+
+        $this->getProcess()->setVariables($variables);
+
+        $this->getEntityManager()->saveEntity($this->getProcess(), ['silent' => true]);
     }
 }

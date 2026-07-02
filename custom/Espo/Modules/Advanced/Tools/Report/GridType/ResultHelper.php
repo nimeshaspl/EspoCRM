@@ -11,14 +11,15 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\GridType;
 
 use DateTimeImmutable;
+use Espo\Core\ORM\Type\FieldType;
 use Espo\Core\Select\Where\Item as WhereItem;
 use Espo\Core\Utils\Config;
 use Espo\Core\Utils\Language;
@@ -45,31 +46,15 @@ class ResultHelper
     private const WHERE_TYPE_CURRENT_FISCAL_YEAR = 'currentFiscalYear';
     private const WHERE_TYPE_LAST_FISCAL_YEAR = 'lastFiscalYear';
 
-    private EntityManager $entityManager;
-    private Metadata $metadata;
-    private Language $language;
-    private Config $config;
-    private Helper $helper;
-    private Util $util;
-    private Log $log;
-
     public function __construct(
-        EntityManager $entityManager,
-        Metadata $metadata,
-        Language $language,
-        Config $config,
-        Helper $helper,
-        Util $util,
-        Log $log
-    ) {
-        $this->entityManager = $entityManager;
-        $this->metadata = $metadata;
-        $this->language = $language;
-        $this->config = $config;
-        $this->helper = $helper;
-        $this->util = $util;
-        $this->log = $log;
-    }
+        private EntityManager $entityManager,
+        private Metadata $metadata,
+        private Language $language,
+        private Config $config,
+        private Helper $helper,
+        private Util $util,
+        private Log $log
+    ) {}
 
     /**
      * Before PHP 8.1 strings was returned by PDO. Need to preserve the same.
@@ -149,6 +134,7 @@ class ResultHelper
 
         if ($groupByItem === 'id') {
             foreach ($rows as $row) {
+                /** @var ?string $id */
                 $id = $row[$groupByItem] ?? null;
 
                 if (!$id) {
@@ -171,10 +157,10 @@ class ResultHelper
 
         if ($columnData->fieldType === 'enum') {
             $this->populateEnumGroupValues(
-                $columnData->entityType,
-                $columnData->field,
-                $groupValueMap,
-                $groupByItem
+                entityType: $columnData->entityType,
+                field: $columnData->field,
+                groupValueMap: $groupValueMap,
+                groupByItem: $groupByItem,
             );
 
             return;
@@ -186,13 +172,13 @@ class ResultHelper
 
         if ($columnData->fieldType === 'linkParent') {
             $this->mergeGroupByColumns(
-                $rows,
-                $groupList,
-                $groupByItem,
-                [
+                rowList: $rows, /** @phpstan-ignore-line parameterByRef.type */
+                groupList: $groupList,
+                key: $groupByItem,
+                columnList: [
                     $groupByItem . 'Type',
                     $groupByItem . 'Id',
-                ]
+                ],
             );
 
             $groupValueMap[$groupByItem] = [];
@@ -208,6 +194,7 @@ class ResultHelper
 
                 [$parentEntityType, $id] = explode(':,:', $itemCompositeValue);
 
+                /** @phpstan-ignore-next-line parameterByRef.type */
                 $groupValueMap[$groupByItem][$rowValue] = null;
 
                 if (!$parentEntityType || !$id) {
@@ -216,27 +203,29 @@ class ResultHelper
 
                 $itemEntity = $this->entityManager->getEntityById($parentEntityType, $id);
 
-                $itemScopeLabel = $this->language->translate($parentEntityType, 'scopeNames');
+                $itemScopeLabel = $this->language->translateLabel($parentEntityType, 'scopeNames');
 
                 if (!$itemEntity) {
+                    /** @phpstan-ignore-next-line parameterByRef.type */
                     $groupValueMap[$groupByItem][$rowValue] = $itemScopeLabel . ': ' . $id;
 
                     continue;
                 }
 
+                /** @phpstan-ignore-next-line parameterByRef.type */
                 $groupValueMap[$groupByItem][$rowValue] = $itemScopeLabel . ': ' . $itemEntity->get('name');
             }
 
             return;
         }
 
-        if (in_array($columnData->fieldType, ['link', 'file', 'image'])) {
+        if (in_array($columnData->fieldType, [FieldType::LINK, FieldType::FILE, FieldType::IMAGE])) {
             $groupValueMap[$groupByItem] = [];
 
             $foreignEntityType = $this->metadata
                 ->get(['entityDefs', $data->getEntityType(), 'links', $groupByItem, 'entity']);
 
-            if (in_array($columnData->fieldType, ['file', 'image'])) {
+            if (in_array($columnData->fieldType, [FieldType::FILE, FieldType::IMAGE])) {
                 $foreignEntityType = Attachment::ENTITY_TYPE;
             }
 
@@ -257,11 +246,15 @@ class ResultHelper
                     continue;
                 }
 
+                /** @phpstan-ignore-next-line parameterByRef.type */
                 $groupValueMap[$groupByItem][$id] = $foreignEntity->get('name');
             }
         }
     }
 
+    /**
+     * @param array<string, array<string, mixed>> $groupValueMap
+     */
     private function populateEnumGroupValues(
         string $entityType,
         string $field,
@@ -269,13 +262,14 @@ class ResultHelper
         string $groupByItem
     ): void {
 
-        $groupValueMap[$groupByItem] = $this->language->translate($field, 'options', $entityType);
+        /** @var ?array<string, string> $options */
+        $options = $this->language->translate($field, 'options', $entityType);
 
-        if (is_array($groupValueMap[$groupByItem])) {
+        if (is_array($options)) {
+            $groupValueMap[$groupByItem] = $options;
+
             return;
         }
-
-        unset($groupValueMap[$groupByItem]);
 
         $translation = $this->metadata->get(['entityDefs', $entityType, 'fields', $field, 'translation']);
         $optionsReference = $this->metadata->get(['entityDefs', $entityType, 'fields', $field, 'optionsReference']);
@@ -288,15 +282,18 @@ class ResultHelper
             return;
         }
 
-        $groupValueMap[$groupByItem] = $this->language->get(explode('.', $translation));
+        /** @var ?array<string, string> $options */
+        $options = $this->language->get(explode('.', $translation));
 
-        if (!is_array($groupValueMap[$groupByItem])) {
-            unset($groupValueMap[$groupByItem]);
+        if (is_array($options)) {
+            $groupValueMap[$groupByItem] = $options;
         }
     }
 
     /**
+     * @param array<string, mixed>[] $rowList
      * @param string[] $groupList
+     * @param string[] $columnList
      */
     private function mergeGroupByColumns(
         array &$rowList,
@@ -348,7 +345,8 @@ class ResultHelper
     }
 
     /**
-     * @param string[] $groupList
+     * @param array<int, string> $groupList
+     * @param array<string, mixed>[] $rows
      * @param array<int, string[]> $grouping
      */
     public function populateGrouping(
@@ -356,7 +354,7 @@ class ResultHelper
         array $groupList,
         array $rows,
         ?WhereItem $where,
-        array &$grouping
+        array &$grouping,
     ): void {
 
         if (count($data->getGroupBy()) === 0) {
@@ -368,23 +366,28 @@ class ResultHelper
         foreach ($groupList as $i => $groupCol) {
             $groupAlias = $this->util->sanitizeSelectAlias($groupCol);
 
+            /** @phpstan-ignore-next-line parameterByRef.type */ // phpstan bug ?
             $grouping[$i] = [];
 
             foreach ($rows as $row) {
                 if (!in_array($row[$groupAlias], $grouping[$i])) {
+                    /** @phpstan-ignore-next-line parameterByRef.type */ // phpstan bug ?
                     $grouping[$i][] = $row[$groupAlias];
                 }
             }
 
             if ($i > 0) {
                 if (in_array('ASC:' . $groupCol, $data->getOrderBy())) {
+                    /** @phpstan-ignore-next-line parameterByRef.type */
                     sort($grouping[$i]);
                 }
 
                 if (in_array('DESC:' . $groupCol, $data->getOrderBy())) {
+                    /** @phpstan-ignore-next-line parameterByRef.type */
                     rsort($grouping[$i]);
                 }
-                else if (in_array('LIST:' . $groupCol, $data->getOrderBy())) {
+                /*else if (in_array('LIST:' . $groupCol, $data->getOrderBy())) {
+                    // @todo Revise. Where $orderLists came from?
                     if (!empty($orderLists[$groupCol])) {
                         $list = $orderLists[$groupCol];
 
@@ -392,21 +395,26 @@ class ResultHelper
                             return array_search($a, $list) > array_search($b, $list);
                         });
                     }
-                }
+                }*/
             }
 
-            $this->prepareGroupingRange($groupCol, $grouping[$i], $data, $where);
+            $this->prepareGroupingRange(
+                groupCol: $groupCol,
+                list: $grouping[$i], /** @phpstan-ignore-line parameterByRef.type */
+                data: $data,
+                where: $where,
+            );
 
             if (count($data->getGroupBy()) === 2 && $data->getOrderBy()) {
                 $originalGroupItem = $data->getGroupBy()[$i];
 
                 $this->orderGrouping(
-                    $data->getEntityType(),
-                    $originalGroupItem,
-                    $groupCol,
-                    $data->getOrderBy()[0],
-                    $grouping[$i],
-                    $rows
+                    entityType: $data->getEntityType(),
+                    originalGroupItem: $originalGroupItem,
+                    groupCol: $groupCol,
+                    orderByParam: $data->getOrderBy()[0],
+                    list: $grouping[$i], /** @phpstan-ignore-line parameterByRef.type */
+                    rows: $rows,
                 );
             }
         }
@@ -456,6 +464,13 @@ class ResultHelper
         }
 
         usort($list, function ($item1, $item2) use ($map, $order) {
+            if (
+                is_bool($item1) || is_bool($item2) ||
+                is_float($item1) || is_float($item2)
+            ) {
+                return 0;
+            }
+
             $v1 = $map[$item1] ?? 0;
             $v2 = $map[$item2] ?? 0;
 
@@ -467,35 +482,39 @@ class ResultHelper
         });
     }
 
+    /**
+     * @param string[] $list
+     */
     public function prepareGroupingRange(
         string $groupCol,
         array &$list,
         ?GridData $data = null,
         ?WhereItem $where = null
-    ) {
+    ): void {
+
         $isDate = false;
 
-        if (strpos($groupCol, 'MONTH:') === 0) {
+        if (str_starts_with($groupCol, 'MONTH:')) {
             $isDate = true;
             $this->prepareGroupingMonth($list);
         }
-        else if (strpos($groupCol, 'QUARTER:') === 0 || strpos($groupCol, 'QUARTER_') === 0) {
+        else if (str_starts_with($groupCol, 'QUARTER:') || str_starts_with($groupCol, 'QUARTER_')) {
             $isDate = true;
             $this->prepareGroupingQuarter($list);
         }
-        else if (strpos($groupCol, 'WEEK_0:') === 0) {
+        else if (str_starts_with($groupCol, 'WEEK_0:')) {
             $isDate = true;
             $this->prepareGroupingWeek($list);
         }
-        else if (strpos($groupCol, 'WEEK_1:') === 0) {
+        else if (str_starts_with($groupCol, 'WEEK_1:')) {
             $isDate = true;
             $this->prepareGroupingWeek($list, true);
         }
-        else if (strpos($groupCol, 'DAY:') === 0) {
+        else if (str_starts_with($groupCol, 'DAY:')) {
             $isDate = true;
             $this->prepareGroupingDay($list);
         }
-        else if (strpos($groupCol, 'YEAR:') === 0 || strpos($groupCol, 'YEAR_') === 0) {
+        else if (str_starts_with($groupCol, 'YEAR:') || str_starts_with($groupCol, 'YEAR_')) {
             $isDate = true;
             $this->prepareGroupingYear($list);
         }
@@ -524,7 +543,7 @@ class ResultHelper
             return;
         }
 
-        if (strpos($groupCol, ':') !== false) {
+        if (str_contains($groupCol, ':')) {
             return;
         }
 
@@ -536,7 +555,8 @@ class ResultHelper
     }
 
     /**
-     * $param WhereItem[] $filterList
+     * @param string[] $list
+     * @param WhereItem[] $filterList
      */
     private function prepareGroupingRangeDate(
         string $groupCol,
@@ -553,7 +573,7 @@ class ResultHelper
             return;
         }
 
-        if (strpos($groupCol, 'MONTH:') !== 0) {
+        if (!str_starts_with($groupCol, 'MONTH:')) {
             return;
         }
 
@@ -634,7 +654,8 @@ class ResultHelper
     }
 
     /**
-     * $param WhereItem[] $filterList
+     * @param string[] $list
+     * @param WhereItem[] $filterList
      */
     private function prepareGroupingRangeEnum(
         string $groupCol,
@@ -670,15 +691,20 @@ class ResultHelper
 
         foreach ($optionList as $option) {
             if (!in_array($option, $list)) {
+                /** @phpstan-ignore-next-line parameterByRef.type */ // phpstan bug ?
                 $list[] = $option;
             }
         }
 
         if (in_array('LIST:'. $groupCol, $data->getOrderBy())) {
+            /** @phpstan-ignore-next-line parameterByRef.type */ // phpstan bug ?
             $list = $optionList;
         }
     }
 
+    /**
+     * @param string[] $list
+     */
     private function prepareGroupingMonth(array &$list): void
     {
         sort($list);
@@ -688,9 +714,8 @@ class ResultHelper
             try {
                 $dt = new DateTime($list[0] . '-01');
                 $dtEnd = new DateTime($list[count($list)  - 1] . '-01');
-            }
-            catch (Exception $e) {
-                $this->log->warning("Report grouping error:" . $e->getMessage());
+            } catch (Exception $e) {
+                $this->log->warning("Report grouping error:" . $e->getMessage(), ['exception' => $e]);
 
                 return;
             }
@@ -708,6 +733,9 @@ class ResultHelper
         }
     }
 
+    /**
+     * @param string[] $list
+     */
     private function prepareGroupingQuarter(array &$list): void
     {
         sort($list);
@@ -717,15 +745,24 @@ class ResultHelper
             $startArr = explode('_', $list[0]);
             $endArr = explode('_', $list[count($list)  - 1]);
 
-            $startMonth = str_pad((($startArr[1] - 1) * 3) + 1, 2, '0', STR_PAD_LEFT);
-            $endMonth = str_pad((($endArr[1] - 1) * 3) + 1, 2, '0', STR_PAD_LEFT);
+            $start1 = intval($startArr[1]);
+            $end1 = intval($endArr[1]);
+
+            $start0 = intval($startArr[0]);
+            $end0 = intval($endArr[0]);
+
+
+            $startString = strval((($start1 - 1) * 3) + 1);
+            $endString = strval((($end1 - 1) * 3) + 1);
+
+            $startMonth = str_pad($startString, 2, '0', STR_PAD_LEFT);
+            $endMonth = str_pad($endString, 2, '0', STR_PAD_LEFT);
 
             try {
-                $dt = new DateTime($startArr[0] . '-' . $startMonth . '-01');
-                $dtEnd = new DateTime($endArr[0] . '-' . $endMonth . '-01');
-            }
-            catch (Exception $e) {
-                $this->log->warning("Report grouping error:" . $e->getMessage());
+                $dt = new DateTime("$start0-$startMonth-01");
+                $dtEnd = new DateTime("$end0-$endMonth-01");
+            } catch (Exception $e) {
+                $this->log->warning("Report grouping error:" . $e->getMessage(), ['exception' => $e]);
 
                 return;
             }
@@ -741,6 +778,9 @@ class ResultHelper
         }
     }
 
+    /**
+     * @param string[] $list
+     */
     private function prepareGroupingDay(array &$list): void
     {
         sort($list);
@@ -750,9 +790,8 @@ class ResultHelper
             try {
                 $dt = new DateTime($list[0]);
                 $dtEnd = new DateTime($list[count($list)  - 1]);
-            }
-            catch (Exception $e) {
-                $this->log->warning("Report grouping error:" . $e->getMessage());
+            } catch (Exception $e) {
+                $this->log->warning("Report grouping error:" . $e->getMessage(), ['exception' => $e]);
 
                 return;
             }
@@ -768,6 +807,9 @@ class ResultHelper
         }
     }
 
+    /**
+     * @param string[] $list
+     */
     private function prepareGroupingWeek(array &$list, bool $fromMonday = false): void
     {
         sort($list);
@@ -777,14 +819,15 @@ class ResultHelper
             [$year2, $week2] = explode('/', $v2);
 
             if ($year2 > $year1 || $year2 === $year1 && $week2 > $week1) {
-                return false;
+                return -1;
             }
 
-            return true;
+            return 1;
         });
 
         if (isset($list[0]) && isset($list[count($list) - 1])) {
             $first = $list[0];
+
             $last = $list[count($list) - 1];
 
             [$year, $week] = explode('/', $first);
@@ -793,9 +836,8 @@ class ResultHelper
 
             try {
                 $dt = new DateTime($year . '-01-01');
-            }
-            catch (Exception $e) {
-                $this->log->warning("Report grouping error:" . $e->getMessage());
+            } catch (Exception $e) {
+                $this->log->warning("Report grouping error:" . $e->getMessage(), ['exception' => $e]);
 
                 return;
             }
@@ -815,11 +857,12 @@ class ResultHelper
 
             [$year, $week] = explode('/', $last);
 
+            $week = (int) $week;
+
             try {
                 $dtEnd = new DateTime($year . '-01-01');
-            }
-            catch (Exception $e) {
-                $this->log->warning("Report grouping error:" . $e->getMessage());
+            } catch (Exception $e) {
+                $this->log->warning("Report grouping error:" . $e->getMessage(), ['exception' => $e]);
 
                 return;
             }
@@ -863,33 +906,42 @@ class ResultHelper
 
                 foreach ($row as $item) {
                     if (!in_array($item, $list)) {
+                        /** @phpstan-ignore-next-line parameterByRef.type */ // phpstan bug ?
                         $list[] = $item;
                     }
                 }
 
+                /** @phpstan-ignore-next-line parameterByRef.type */
                 sort($list);
+
+                /** @phpstan-ignore-next-line parameterByRef.type */
                 usort($list, function ($v1, $v2) {
                     [$year1, $week1] = explode('/', $v1);
                     [$year2, $week2] = explode('/', $v2);
 
                     if ($year2 > $year1 || $year2 === $year1 && $week2 > $week1) {
-                        return false;
+                        return -1;
                     }
 
-                    return true;
+                    return 1;
                 });
             }
 
             if (!in_array($first, $list)) {
+                /** @phpstan-ignore-next-line parameterByRef.type */
                 array_unshift($list, $first);
             }
 
             if (!in_array($last, $list)) {
+                /** @phpstan-ignore-next-line parameterByRef.type */ // phpstan bug ?
                 $list[] = $last;
             }
         }
     }
 
+    /**
+     * @param string[] $list
+     */
     private function prepareGroupingYear(array &$list): void
     {
         sort($list);
@@ -899,9 +951,8 @@ class ResultHelper
             try {
                 $dt = new DateTime($list[0] . '-01-01');
                 $dtEnd = new DateTime($list[count($list) - 1] . '-01-01');
-            }
-            catch (Exception $e) {
-                $this->log->warning("Report grouping error:" . $e->getMessage());
+            } catch (Exception $e) {
+                $this->log->warning("Report grouping error:" . $e->getMessage(), ['exception' => $e]);
 
                 return;
             }
@@ -921,9 +972,17 @@ class ResultHelper
     /**
      * @param string[] $groupList
      * @param array<int, string[]> $grouping
+     * @param array<string, mixed>[] $rows
+     * @param string[] $nonSummaryColumnList
      */
-    public function populateRows(Data $data, array $groupList, array $grouping, array &$rows): void
-    {
+    public function populateRows(
+        Data $data,
+        array $groupList,
+        array $grouping,
+        array &$rows,
+        array $nonSummaryColumnList
+    ): void {
+
         if (count($data->getGroupBy()) === 0) {
             if (count($rows)) {
                 $rows[0][self::STUB_KEY] = self::STUB_KEY;
@@ -933,28 +992,39 @@ class ResultHelper
         }
 
         if (count($data->getGroupBy()) === 1) {
-            $this->populateRows1($data, $groupList, $grouping, $rows);
+            $this->populateRows1($data, $groupList, $grouping, $rows, $nonSummaryColumnList);
 
             return;
         }
 
         if (count($data->getGroupBy()) === 2) {
-            $this->populateRows2($data, $groupList, $grouping, $rows);
+            if ($data->getTableMode() === Data::TABLE_MODE_NORMALIZED) {
+                return;
+            }
+
+            $this->populateRows2($data, $groupList, $grouping, $rows, $nonSummaryColumnList);
         }
     }
 
     /**
      * @param string[] $groupList
      * @param array<int, string[]> $grouping
+     * @param array<string, mixed>[] $rows
+     * @param string[] $nonSummaryColumnList
      */
-    private function populateRows1(Data $data, array $groupList, array $grouping, array &$rows): void
-    {
+    private function populateRows1(
+        Data $data,
+        array $groupList,
+        array $grouping,
+        array &$rows,
+        array $nonSummaryColumnList
+    ): void {
         $groupCol = $groupList[0];
 
         if (
-            strpos($groupCol, 'MONTH:') === 0 ||
-            strpos($groupCol, 'YEAR:') === 0 ||
-            strpos($groupCol, 'DAY:') === 0
+            str_starts_with($groupCol, 'MONTH:') ||
+            str_starts_with($groupCol, 'YEAR:') ||
+            str_starts_with($groupCol, 'DAY:')
         ) {
             foreach ($grouping[0] as $groupValue) {
                 $isMet = false;
@@ -975,6 +1045,10 @@ class ResultHelper
                 $newRow[$this->util->sanitizeSelectAlias($groupCol)] = $groupValue;
 
                 foreach ($data->getColumns() as $column) {
+                    if (in_array($column, $nonSummaryColumnList)) {
+                        continue;
+                    }
+
                     $newRow[$column] = 0;
                 }
 
@@ -986,30 +1060,38 @@ class ResultHelper
     /**
      * @param string[] $groupList
      * @param array<int, string[]> $grouping
+     * @param array<string, mixed>[] $rows
+     * @param string[] $nonSummaryColumnList
      */
-    private function populateRows2(Data $data, array $groupList, array $grouping, array &$rows): void
-    {
+    private function populateRows2(
+        Data $data,
+        array $groupList,
+        array $grouping,
+        array &$rows,
+        array $nonSummaryColumnList,
+    ): void {
+
         $groupCol1 = $groupList[0];
         $groupCol2 = $groupList[1];
 
         if (
-            strpos($groupCol1, 'MONTH:') === 0 ||
-            strpos($groupCol1, 'YEAR:') === 0 ||
-            strpos($groupCol1, 'DAY:') === 0 ||
-            strpos($groupCol2, 'MONTH:') === 0 ||
-            strpos($groupCol2, 'YEAR:') === 0 ||
-            strpos($groupCol2, 'DAY:') === 0
+            str_starts_with($groupCol1, 'MONTH:') ||
+            str_starts_with($groupCol1, 'YEAR:') ||
+            str_starts_with($groupCol1, 'DAY:') ||
+            str_starts_with($groupCol2, 'MONTH:') ||
+            str_starts_with($groupCol2, 'YEAR:') ||
+            str_starts_with($groupCol2, 'DAY:')
         ) {
             $skipFilling = false;
 
             if (
-                strpos($groupCol1, 'DAY:') === 0 ||
-                strpos($groupCol2, 'DAY:') === 0
+                str_starts_with($groupCol1, 'DAY:') ||
+                str_starts_with($groupCol2, 'DAY:')
             ) {
                 $skipFilling = true;
 
                 foreach ($data->getColumns() as $column) {
-                    if (strpos($column, 'AVG:') === 0) {
+                    if (str_starts_with($column, 'AVG:')) {
                         $skipFilling = false;
                     }
                 }
@@ -1044,6 +1126,10 @@ class ResultHelper
                     $newRow[$this->util->sanitizeSelectAlias($groupCol2)] = $groupValue2;
 
                     foreach ($data->getColumns() as $column) {
+                        if (in_array($column, $nonSummaryColumnList)) {
+                            continue;
+                        }
+
                         $newRow[$column] = 0;
                     }
 
@@ -1054,6 +1140,8 @@ class ResultHelper
     }
 
     /**
+     * @param string[] $linkColumns
+     * @param array<string, mixed>[] $rows
      * @param array<string, array<string, mixed>> $groupValueMap
      */
     public function populateGroupValueMapByLinkColumns(
@@ -1068,6 +1156,7 @@ class ResultHelper
                 continue;
             }
 
+            /** @phpstan-ignore-next-line parameterByRef.type */ // phpstan bug ?
             $groupValueMap[$column] = [];
 
             foreach ($rows as $row) {
@@ -1076,6 +1165,7 @@ class ResultHelper
                 }
 
                 if (array_key_exists($column . 'Name', $row)) {
+                    /** @phpstan-ignore-next-line parameterByRef.type */ // phpstan bug ?
                     $groupValueMap[$column][$row[$column . 'Id']] = $row[$column . 'Name'];
 
                     continue;
@@ -1083,7 +1173,7 @@ class ResultHelper
 
                 $relatedId = $row[$column . 'Id'];
 
-                if (strpos($column, '.') === false) {
+                if (!str_contains($column, '.')) {
                     continue;
                 }
 
@@ -1103,10 +1193,13 @@ class ResultHelper
                     continue;
                 }
 
-                $relatedEntity = $this->entityManager->getEntity($entityType2, $relatedId);
+                $relatedEntity = $this->entityManager->getEntityById($entityType2, $relatedId);
 
                 if ($relatedEntity) {
-                    $groupValueMap[$column][$row[$column . 'Id']] = $relatedEntity->get('name');
+                    $idValue = $row[$column . 'Id'];
+
+                    /** @phpstan-ignore-next-line parameterByRef.type */ // phpstan bug ?
+                    $groupValueMap[$column][$idValue] = $relatedEntity->get('name');
                 }
             }
         }
@@ -1127,6 +1220,7 @@ class ResultHelper
         foreach ($data->getColumns() as $item) {
             $columnData = $this->helper->getDataFromColumnName($data->getEntityType(), $item);
 
+            /** @var string $type */
             $type = $this->metadata
                 ->get(['entityDefs', $columnData->entityType, 'fields', $columnData->field, 'type']);
 
@@ -1138,6 +1232,7 @@ class ResultHelper
                 $type = 'int';
             }
 
+            /** @var ?int $decimalPlaces */
             $decimalPlaces = $data->getColumnDecimalPlaces($item) ??
                 $this->metadata
                     ->get(['entityDefs', $columnData->entityType, 'fields', $columnData->field, 'decimalPlaces']);
@@ -1157,7 +1252,7 @@ class ResultHelper
     public function populateGroupValueMapForDateFunctions(Data $data, array $grouping, array &$groupValueMap): void
     {
         foreach ($data->getGroupBy() as $level => $item) {
-            if (strpos($item, 'QUARTER:') === 0) {
+            if (str_starts_with($item, 'QUARTER:')) {
                 foreach ($grouping[$level] as $value) {
                     $key = $value;
                     [$year, $quarter] = explode('_', $value);
@@ -1167,20 +1262,23 @@ class ResultHelper
                 }
             }
 
-            if (strpos($item, 'QUARTER_FISCAL:') === 0) {
+            if (str_starts_with($item, 'QUARTER_FISCAL:')) {
                 foreach ($grouping[$level] as $value) {
                     $key = $value;
                     [$year, $quarter] = explode('_', $value);
-                    $value = 'Q' . $quarter . ' ' . $year . '-' . ($year + 1);
+
+                    $nextYear = ((int) $year) + 1;
+
+                    $value = "Q$quarter $year-$nextYear";
 
                     $groupValueMap[$item][$key] = $value;
                 }
             }
-            else if (strpos($item, 'YEAR_FISCAL:') === 0) {
+            else if (str_starts_with($item, 'YEAR_FISCAL:')) {
                 foreach ($grouping[$level] as $value) {
                     $key = $value;
 
-                    $groupValueMap[$item][$key] = $value . '-' . ($value + 1);
+                    $groupValueMap[$item][$key] = $value . '-' . (intval($value) + 1);
                 }
             }
         }
@@ -1207,13 +1305,14 @@ class ResultHelper
             $index = self::findInOrderBy($data->getOrderBy(), $groupByItem);
 
             if (
-                in_array($fieldType, ['link', 'linkParent']) &&
+                in_array($fieldType, [FieldType::LINK, FieldType::LINK_PARENT]) &&
                 $index !== null
             ) {
                 $map = $groupValueMap[$groupByItem] ?? [];
 
-                $isDesc = strpos($data->getOrderBy()[$index] ?? '', 'DESC:') === 0;
+                $isDesc = str_starts_with($data->getOrderBy()[$index] ?? '', 'DESC:');
 
+                /** @phpstan-ignore-next-line parameterByRef.type */
                 usort($grouping[$i], function ($k1, $k2) use ($map, $isDesc) {
                     $v1 = $map[$k1] ?? '';
                     $v2 = $map[$k2] ?? '';
@@ -1247,7 +1346,7 @@ class ResultHelper
         $group1NonSummaryColumnList = [];
         $group2NonSummaryColumnList = [];
 
-        foreach ($result->getNonSummaryColumnList() ?? [] as $column) {
+        foreach ($result->getNonSummaryColumnList() as $column) {
             $group = $result->getNonSummaryColumnGroupMap()->$column ?? null;
 
             if ($group === $result->getGroupByList()[0]) {
@@ -1265,7 +1364,7 @@ class ResultHelper
 
         $group2Sums = [];
 
-        foreach ($result->getGrouping()[1] as $group2) {
+        foreach ($result->getGrouping()[1] ?? [] as $group2) {
             $o = [];
 
             foreach ($result->getSummaryColumnList() as $column) {
@@ -1275,7 +1374,7 @@ class ResultHelper
 
                 $sum = 0;
 
-                foreach ($result->getGrouping()[0] as $group1) {
+                foreach ($result->getGrouping()[0] ?? [] as $group1) {
                     $value = 0;
 
                     if (isset($result->getReportData()->$group1->$group2->$column)) {
@@ -1286,19 +1385,17 @@ class ResultHelper
                         if ($value > $sum) {
                             $sum = $value;
                         }
-                    }
-                    else if ($function === 'MIN') {
+                    } else if ($function === 'MIN') {
                         if ($value < $sum) {
                             $sum = $value;
                         }
-                    }
-                    else {
+                    } else {
                         $sum += $value;
                     }
                 }
 
                 if ($function === 'AVG') {
-                    $sum = $sum / count($result->getGrouping()[0]);
+                    $sum = $sum / count($result->getGrouping()[0] ?? []);
                 }
 
                 $o[$column] = $sum;
@@ -1314,7 +1411,7 @@ class ResultHelper
             $function = $columnData->function;
             $sum = 0;
 
-            foreach ($result->getGrouping()[0] as $group1) {
+            foreach ($result->getGrouping()[0] ?? [] as $group1) {
                 $value = 0;
 
                 if (isset($result->getGroup1Sums()->$group1->$column)) {
@@ -1335,7 +1432,7 @@ class ResultHelper
             }
 
             if ($function === 'AVG') {
-                $sum = $sum / count($result->getGrouping()[0]);
+                $sum = $sum / count($result->getGrouping()[0] ?? []);
             }
 
             $sums->$column = $sum;
@@ -1345,6 +1442,9 @@ class ResultHelper
         $result->setGroup2Sums((object) $group2Sums); // object<object<int|float>>
     }
 
+    /**
+     * @param string[] $list
+     */
     private function fillFiscalYearRange(array &$list, string $type): void
     {
         $startMonth = $this->config->get('fiscalYearShift', 0) + 1;
@@ -1389,5 +1489,15 @@ class ResultHelper
         $list = $newList;
 
         sort($list);
+    }
+
+    /**
+     * @param array<string, string> $groupNameMap
+     */
+    public function populateGroupNameMap(Data $data, array &$groupNameMap): void
+    {
+        foreach ($data->getGroupBy() as $groupBy) {
+            $groupNameMap[$groupBy] = $this->util->translateGroupName($data->getEntityType(), $groupBy);
+        }
     }
 }

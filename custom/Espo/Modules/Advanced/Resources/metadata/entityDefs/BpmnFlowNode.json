@@ -16,6 +16,14 @@
                 "Failed",
                 "Interrupted"
             ],
+            "style": {
+                "In Process": "default",
+                "Processed": "success",
+                "Pending": "warning",
+                "Failed": "danger",
+                "Rejected": "info",
+                "Interrupted": "info"
+            },
             "maxLength": 36
         },
         "elementId": {
@@ -43,6 +51,9 @@
         "previousFlowNodeElementType": {
             "type": "varchar",
             "maxLength": 36
+        },
+        "modifiedAt": {
+            "type": "datetime"
         },
         "createdAt": {
             "type": "datetime"
@@ -98,8 +109,8 @@
         }
     },
     "collection": {
-        "sortBy": "number",
-        "asc": false
+        "orderBy": "number",
+        "order": "desc"
     },
     "indexes": {
         "statusTargetTypeElementType": {

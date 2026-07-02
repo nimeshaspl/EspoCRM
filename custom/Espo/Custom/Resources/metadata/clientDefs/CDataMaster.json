@@ -6,6 +6,15 @@
     "color": "#cd6767",
     "iconClass": "fas fa-address-card",
     "kanbanViewMode": true,
+    "sidePanels": {
+        "detail": [
+            {
+                "name": "smsChat",
+                "label": "SMS Chat",
+                "view": "custom:views/data-master/record/sms-chat"
+            }
+        ]
+    },
     "relationshipPanels": {
         "calls": {
             "layout": null,
@@ -35,6 +44,10 @@
             "selectPrimaryFilterName": null
         },
         "salesPlanningMonthlies": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        },
+        "sMSs": {
             "layout": null,
             "selectPrimaryFilterName": null
         }

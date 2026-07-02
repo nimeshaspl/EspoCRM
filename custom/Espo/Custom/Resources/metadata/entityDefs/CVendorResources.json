@@ -311,6 +311,14 @@
             "entity": "Attachment",
             "skipOrmDefs": true,
             "utility": true
+        },
+        "positionManagements": {
+            "type": "hasMany",
+            "relationName": "cPositionManagementVendorResources",
+            "foreign": "vendorResourceses",
+            "entity": "PositionManagement",
+            "audited": false,
+            "isCustom": true
         }
     },
     "collection": {

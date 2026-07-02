@@ -11,14 +11,17 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
 use Espo\Core\Utils\Config;
+use Espo\Core\Utils\DateTime as DateTimeUtil;
 use Espo\Entities\Email;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
 
@@ -27,10 +30,15 @@ class EventIntermediateMessageCatch extends Event
     public function process(): void
     {
         $flowNode = $this->getFlowNode();
-        $flowNode->set(['status' => BpmnFlowNode::STATUS_PENDING]);
+        $flowNode->setStatus(BpmnFlowNode::STATUS_PENDING);
+
         $this->getEntityManager()->saveEntity($flowNode);
     }
 
+    /**
+     * @throws FormulaError
+     * @throws Error
+     */
     public function proceedPending(): void
     {
         $repliedToAliasId = $this->getAttributeValue('repliedTo');
@@ -40,13 +48,13 @@ class EventIntermediateMessageCatch extends Event
         $conditionsFormula = $this->getAttributeValue('conditionsFormula');
         $conditionsFormula = trim($conditionsFormula, " \t\n\r");
 
-        if (strlen($conditionsFormula) && substr($conditionsFormula, -1) === ';') {
+        if (strlen($conditionsFormula) && str_ends_with($conditionsFormula, ';')) {
             $conditionsFormula = substr($conditionsFormula, 0, -1);
         }
 
         $target = $this->getTarget();
 
-        $createdEntitiesData = $this->getCreatedEntitiesData() ?? (object) [];
+        $createdEntitiesData = $this->getCreatedEntitiesData();
 
         $repliedToId = null;
 
@@ -138,7 +146,7 @@ class EventIntermediateMessageCatch extends Event
                 ->limit(0, $limit)
                 ->find();
 
-            if (is_countable($emailList) && !count($emailList)) {
+            if (!count($emailList)) {
                 $this->updateCheckedAt();
 
                 return;
@@ -172,12 +180,17 @@ class EventIntermediateMessageCatch extends Event
         }
 
         $flowNode = $this->getFlowNode();
-        $flowNode->set('status', BpmnFlowNode::STATUS_IN_PROCESS);
+
+        $flowNode->setStatus(BpmnFlowNode::STATUS_IN_PROCESS);
+
         $this->getEntityManager()->saveEntity($flowNode);
 
         $this->proceedPendingFinal();
     }
 
+    /**
+     * @throws Error
+     */
     protected function proceedPendingFinal(): void
     {
         $this->rejectConcurrentPendingFlows();
@@ -187,7 +200,9 @@ class EventIntermediateMessageCatch extends Event
     protected function updateCheckedAt(): void
     {
         $flowNode = $this->getFlowNode();
-        $flowNode->setDataItemValue('checkedAt', date('Y-m-d H:i:s'));
+
+        $flowNode->setDataItemValue('checkedAt', date(DateTimeUtil::SYSTEM_DATE_TIME_FORMAT));
+
         $this->getEntityManager()->saveEntity($flowNode);
     }
 }

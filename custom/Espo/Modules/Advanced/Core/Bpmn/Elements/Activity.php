@@ -11,14 +11,17 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Elements;
 
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Utils\DateTime;
 use Espo\Modules\Advanced\Entities\BpmnFlowNode;
+use Espo\ORM\Collection;
 use Throwable;
 
 abstract class Activity extends Base
@@ -31,6 +34,9 @@ abstract class Activity extends Base
         'eventIntermediateMessageBoundary',
     ];
 
+    /**
+     * @throws Error
+     */
     public function beforeProcess(): void
     {
         $this->prepareBoundary();
@@ -38,6 +44,9 @@ abstract class Activity extends Base
         $this->refreshTarget();
     }
 
+    /**
+     * @throws Error
+     */
     public function prepareBoundary(): void
     {
         $boundaryFlowNodeList = [];
@@ -79,18 +88,24 @@ abstract class Activity extends Base
         return !$this->getFlowNode()->getElementDataItemValue('isForCompensation');
     }
 
+    /**
+     * @throws Error
+     */
     protected function setFailedWithError(?string $errorCode = null, ?string $errorMessage = null): void
     {
         $flowNode = $this->getFlowNode();
+        $flowNode->setStatus(BpmnFlowNode::STATUS_FAILED);
         $flowNode->set([
-            'status' => BpmnFlowNode::STATUS_FAILED,
-            'processedAt' => date('Y-m-d H:i:s'),
+            'processedAt' => date(DateTime::SYSTEM_DATE_TIME_FORMAT),
         ]);
         $this->getEntityManager()->saveEntity($flowNode);
 
         $this->getManager()->endProcessWithError($this->getProcess(), $errorCode, $errorMessage);
     }
 
+    /**
+     * @throws Error
+     */
     protected function setFailed(): void
     {
         $this->rejectPendingBoundaryFlowNodes();
@@ -117,6 +132,9 @@ abstract class Activity extends Base
         $this->getManager()->processPreparedFlowNode($this->getTarget(), $boundaryErrorFlowNode, $this->getProcess());
     }
 
+    /**
+     * @throws Error
+     */
     protected function setFailedWithException(Throwable $e): void
     {
         $errorCode = (string) $e->getCode();
@@ -142,10 +160,13 @@ abstract class Activity extends Base
         $this->getManager()->processPreparedFlowNode($this->getTarget(), $boundaryErrorFlowNode, $this->getProcess());
     }
 
-    protected function getPendingBoundaryFlowNodeList()
+    /**
+     * @return Collection<BpmnFlowNode>
+     */
+    protected function getPendingBoundaryFlowNodeList(): Collection
     {
         return $this->getEntityManager()
-            ->getRepository(BpmnFlowNode::ENTITY_TYPE)
+            ->getRDBRepositoryByClass(BpmnFlowNode::class)
             ->where([
                 'elementType' => $this->pendingBoundaryTypeList,
                 'processId' => $this->getProcess()->get('id'),
@@ -158,7 +179,7 @@ abstract class Activity extends Base
             ->find();
     }
 
-    protected function rejectPendingBoundaryFlowNodes()
+    protected function rejectPendingBoundaryFlowNodes(): void
     {
         $boundaryNodeList = $this->getPendingBoundaryFlowNodeList();
 
@@ -188,5 +209,29 @@ abstract class Activity extends Base
         $this->rejectPendingBoundaryFlowNodes();
 
         parent::setInterrupted();
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function getReturnVariableList(): array
+    {
+        $newVariableList = [];
+
+        $variableList = $this->getAttributeValue('returnVariableList') ?? [];
+
+        foreach ($variableList as $variable) {
+            if (!$variable) {
+                continue;
+            }
+
+            if ($variable[0] === '$') {
+                $variable = substr($variable, 1);
+            }
+
+            $newVariableList[] = $variable;
+        }
+
+        return $newVariableList;
     }
 }

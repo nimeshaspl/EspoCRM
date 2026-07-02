@@ -47,6 +47,16 @@
         </div>
         <div class="row">
             <div class="cell col-sm-6 form-group">
+                <label class="control-label">{{translate 'CC' scope='Workflow'}}</label>
+                <div class="field" data-name="cc">{{{cc}}}</div>
+            </div>
+            <div class="cell col-sm-6 cc-email-container hidden form-group">
+                <label class="control-label">{{translate 'Email Address' scope='Workflow'}}</label>
+                <div class="field" data-name="ccEmailAddress">{{{ccEmailAddress}}}</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="cell col-sm-6 form-group">
                 <label class="control-label">{{translate 'Reply-To' scope='Workflow'}}</label>
                 <div class="field field-replyTo">{{{replyTo}}}</div>
             </div>
@@ -72,6 +82,15 @@
                 <label class="control-label">{{translate 'optOutLink' scope='Workflow' category='fields'}}</label>
                 <div class="field" data-name="optOutLink">
                     {{{optOutLink}}}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="cell col-sm-6 form-group">
+                <label class="control-label">{{translate 'attachmentsVariable' category='fields' scope='Workflow'}}</label>
+                <div class="field" data-name="attachmentsVariable">
+                    {{{attachmentsVariable}}}
                 </div>
             </div>
         </div>

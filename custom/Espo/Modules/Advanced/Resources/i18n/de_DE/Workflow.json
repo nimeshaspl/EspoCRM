@@ -10,6 +10,7 @@
     "portalOnly": "Nur Portal",
     "targetReport": "Target Bericht",
     "scheduling": "Planung",
+    "schedulingApplyTimezone": "Zeitzone anwenden",
     "methodName": "Servicemethode",
     "assignmentRule": "Zuordnungsregel",
     "targetTeam": "Zielteam",
@@ -17,20 +18,69 @@
     "listReport": "Listenbericht",
     "linkList": "Mit Zieleinheit durch Beziehungen verknüpfen",
     "target": "Ziel",
-    "whoFollow": "Wer es zu folgen machen"
+    "whoFollow": "Wer es zu folgen machen",
+    "requestType": "Anforderungstyp",
+    "requestContentType": "Inhaltstyp",
+    "requestContent": "Nutzlast",
+    "requestContentVariable": "Nutzlast aus Variable",
+    "headers": "Kopfzeilen",
+    "manualLabel": "Manuelle Bezeichnung",
+    "manualDynamicLogic": "Manuelle Dynamische Logik",
+    "manualTeams": "Manuelle Teams",
+    "manualAccessRequired": "Manueller Zugriff erforderlich",
+    "manualElementType": "Manueller Elementtyp",
+    "manualElementTypeInForm": "Elementtyp",
+    "manualLabelInForm": "Bezeichnung",
+    "manualAccessRequiredInForm": "Zugriff erforderlich",
+    "manualTeamsInForm": "Für Teams",
+    "manualDynamicLogicInForm": "Bedingungen",
+    "manualConfirmation": "Manuelle Bestätigung",
+    "manualConfirmationInForm": "Bestätigungsdialog",
+    "manualConfirmationText": "Manueller Bestätigungstext",
+    "manualConfirmationTextInForm": "Bestätigungstext",
+    "manualStyle": "Manueller Schaltflächenstil",
+    "manualStyleInForm": "Schaltflächenstil",
+    "category": "Kategorie",
+    "conditionsAll": "Bedingungen Alle",
+    "conditionsAny": "Bedingungen Irgendein(e)",
+    "conditionsFormula": "Bedingungen Formel",
+    "actions": "Aktionen",
+    "processOrder": "Prozessreihenfolge",
+    "attachmentsVariable": "Anhangsvariable"
   },
   "links": {
     "targetReport": "Target Bericht",
-    "workflowLogRecords": "Protokoll"
+    "workflowLogRecords": "Protokoll",
+    "category": "Kategorie"
   },
   "tooltips": {
-    "portalOnly": "Wenn markiert werden Workflows nur im Portal ausgeführt",
+    "toEmailAddress": "Mehrere E-Mail Adressen können durch Semikolon getrennt angegeben werden.\n\nVerfügbare Platzhalter:\n* `{$$variable}`",
+    "attachmentsVariable": "Ein Formelvariablenname, der eine Anhangs-ID oder ein Array von Anhangs-IDs enthält. Die benötigten Anhänge können in einem Formel-Skript in einer vorherigen Aktion generiert werden.",
+    "createEntityFormula": "Verwenden Sie Formeln, um Entitätsattribute mit berechneten Werten zu setzen.",
+    "entityType": "Ein Entitätstyp, auf den die Regel angewendet wird.",
+    "targetReport": "Der geplante Workflow führt die Aktionen für alle Datensätze aus, die vom angegebenen Listenbericht zurückgegeben werden.",
+    "type": "\n* Nach dem Speichern des DatensatzesNach dem Speichern des Datensatzes – Immer wenn ein Datensatz erstellt oder aktualisiert wird. Die Aktion kann von einem Benutzer, einem anderen Workflow, einem Formelskript oder vom System ausgelöst werden.\n* Manuell – Ein Benutzer kann den Workflow durch Klicken auf eine Schaltfläche in der Datensatzdetailansicht starten.\n* Geplant – Automatische Ausführung gemäß dem definierten Planung.\n* Nacheinander – Kann durch eine andere Workflow-Regel ausgeführt werden.\n* Signal – Wird ausgelöst, wenn das angegebene Signal im System gesendet wird.",
+    "processOrder": "Mehrere Workflow-Regeln für dasselbe Ziel werden in der Reihenfolge ihrer Ausführung verarbeitet. Je niedriger der Ordnungswert, desto schneller wird eine Regel ausgeführt.",
+    "manualConfirmation": "Um einen Bestätigungsdialog anzuzeigen, bevor der Workflow ausgeführt wird.",
+    "manualConfirmationText": "Ein Text, der einem Benutzer beim Bestätigen des Workflow-Starts angezeigt wird.",
+    "schedulingApplyTimezone": "Bei der Planung die Standardzeitzone des Systems anwenden. Andernfalls wird UTC verwendet.",
+    "manualDynamicLogic": "Bedingungen, die den Workflow für einen Datensatz verfügbar machen.",
+    "manualTeams": "Teams, die Zugriff auf die Ausführung des Workflows haben. Wenn das Feld leer ist, hat nur der Administrator Zugriff.",
+    "manualAccessRequired": "Der Zugriff auf einen Datensatz ist erforderlich, um den Workflow ausführen zu können.",
+    "manualLabel": "Ein UI-Element-Beschriftungstext.",
+    "requestUrl": "Verfügbare Platzhalter:\n* `{$attribute}`\n* `{$$variable}`",
+    "requestHeaders": "Zusätzliche Header.\n\nFormat:\n```key: value```\n\nVerfügbare Platzhalter:\n* `{$attribute}`\n* `{$$variable}`\n* `{#secrets.name}`",
+    "requestContent": "Im JSON-Format.\n\nVerfügbare Platzhalter:\n* `{$attribute}`\n* `{$$variable}`",
+    "requestContentVariable": "Ein Variablenname. Wenn angegeben, wird die Nutzlast aus der Variablen übernommen.",
+    "portalOnly": "Wenn markiert werden Workflows nur im Portal ausgeführt.",
     "portal": "Portale in denen der Workflow ausgeführt wird. Leer lassen wenn er in allen Portalen ausgeführt werden soll.",
     "scheduling": "Definiert wann und wie oft ein Job läuft\n\n`*/5 * * * *` - alle 5 Minuten\n\n`0 */2 * * *` - alle 2 Stunden\n\n`30 1 * * *` - um 01:30 einmal am Tag\n\n`0 0 1 * *` - am ersten Tag des Monats"
   },
   "labels": {
     "Create Workflow": "Regel erstellen",
     "General": "Allgemein",
+    "Manual Trigger": "Manueller Trigger",
+    "Scheduled Trigger": "Geplant Trigger",
     "Conditions": "Bedingungen",
     "Actions": "Aktionen",
     "All": "Alle",
@@ -44,12 +94,10 @@
     "Reply-To": "Antwort an",
     "later": "Später",
     "today": "heute",
-    "now": "jetzt",
     "days": "Tage",
     "hours": "Stunden",
     "months": "Monate",
     "minutes": "Minuten",
-    "Entity": "Entität/Modul",
     "Add Field": "Feld hinzufügen",
     "equals": "ist gleich",
     "wasEqual": "war gleich",
@@ -58,7 +106,9 @@
     "changed": "geändert",
     "notChanged": "nicht geändert",
     "notEmpty": "nicht leer",
-    "isEmpty": "Leer",
+    "isEmpty": "leer",
+    "anyOf": "irgendein von",
+    "noneOf": "keiner von",
     "value": "Wert",
     "field": "Feld",
     "true": "wahr",
@@ -76,9 +126,12 @@
     "recipient": "Empfängert",
     "has": "hat",
     "notHas": "hat nicht",
+    "contains": "enthält",
+    "notContains": "enthält nicht",
     "messageTemplate": "Nachrichtenvorlage",
     "users": "Benutzer",
     "Target Entity": "Ziel Entität/Modul",
+    "Current": "Aktuell",
     "Workflow": "WorkFlow",
     "Workflows Log": "Workflows Protokoll",
     "methodName": "Servicemethode",
@@ -91,6 +144,7 @@
     "Add Action": "Aktion hinzufügen",
     "Created": "Erstellt",
     "Field": "Feld",
+    "Entity": "Entität/Modul",
     "Process": "Prozess"
   },
   "emailAddressOptions": {
@@ -111,16 +165,28 @@
     "type": {
       "afterRecordSaved": "Nach dem Speichern des Datensatzes",
       "afterRecordCreated": "Nach dem Erstellen des Datensatzes",
+      "afterRecordUpdated": "Nach Aktualisierung des Datensatzes",
+      "manual": "Manuell",
       "scheduled": "Geplant",
       "sequential": "Nacheinander"
     },
     "subjectType": {
       "value": "Wert",
       "field": "Feld",
-      "today": "heute/jetzt"
+      "today": "heute/jetzt",
+      "typeOf": "typ von"
     },
     "assignmentRule": {
+      "Round-Robin": "Umlauf-Verfahren",
       "Least-Busy": "Geringste Auslastung"
+    },
+    "manualAccessRequired": {
+      "read": "lesen",
+      "edit": "bearbeiten"
+    },
+    "manualElementType": {
+      "Button": "Schaltfläche",
+      "Dropdown-Item": "Dropdown-Element"
     }
   },
   "actionTypes": {
@@ -137,7 +203,10 @@
     "runService": "Serviceaktion ausführen",
     "applyAssignmentRule": "Zuordnungsregel anwenden",
     "updateCreatedEntity": "Den erstellten Datensatz aktualisieren",
-    "updateProcessEntity": "Prozessdatensatz aktualisieren"
+    "updateProcessEntity": "Prozessdatensatz aktualisieren",
+    "startBpmnProcess": "BPM-Prozess starten",
+    "sendRequest": "HTTP-Anforderung senden",
+    "executeFormula": "Formelskript ausführen"
   },
   "texts": {
     "allMustBeMet": "Alle müssen zutreffen",
@@ -145,11 +214,29 @@
     "formulaInfo": "Bedingungen jeglicher Komplexität in Espo-Formel-Sprache"
   },
   "messages": {
+    "jsonInvalid": "Ist kein gültiges JSON.",
     "loopNotice": "Passen Sie bitte auf, dass Workflow Regeln nicht in einer Endlosschleife enden.",
-    "messageTemplateHelpText": "Verfügbare Variablen:\n\n* `{entity}` – Zielsatz\n* `{user}` – Aktueller Benutzer\n* `{$$variable}`"
+    "messageTemplateHelpText": "Verfügbare Platzhalter:\n\n* `{entity}` – Zielsatz\n* `{user}` – Aktueller Benutzer\n* `{$$variable}` – Formelvariable"
   },
   "serviceActions": {
     "sendEventInvitations": "Einladungen senden",
-    "addQuoteItemList": "Angebotsartikel hinzufügen"
+    "addQuoteItemList": "Angebotsartikel hinzufügen",
+    "addInvoiceItemList": "Rechnungspositionen hinzufügen",
+    "addSalesOrderItemList": "Kundenauftragspositionen hinzufügen",
+    "convertCurrency": "Währung umrechnen",
+    "sendInEmail": "In E-Mail senden",
+    "generateAndSendPassword": "Passwort generieren"
+  },
+  "serviceActionsHelp": {
+    "generateAndSendPassword": "Ein neues Passwort wird erstellt und an die E-Mail-Adresse des Benutzers gesendet.",
+    "optOut": "Optionaler Parameter: targetListId. Wenn nicht angegeben, wird eine E-Mail-Adresse als opted-out markiert.\n\nBeispiel:\n```{\"targetListId\": \"TARGET_LIST_ID\"}```",
+    "convertCurrency": "Optionaler Parameter: targetCurrency. Wenn nicht angegeben, wird die Währung in die Standardwährung umgerechnet.",
+    "sendInEmail": "Parameter:\n* templateId – ID der PDF-Vorlage\n* emailTemplateId – ID der E-Mail-Vorlage\n* to – Empfänger (optionaler Parameter); wird standardmäßig an den Rechnungskontakt oder -firma gesendet; Beispiel: `link:account.assignedUser`\n\nBeispiel:\n\n```{\n    \"templateId\": \"TEMPLATE_ID\",\n    \"emailTemplateId\": \"EMAIL_TEMPLATE_ID\",\n    \"to\": \"link:billingContact\"\n}```",
+    "addQuoteItemList": "Beispiel:\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
+    "addInvoiceItemList": "Beispiel:\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```",
+    "addSalesOrderItemList": "Beispiel:\n\n```{\n  \"itemList\": [\n     {\n      \"quantity\": 1, \"productId\": \"productId\", \"name\": \"Product Name\", \"listPrice\": 100, \"unitPrice\": 100\n     }\n  ]\n}```"
+  },
+  "presetFilters": {
+    "active": "Aktiv"
   }
 }

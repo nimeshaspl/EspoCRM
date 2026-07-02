@@ -4,5 +4,11 @@
         "onlyMy"
     ],
     "color": "#9999ec",
-    "iconClass": "fas fa-archway"
+    "iconClass": "fas fa-archway",
+    "relationshipPanels": {
+        "vendorResourceses": {
+            "layout": null,
+            "selectPrimaryFilterName": null
+        }
+    }
 }

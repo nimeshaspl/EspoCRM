@@ -1,0 +1,39 @@
+{
+    "fields": {
+        "direction": "Direction",
+        "fromNumber": "From Number",
+        "toNumber": "To Number",
+        "message": "Message",
+        "signalWireMessageSID": "SignalWire Message SID",
+        "status": "Status",
+        "sentAt": "Sent At",
+        "deliveredAt": "Delivered At",
+        "createdByAI": "Created By AI",
+        "dataMaster": "Data Master",
+        "signalWireResponse": "Signal Wire response"
+    },
+    "labels": {
+        "Create CSMS": "Create SMS"
+    },
+    "options": {
+        "direction": {
+            "Incoming": "Incoming",
+            "Outgoing": "Outgoing"
+        },
+        "status": {
+            "Draft": "Draft",
+            "Queued": "Queued",
+            "Sending": "Sending",
+            "Sent": "Sent",
+            "Delivered": "Delivered",
+            "Undelivered": "Undelivered",
+            "Failed": "Failed",
+            "Canceled": "Canceled",
+            "Received": "Received",
+            "Processed": "Processed"
+        }
+    },
+    "links": {
+        "dataMaster": "Data Master"
+    }
+}

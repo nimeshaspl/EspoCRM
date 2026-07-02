@@ -1,10 +1,10 @@
 <div>
-<span>{{{timerBaseTranslatedValue}}}</span>
-{{#if hasShift}}
-<span>{{{timerShiftOperatorTranslatedValue}}}</span>
-<span>{{{timerShiftValue}}}</span>
-<span>{{{timerShiftUnitsTranslatedValue}}}</span>
-{{/if}}
+    <span>{{{timerBaseTranslatedValue}}}</span>
+    {{#if hasShift}}
+        <span class="text-italic">{{{timerShiftOperatorTranslatedValue}}}</span>
+        <span>{{{timerShiftValue}}}</span>
+        <span>{{{timerShiftUnitsTranslatedValue}}}</span>
+    {{/if}}
 </div>
 {{#if hasFormula}}
 <div class="form-group"></div>

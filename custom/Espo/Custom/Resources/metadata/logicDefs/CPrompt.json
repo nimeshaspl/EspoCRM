@@ -1,0 +1,14 @@
+{
+    "fields": {
+        "numberOfEmailsToCheck": {
+            "required": {
+                "conditionGroup": [
+                    {
+                        "type": "isTrue",
+                        "attribute": "needToReferEmailHistory"
+                    }
+                ]
+            }
+        }
+    }
+}

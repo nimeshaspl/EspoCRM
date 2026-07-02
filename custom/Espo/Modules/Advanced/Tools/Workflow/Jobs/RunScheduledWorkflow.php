@@ -11,17 +11,22 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Workflow\Jobs;
 
+use Espo\Core\Exceptions\BadRequest;
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Exceptions\Forbidden;
+use Espo\Core\Exceptions\NotFound;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
 use Espo\Core\Job\Job;
 use Espo\Core\Job\Job\Data;
 use Espo\Core\Job\JobSchedulerFactory;
-use Espo\Modules\Advanced\Entities\Workflow as WorkflowEntity;
+use Espo\Modules\Advanced\Entities\Workflow;
 use Espo\Modules\Advanced\Tools\Report\ListType\RunParams as ListRunParams;
 use Espo\Modules\Advanced\Tools\Report\Service as ReportService;
 use Espo\Modules\Advanced\Tools\Workflow\Service;
@@ -32,35 +37,28 @@ use RuntimeException;
 
 class RunScheduledWorkflow implements Job
 {
-    private ReportService $reportService;
-    private EntityManager $entityManager;
-    private Service $service;
-    private JobSchedulerFactory $jobSchedulerFactory;
-
     public function __construct(
-        ReportService $reportService,
-        EntityManager $entityManager,
-        Service $service,
-        JobSchedulerFactory $jobSchedulerFactory
-    ) {
-        $this->reportService = $reportService;
-        $this->entityManager = $entityManager;
-        $this->service = $service;
-        $this->jobSchedulerFactory = $jobSchedulerFactory;
-    }
+        private ReportService $reportService,
+        private EntityManager $entityManager,
+        private Service $service,
+        private JobSchedulerFactory $jobSchedulerFactory,
+    ) {}
 
+    /**
+     * @throws BadRequest
+     * @throws Forbidden
+     * @throws Error
+     * @throws NotFound
+     */
     public function run(Data $data): void
     {
-        $data = $data->getRaw();
+        $workflowId = $data->getTargetId() ?? $data->get('workflowId');
 
-        $workflowId = $data->workflowId ?? null;
-
-        if (!$workflowId || !is_string($workflowId)) {
+        if (!$workflowId) {
             throw new RuntimeException();
         }
 
-        /** @var ?WorkflowEntity $workflow */
-        $workflow = $this->entityManager->getEntityById(WorkflowEntity::ENTITY_TYPE, $data->workflowId);
+        $workflow = $this->entityManager->getRDBRepositoryByClass(Workflow::class)->getById($workflowId);
 
         if (!$workflow) {
             throw new RuntimeException("Workflow $workflowId not found.");
@@ -71,7 +69,7 @@ class RunScheduledWorkflow implements Job
         }
 
         $targetReport = $this->entityManager
-            ->getRDBRepository(WorkflowEntity::ENTITY_TYPE)
+            ->getRDBRepository(Workflow::ENTITY_TYPE)
             ->getRelation($workflow, 'targetReport')
             ->findOne();
 
@@ -80,10 +78,8 @@ class RunScheduledWorkflow implements Job
         }
 
         $result = $this->reportService->runList(
-            $targetReport->getId(),
-            null,
-            null,
-            ListRunParams::create()->withReturnSthCollection()
+            id: $targetReport->getId(),
+            runParams: ListRunParams::create()->withReturnSthCollection(),
         );
 
         foreach ($result->getCollection() as $entity) {
@@ -93,8 +89,7 @@ class RunScheduledWorkflow implements Job
                     $entity->getEntityType(),
                     $entity->getId()
                 );
-            }
-            catch (Exception $e) {
+            } catch (Exception) {
                 // @todo Revise.
 
                 $this->jobSchedulerFactory
@@ -111,8 +106,14 @@ class RunScheduledWorkflow implements Job
         }
     }
 
+    /**
+     * @throws FormulaError
+     * @throws Error
+     */
     private function runScheduledWorkflowForEntity(string $workflowId, string $entityType, string $id): void
     {
+        // @todo Create jobs if a parameter is enabled.
+
         $entity = $this->entityManager->getEntityById($entityType, $id);
 
         if (!$entity) {

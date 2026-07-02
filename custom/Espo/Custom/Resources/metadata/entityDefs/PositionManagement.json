@@ -87,6 +87,26 @@
             "exportDisabled": true,
             "customizationDisabled": true,
             "isCustom": true
+        },
+        "jobType": {
+            "type": "enum",
+            "options": [
+                "Fulltime",
+                "Contract",
+                "Any"
+            ],
+            "style": {
+                "Fulltime": null,
+                "Contract": null,
+                "Any": null
+            },
+            "default": "Fulltime",
+            "maxLength": 100,
+            "isCustom": true
+        },
+        "jobDescription": {
+            "type": "wysiwyg",
+            "isCustom": true
         }
     },
     "links": {
@@ -119,6 +139,14 @@
             "type": "hasMany",
             "foreign": "positionManagement",
             "entity": "CandidateManagement",
+            "audited": false,
+            "isCustom": true
+        },
+        "vendorResourceses": {
+            "type": "hasMany",
+            "relationName": "cPositionManagementVendorResources",
+            "foreign": "positionManagements",
+            "entity": "CVendorResources",
             "audited": false,
             "isCustom": true
         }

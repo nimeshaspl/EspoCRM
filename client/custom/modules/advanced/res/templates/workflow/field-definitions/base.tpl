@@ -11,5 +11,9 @@
     <div class="col-sm-6 subject">
         {{{subject}}}
     </div>
+
+    {{#if hasActionType}}
+        <div class="col-sm-3" data-field="actionType">{{{actionTypeField}}}</div>
+    {{/if}}
 </div>
 {{/if}}

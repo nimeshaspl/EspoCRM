@@ -11,33 +11,26 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Tools\Report\ListType;
 
 class SubReportParams
 {
-    private int $groupIndex;
-    /** @var ?scalar */
-    private $groupValue;
-    private bool $hasGroupValue2;
-    /** @var ?scalar */
-    private $groupValue2;
-
+    /**
+     * @param ?scalar $groupValue
+     * @param ?scalar $groupValue2
+     */
     public function __construct(
-        int $groupIndex,
-        $groupValue,
-        bool $hasGroupValue2 = false,
-        $groupValue2 = null
-    ) {
-        $this->groupIndex = $groupIndex;
-        $this->groupValue = $groupValue;
-        $this->groupValue2 = $groupValue2;
-        $this->hasGroupValue2 = $hasGroupValue2;
-    }
+        private int $groupIndex,
+        private $groupValue,
+        private bool $hasGroupValue2 = false,
+        private $groupValue2 = null,
+        private ?string $target = null,
+    ) {}
 
     public function getGroupIndex(): int
     {
@@ -63,5 +56,10 @@ class SubReportParams
     public function getGroupValue2()
     {
         return $this->groupValue2;
+    }
+
+    public function getTarget(): ?string
+    {
+        return $this->target;
     }
 }

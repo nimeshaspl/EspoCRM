@@ -9,6 +9,7 @@
     "process": "Prozesse",
     "isResolved": "Ist gelöst",
     "resolutionNote": "Lösungshinweis",
+    "instructions": "Anweisungen",
     "isCanceled": "Ist storniert"
   },
   "links": {

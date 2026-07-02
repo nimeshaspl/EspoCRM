@@ -3,5 +3,6 @@
     "entityType",
     "type",
     "isActive",
-    "createdAt"
+    "createdAt",
+    "modifiedAt"
 ]

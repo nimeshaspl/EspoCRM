@@ -11,14 +11,13 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Bpmn\Utils;
 
-use Espo\ORM\Entity;
 use stdClass;
 
 class Helper
@@ -42,7 +41,10 @@ class Helper
                     continue;
                 }
 
-                if ($item->type === 'flow') {
+                $itType = $item->type ?? null;
+                $itId = $item->id ?? null;
+
+                if ($itType === 'flow') {
                     continue;
                 }
 
@@ -58,9 +60,9 @@ class Helper
                         continue;
                     }
 
-                    if ($itemAnother->startId === $item->id) {
+                    if ($itemAnother->startId === $itId) {
                         $nextElementIdList[] = $itemAnother->endId;
-                    } else if ($itemAnother->endId === $item->id) {
+                    } else if ($itemAnother->endId === $itId) {
                         $previousElementIdList[] = $itemAnother->startId;
                     }
                 }
@@ -71,21 +73,24 @@ class Helper
 
                     if (isset($item1->center) && isset($item2->center)) {
                         if ($item1->center->y > $item2->center->y) {
-                            return true;
+                            return 1;
                         }
 
                         if ($item1->center->y == $item2->center->y) {
                             if ($item1->center->x > $item2->center->x) {
-                                return true;
+                                return 1;
                             }
                         }
                     }
 
-                    return false;
+                    return -1;
                 });
 
-                $id = $item->id;
+                $id = $item->id ?? null;
+
+                /** @var stdClass $o */
                 $o = clone $item;
+
                 $o->nextElementIdList = $nextElementIdList;
                 $o->previousElementIdList = $previousElementIdList;
 
@@ -93,6 +98,7 @@ class Helper
                     $o->flowList = [];
 
                     foreach ($item->flowList as $nextFlowData) {
+                        /** @var stdClass $nextFlowDataCloned */
                         $nextFlowDataCloned = clone $nextFlowData;
 
                         foreach ($data->list as $itemAnother) {
@@ -120,11 +126,11 @@ class Helper
                     }
                 }
 
-                if ($item->type === 'eventStart') {
+                if ($itType === 'eventStart') {
                     $eventStartIdList[] = $id;
                 }
 
-                if (strpos($item->type, 'eventStart') === 0) {
+                if (is_string($itType) && str_starts_with($itType, 'eventStart')) {
                     $eventStartAllIdList[] = $id;
                 }
 
@@ -148,42 +154,5 @@ class Helper
         }
 
         return null;
-    }
-
-    public static function applyPlaceholders(string $text, Entity $target, stdClass $variables = null): string
-    {
-        foreach ($target->getAttributeList() as $attribute) {
-            $value = $target->get($attribute);
-
-            if ($value === null) {
-                continue;
-            }
-
-            if (is_numeric($value)) {
-                $value = (string) $value;
-            }
-
-            if (!is_string($value)) {
-                continue;
-            }
-
-            $text = str_replace('{$' . $attribute . '}', $value, $text);
-        }
-
-        $variables = $variables ?? (object) [];
-
-        foreach (get_object_vars($variables) as $key => $value) {
-            if (is_numeric($value)) {
-                $value = (string) $value;
-            }
-
-            if (!is_string($value)) {
-                continue;
-            }
-
-            $text = str_replace('{$$' . $key . '}', $value, $text);
-        }
-
-        return $text;
     }
 }

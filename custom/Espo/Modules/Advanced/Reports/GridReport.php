@@ -11,13 +11,15 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Reports;
 
+use Espo\Core\Exceptions\BadRequest;
+use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Select\SearchParams;
 use Espo\Core\Select\Where\Item as WhereItem;
 use Espo\Entities\User;
@@ -25,9 +27,22 @@ use Espo\Modules\Advanced\Tools\Report\GridType\Result;
 use Espo\Modules\Advanced\Tools\Report\ListType\Result as ListResult;
 use Espo\Modules\Advanced\Tools\Report\ListType\SubReportParams;
 
+/**
+ * The Report entity instance is passed to the constructor.
+ */
 interface GridReport
 {
+    /**
+     * Use ResultPreparator to build the result object.
+     *
+     * @throws BadRequest
+     * @throws Forbidden
+     */
     public function run(?WhereItem $where, ?User $user): Result;
 
+    /**
+     * @throws BadRequest
+     * @throws Forbidden
+     */
     public function runSubReport(SearchParams $searchParams, SubReportParams $subReportParams, ?User $user): ListResult;
 }

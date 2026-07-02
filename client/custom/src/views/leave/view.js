@@ -724,7 +724,6 @@ define('custom:views/leave/view', ['view'], function (Dep) {
          *   bottomSection   : String (HTML)
          *   yesLabel        : String
          *   yesColor        : String (css colour)
-         * }
          */
         swBuildHtml: function (cfg) {
             function infoRow(label, value, vc) {
@@ -1552,8 +1551,12 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     }
 
                     // ── processLeaveWithBalance: balance check + deduct + create ──
-                    // Uses swEffectiveBalance for the previous-month rule so the
-                    // same logic applies whether we arrive from normal or sandwich path.
+                    // Uses swEffectiveBalance / swIsPrevMonth for the eligibility check
+                    // (previous-month rule: employee must keep 1 day margin). The
+                    // FIX: the actual DB deduction only ever subtracts the real
+                    // leave days — it no longer also subtracts the 1-day margin,
+                    // which was previously causing a double deduction for
+                    // previous-month paid leave (e.g. 1 day applied → 2 days deducted).
                     function processLeaveWithBalance(effectiveDays, overrideType) {
                         var finalType = overrideType || leaveTypeVal;
                         if (finalType === 'Paid') {
@@ -1574,12 +1577,13 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                                 Espo.Ajax.getRequest('CLeaveBalance', {
                                     where: [{ type: 'equals', attribute: 'userId', value: userId }]
                                 }).then(function (res) {
-                                    var record     = res.list[0];
-                                    var deductFrom = isPrevMonth
-                                        ? parseFloat(record.balance) - 1
-                                        : parseFloat(record.balance);
+                                    var record = res.list[0];
+                                    // FIX: deduct only the actual leave days from the
+                                    // real stored balance. The previous-month "-1"
+                                    // margin is used ONLY for the eligibility check
+                                    // above, never for the real deduction.
                                     Espo.Ajax.putRequest('CLeaveBalance/' + record.id, {
-                                        balance: deductFrom - effectiveDays
+                                        balance: parseFloat(record.balance) - effectiveDays
                                     }).then(function () { createLeave(effectiveDays, overrideType); });
                                 });
                             });
@@ -1819,7 +1823,10 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     }
 
                     // ── processLeaveWithBalance ──────────────────────────────
-                    // Uses swIsPrevMonth / swEffectiveBalance consistently.
+                    // Uses swIsPrevMonth / swEffectiveBalance for the eligibility
+                    // check only. FIX: the actual DB deduction only subtracts the
+                    // real leave days, never the 1-day previous-month margin, so
+                    // a 1-day paid leave in a previous month deducts 1 day, not 2.
                     function processLeaveWithBalance(effectiveDays, overrideType) {
                         var finalType = overrideType || leaveTypeVal;
                         if (finalType === 'Paid') {
@@ -1840,12 +1847,13 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                                 Espo.Ajax.getRequest('CLeaveBalance', {
                                     where: [{ type: 'equals', attribute: 'userId', value: employeeId }]
                                 }).then(function (res) {
-                                    var record     = res.list[0];
-                                    var deductFrom = isPrevMonth
-                                        ? parseFloat(record.balance) - 1
-                                        : parseFloat(record.balance);
+                                    var record = res.list[0];
+                                    // FIX: deduct only the actual leave days from the
+                                    // real stored balance. The previous-month "-1"
+                                    // margin is used ONLY for the eligibility check
+                                    // above, never for the real deduction.
                                     Espo.Ajax.putRequest('CLeaveBalance/' + record.id, {
-                                        balance: deductFrom - effectiveDays
+                                        balance: parseFloat(record.balance) - effectiveDays
                                     }).then(function () { createLeave(effectiveDays, overrideType); });
                                 });
                             });

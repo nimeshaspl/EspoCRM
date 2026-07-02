@@ -11,49 +11,52 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
+use Espo\Core\Exceptions\Error;
+use Espo\Core\Formula\Exceptions\Error as FormulaError;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\ORM\Entity;
 use stdClass;
 
 class CreateEntity extends BaseEntity
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    /**
+     * @throws Error
+     */
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         $entityType = $actionData->link;
 
         $newEntity = $this->entityManager->getNewEntity($entityType);
 
-        $data = $this->getDataToFill($newEntity, $actionData->fields);
-        $newEntity->set($data);
+        $data = $this->getEntityValuesToSet($newEntity, $actionData->fields);
+        $newEntity->setMultiple($data);
 
-        $formula = $actionData->formula ?? null;
-
-        if ($formula) {
-            $this->getFormulaManager()->run($formula, $newEntity, $this->getFormulaVariables());
-        }
+        $this->processFormula($actionData, $newEntity);
 
         if (isset($actionData->linkList) && count($actionData->linkList)) {
             foreach ($actionData->linkList as $link) {
                 if ($newEntity->getRelationType($link) === Entity::BELONGS_TO) {
                     $newEntity->set($link . 'Id', $entity->getId());
-                }
-                else if ($newEntity->getRelationType($link) === Entity::BELONGS_TO_PARENT) {
+                } else if ($newEntity->getRelationType($link) === Entity::BELONGS_TO_PARENT) {
                     $newEntity->set($link . 'Id', $entity->getId());
                     $newEntity->set($link . 'Type', $entity->getEntityType());
                 }
             }
         }
 
-        $this->entityManager->saveEntity($newEntity, [
+        $saveOptions = [
             'workflowId' => $this->getWorkflowId(),
             'createdById' => $newEntity->get('createdById') ?? 'system',
-        ]);
+        ];
+
+        $this->entityManager->saveEntity($newEntity, $saveOptions);
 
         if (isset($actionData->linkList) && count($actionData->linkList)) {
             foreach ($actionData->linkList as $link) {
@@ -82,6 +85,26 @@ class CreateEntity extends BaseEntity
             ];
         }
 
+        if ($this->variables) {
+            $this->variables->__lastCreatedEntityId = $newEntity->getId();
+        }
+
         return true;
+    }
+
+    /**
+     * @throws Error
+     */
+    private function processFormula(stdClass $actionData, Entity $entity): void
+    {
+        if (empty($actionData->formula)) {
+            return;
+        }
+
+        try {
+            $this->formulaManager->run($actionData->formula, $entity, $this->getFormulaVariables());
+        } catch (FormulaError $e) {
+            throw new Error($e->getMessage(), previous: $e);
+        }
     }
 }

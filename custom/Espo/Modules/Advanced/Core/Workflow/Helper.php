@@ -11,74 +11,33 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow;
 
-use Espo\Core\InjectableFactory;
-use Espo\Core\ServiceFactory;
 use Espo\Entities\User;
 use Espo\ORM\Entity;
-use Espo\Core\Container;
 use Espo\ORM\EntityManager;
-use Espo\Tools\Stream\Service;
+use Espo\Tools\Stream\Service as StreamService;
 
 class Helper
 {
-    private Container $container;
-    private ?EntityHelper $entityHelper = null;
-
-    public function __construct(Container $container)
-    {
-        $this->container = $container;
-    }
-
-    private function getEntityManager(): EntityManager
-    {
-        /** @var EntityManager */
-        return $this->container->get('entityManager');
-    }
-
-    private function getServiceFactory(): ServiceFactory
-    {
-        /** @var ServiceFactory */
-        return $this->container->get('serviceFactory');
-    }
-
-    private function getInjectableFactory(): InjectableFactory
-    {
-        /** @var InjectableFactory */
-        return $this->container->get('injectableFactory');
-    }
-
-    public function getEntityHelper(): EntityHelper
-    {
-        if (!isset($this->entityHelper)) {
-            $this->entityHelper = new EntityHelper($this->container);
-        }
-
-        return $this->entityHelper;
-    }
+    public function __construct(
+        private EntityManager $entityManager,
+        private StreamService $streamService,
+    ) {}
 
     /**
      * Get followers users ids.
      *
-     * @param Entity $entity
      * @return string[]
      */
     public function getFollowerUserIds(Entity $entity): array
     {
-        if (!class_exists("Espo\\Tools\\Stream\\Service")) {
-            return $this->getServiceFactory()->create('Stream')->getEntityFolowerIdList($entity);
-        }
-
-        /** @var Service $streamService */
-        $streamService = $this->getInjectableFactory()->create("Espo\\Tools\\Stream\\Service");
-
-        return $streamService->getEntityFollowerIdList($entity);
+        return $this->streamService->getEntityFollowerIdList($entity);
     }
 
     /**
@@ -102,7 +61,7 @@ class Helper
     /**
      * Get user ids for team ids.
      *
-     * @param array $teamIds
+     * @param string[] $teamIds
      * @return string[]
      */
     public function getUserIdsByTeamIds(array $teamIds): array
@@ -113,8 +72,8 @@ class Helper
 
         $userIds = [];
 
-        $users = $this->getEntityManager()
-            ->getRDBRepository(User::ENTITY_TYPE)
+        $users = $this->entityManager
+            ->getRDBRepositoryByClass(User::class)
             ->select('id')
             ->distinct()
             ->join('teams', 'teams')
@@ -133,12 +92,12 @@ class Helper
      * Get email addresses for an entity with specified ids.
      *
      * @param string $entityType
-     * @param array $entityIds
+     * @param string[] $entityIds
      * @return string[]
      */
     public function getEmailAddressesForEntity(string $entityType, array $entityIds): array
     {
-        $entityList = $this->getEntityManager()
+        $entityList = $this->entityManager
             ->getRDBRepository($entityType)
             ->select(['id', 'emailAddress'])
             ->where(['id' => $entityIds])

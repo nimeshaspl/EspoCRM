@@ -3,7 +3,7 @@
 {{/if}}
 <div
     class="field-container"
-    style="display: inline-block;{{#unless readOnly}} min-width: 90%;{{/unless}}"
+    style="display: inline-block;{{#unless readOnly}} min-width: 100%;{{/unless}}"
 >{{{field}}}</div>
 {{#if readOnly}}
     </code>

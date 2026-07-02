@@ -13,16 +13,20 @@
     </span>
 {{else}}
     <div class="row">
-        <div class="col-sm-3 comparison">
+        <div class="col-sm-6 comparison">
             <span data-field="comparison">{{{comparisonField}}}</span>
         </div>
-        <div class="col-sm-2 subject-type">
+        <div class="col-sm-6 subject-type">
             {{{subjectType}}}
         </div>
-        <div class="col-sm-4 subject">
+    </div>
+    <div class="row">
+        <div class="col-sm-12 subject">
             {{{subject}}}
         </div>
-        <div class="col-sm-3 shift-days">
+    </div>
+    <div class="row">
+        <div class="col-sm-12 shift-days">
             {{{shiftDays}}}
         </div>
     </div>

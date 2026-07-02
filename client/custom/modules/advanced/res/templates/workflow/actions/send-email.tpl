@@ -3,7 +3,7 @@
         <div class="col-md-1">
             <button class="btn btn-default btn-sm btn-icon" type="button" data-action='editAction'><span class="fas fa-pencil-alt fa-sm"></span></button>
             <div>
-                <a class="btn btn-text btn-sm btn-icon drag-handle"><span class="fas fa-magnet fa-sm"></span></a>
+                <a class="btn btn-text btn-sm btn-icon drag-handle"><span class="fas fa-grip fa-sm fa-rotate-90"></span></a>
             </div>
         </div>
     {{/unless}}
@@ -51,6 +51,19 @@
                 </div>
             {{/if}}
 
+            {{#if actionData.cc}}
+                <div class="field-row cell form-group" data-field="replyTo">
+                    <label class="control-label">{{translate 'CC' scope='Workflow'}}</label>
+                    <div class="field-container field" data-field="replyTo">
+                        {{#ifEqual actionData.cc 'specifiedEmailAddress'}}
+                            {{actionData.ccEmail}}
+                        {{else}}
+                            {{ccLabel}}
+                        {{/ifEqual}}
+                    </div>
+                </div>
+            {{/if}}
+
             {{#if actionData.replyTo}}
                 <div class="field-row cell form-group" data-field="replyTo">
                     <label class="control-label">{{translate 'Reply-To' scope='Workflow'}}</label>
@@ -77,10 +90,18 @@
                     <div class="field-container field-doNotStore" data-field="doNotStore">{{{doNotStore}}}</div>
                 </div>
             {{/if}}
+
             <div class="field-row cell form-group" data-name="optOutLink">
                 <label class="control-label">{{translate 'optOutLink' scope='Workflow' category='fields'}}</label>
                 <div class="field-container field" data-name="optOutLink">{{{optOutLink}}}</div>
             </div>
+
+            {{#if actionData.attachmentsVariable}}
+                <div class="field-row cell form-group" data-name="attachmentsVariable">
+                    <label class="control-label">{{translate 'attachmentsVariable' scope='Workflow' category='fields'}}</label>
+                    <div class="field-container field" data-name="attachmentsVariable">{{{attachmentsVariable}}}</div>
+                </div>
+            {{/if}}
         </div>
     </div>
 </div>

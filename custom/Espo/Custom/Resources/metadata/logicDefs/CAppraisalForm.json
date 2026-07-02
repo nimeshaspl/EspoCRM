@@ -92,9 +92,26 @@
             "required": {
                 "conditionGroup": [
                     {
-                        "type": "equals",
-                        "attribute": "roleType",
-                        "value": "Project Manager"
+                        "type": "and",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "notContains",
+                                "attribute": "$user.teamsIds",
+                                "data": {
+                                    "field": "teams",
+                                    "values": {
+                                        "linkName": "Appraisal Config",
+                                        "linkId": "686ab569b27b170f2"
+                                    }
+                                },
+                                "value": "686ab569b27b170f2"
+                            }
+                        ]
                     }
                 ]
             },
@@ -513,9 +530,26 @@
             "required": {
                 "conditionGroup": [
                     {
-                        "type": "equals",
-                        "attribute": "roleType",
-                        "value": "Project Manager"
+                        "type": "and",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "notContains",
+                                "attribute": "$user.teamsIds",
+                                "data": {
+                                    "field": "teams",
+                                    "values": {
+                                        "linkName": "Appraisal Config",
+                                        "linkId": "686ab569b27b170f2"
+                                    }
+                                },
+                                "value": "686ab569b27b170f2"
+                            }
+                        ]
                     }
                 ]
             },
@@ -542,9 +576,26 @@
             "required": {
                 "conditionGroup": [
                     {
-                        "type": "equals",
-                        "attribute": "roleType",
-                        "value": "Project Manager"
+                        "type": "and",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "notContains",
+                                "attribute": "$user.teamsIds",
+                                "data": {
+                                    "field": "teams",
+                                    "values": {
+                                        "linkName": "Appraisal Config",
+                                        "linkId": "686ab569b27b170f2"
+                                    }
+                                },
+                                "value": "686ab569b27b170f2"
+                            }
+                        ]
                     }
                 ]
             },
@@ -571,9 +622,26 @@
             "required": {
                 "conditionGroup": [
                     {
-                        "type": "equals",
-                        "attribute": "roleType",
-                        "value": "Project Manager"
+                        "type": "and",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "notContains",
+                                "attribute": "$user.teamsIds",
+                                "data": {
+                                    "field": "teams",
+                                    "values": {
+                                        "linkName": "Appraisal Config",
+                                        "linkId": "686ab569b27b170f2"
+                                    }
+                                },
+                                "value": "686ab569b27b170f2"
+                            }
+                        ]
                     }
                 ]
             },
@@ -600,9 +668,26 @@
             "required": {
                 "conditionGroup": [
                     {
-                        "type": "equals",
-                        "attribute": "roleType",
-                        "value": "Project Manager"
+                        "type": "and",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "notContains",
+                                "attribute": "$user.teamsIds",
+                                "data": {
+                                    "field": "teams",
+                                    "values": {
+                                        "linkName": "Appraisal Config",
+                                        "linkId": "686ab569b27b170f2"
+                                    }
+                                },
+                                "value": "686ab569b27b170f2"
+                            }
+                        ]
                     }
                 ]
             },
@@ -629,9 +714,26 @@
             "required": {
                 "conditionGroup": [
                     {
-                        "type": "equals",
-                        "attribute": "roleType",
-                        "value": "Project Manager"
+                        "type": "and",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "notContains",
+                                "attribute": "$user.teamsIds",
+                                "data": {
+                                    "field": "teams",
+                                    "values": {
+                                        "linkName": "Appraisal Config",
+                                        "linkId": "686ab569b27b170f2"
+                                    }
+                                },
+                                "value": "686ab569b27b170f2"
+                            }
+                        ]
                     }
                 ]
             },
@@ -802,9 +904,26 @@
             "required": {
                 "conditionGroup": [
                     {
-                        "type": "equals",
-                        "attribute": "roleType",
-                        "value": "Project Manager"
+                        "type": "and",
+                        "value": [
+                            {
+                                "type": "equals",
+                                "attribute": "roleType",
+                                "value": "Project Manager"
+                            },
+                            {
+                                "type": "notContains",
+                                "attribute": "$user.teamsIds",
+                                "data": {
+                                    "field": "teams",
+                                    "values": {
+                                        "linkName": "Appraisal Config",
+                                        "linkId": "686ab569b27b170f2"
+                                    }
+                                },
+                                "value": "686ab569b27b170f2"
+                            }
+                        ]
                     }
                 ]
             },

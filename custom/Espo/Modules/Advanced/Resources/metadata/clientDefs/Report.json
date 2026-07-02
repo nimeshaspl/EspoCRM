@@ -1,19 +1,19 @@
 {
-    "controller": "advanced:controllers/report",
+    "controller": "modules/advanced/controllers/report",
     "boolFilterList": ["onlyMy"],
     "boolFilters": ["onlyMy"],
     "recordViews": {
-        "list":"advanced:views/report/record/list",
-        "detail": "advanced:views/report/record/detail",
-        "edit": "advanced:views/report/record/edit"
+        "list": "modules/advanced/views/report/record/list",
+        "detail": "modules/advanced/views/report/record/detail",
+        "edit": "modules/advanced/views/report/record/edit"
     },
     "views": {
-        "list": "advanced:views/report/list",
-        "result": "advanced:views/report/result",
-        "detail": "advanced:views/report/detail"
+        "list": "modules/advanced/views/report/list",
+        "result": "modules/advanced/views/report/result",
+        "detail": "modules/advanced/views/report/detail"
     },
     "modalViews": {
-        "select": "advanced:views/report/modals/select-records"
+        "select": "modules/advanced/views/report/modals/select-records"
     },
     "defaultSidePanelFieldLists": {
         "detail": [
@@ -27,15 +27,30 @@
             "portals"
         ]
     },
+    "forceListViewSettings": true,
     "createDisabled": false,
     "menu": {
         "list": {
             "dropdown": [
                 {
+                    "name": "createJointGridReport",
                     "label": "Create Joint Grid Report",
-                    "link": "#Report/create/type=JointGrid",
-                    "acl": "create"
+                    "acl": "create",
+                    "handler": "modules/advanced/handlers/report/create-joint-grid-report-action",
+                    "actionFunction": "process"
                 },
+                {
+                    "name": "createInternalReport",
+                    "label": "Create Internal Report",
+                    "accessDataList": [
+                        {
+                            "isAdminOnly": true
+                        }
+                    ],
+                    "handler": "modules/advanced/handlers/report/create-internal-report-action",
+                    "actionFunction": "process"
+                },
+                false,
                 {
                     "label": "Manage Categories",
                     "link": "#ReportCategory",
@@ -50,7 +65,14 @@
             {
                 "name": "report",
                 "label": "Report",
-                "view": "advanced:views/report/record/panels/report"
+                "view": "modules/advanced/views/report/record/panels/report"
+            }
+        ],
+        "edit": [
+            {
+                "name": "internalParams",
+                "label": "Parameters",
+                "view": "modules/advanced/views/report/record/panels/internal-params"
             }
         ]
     },
@@ -58,22 +80,13 @@
         "grid",
         "list"
     ],
-      "sidePanels":{
+    "sidePanels":{
         "detail":[
             {
-                "name":"emailSending",
-                "label":"EmailSending",
-                "view":"advanced:views/report/record/panels/email-sending",
-                "options":{
-                    "fields":[
-                        "emailSendingInterval",
-                        "emailSendingSettingWeekdays",
-                        "emailSendingSettingDay",
-                        "emailSendingSettingMonth",
-                        "emailSendingTime",
-                        "emailSendingUsers",
-                        "emailSendingDoNotSendEmptyReport"
-                    ],
+                "name": "emailSending",
+                "label": "EmailSending",
+                "view": "modules/advanced/views/report/record/panels/email-sending",
+                "options": {
                     "fieldList":[
                         "emailSendingInterval",
                         "emailSendingSettingWeekdays",
@@ -84,7 +97,7 @@
                         "emailSendingDoNotSendEmptyReport"
                     ],
                     "inlineEditDisabled": true,
-                    "mode":"detail"
+                    "mode": "detail"
                 },
                 "isForm": true
             }
@@ -95,17 +108,11 @@
                 "label":"EmailSending",
                 "view":"views/record/panels/side",
                 "options":{
-                    "fields":[
-                        "emailSendingInterval",
-                        "emailSendingSettingWeekdays",
-                        "emailSendingSettingDay",
-                        "emailSendingSettingMonth",
-                        "emailSendingTime",
-                        "emailSendingUsers",
-                        "emailSendingDoNotSendEmptyReport"
-                    ],
                     "fieldList":[
-                        "emailSendingInterval",
+                        {
+                            "name": "emailSendingInterval",
+                            "labelTranslation": "Report.otherFields.interval"
+                        },
                         "emailSendingSettingWeekdays",
                         "emailSendingSettingDay",
                         "emailSendingSettingMonth",
@@ -128,6 +135,39 @@
                             "type": "equals",
                             "attribute": "type",
                             "value": "Grid"
+                        }
+                    ]
+                }
+            },
+            "joinedReports": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "equals",
+                            "attribute": "type",
+                            "value": "JointGrid"
+                        }
+                    ]
+                }
+            },
+            "internalClassName": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "isTrue",
+                            "attribute": "isInternal"
+                        }
+                    ]
+                }
+            }
+        },
+        "panels": {
+            "internalParams": {
+                "visible": {
+                    "conditionGroup": [
+                        {
+                            "type": "isTrue",
+                            "attribute": "isInternal"
                         }
                     ]
                 }

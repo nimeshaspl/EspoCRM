@@ -11,43 +11,61 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
 use Espo\Core\Exceptions\Error;
-use Espo\ORM\Entity;
+use Espo\Core\ORM\Entity as CoreEntity;
+use Espo\Modules\Advanced\Tools\Workflow\Core\SaveContextHelper;
 use stdClass;
 
+/**
+ * @noinspection PhpUnused
+ */
 class RelateWithEntity extends BaseEntity
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    /**
+     * @throws Error
+     */
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
         if (empty($actionData->entityId) || empty($actionData->link)) {
-            throw new Error('Workflow['.$this->getWorkflowId().']: Bad params defined for RelateWithEntity');
+            $message = 'Bad params defined in RelateWithEntity.';
+
+            throw new Error($message);
         }
 
         $foreignEntityType = $entity->getRelationParam($actionData->link, 'entity');
 
         if (!$foreignEntityType) {
-            throw new Error('Workflow['.$this->getWorkflowId().
-                ']: Could not find foreign entity type for RelateWithEntity');
+            $message = 'Could not find foreign entity type in RelateWithEntity.';
+
+            throw new Error($message);
         }
 
-        $foreignEntity = $this->getEntityManager()->getEntityById($foreignEntityType, $actionData->entityId);
+        $foreignEntity = $this->entityManager->getEntityById($foreignEntityType, $actionData->entityId);
 
         if (!$foreignEntity) {
-            throw new Error('Workflow['.$this->getWorkflowId().
-                ']: Could not find foreign entity for RelateWithEntity');
+            $message = "Could not find foreign entity in RelateWithEntity.";
+
+            throw new Error($message);
         }
 
-        $this->getEntityManager()
-            ->getRDBRepository($entity->getEntityType())
+        $relateOptions = [
+            'context' => SaveContextHelper::obtainFromRawOptions($options),
+        ];
+
+        $this->entityManager
             ->getRelation($entity, $actionData->link)
-            ->relate($foreignEntity);
+            ->relate($foreignEntity, null, $relateOptions);
+
+        if ($entity->hasLinkMultipleField($actionData->link)) {
+            $entity->loadLinkMultipleField($actionData->link);
+        }
 
         return true;
     }

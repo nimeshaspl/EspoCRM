@@ -32,7 +32,19 @@
         "salesPlanningMonthlies": "Sales Planning Monthlies",
         "priority": "Priority",
         "personalEmailValidation": "Personal Email Validation",
-        "companyEmailValidation": "Company Email Validation"
+        "companyEmailValidation": "Company Email Validation",
+        "aiResponse": "Ai Response",
+        "aiResponseStatus": "Ai Response Status",
+        "aiPrompt": "Ai Prompt",
+        "aiGeneratedEmailSubject": "Ai Generated Email Subject",
+        "aiGeneratedEmailBody": "Ai Generated Email Body",
+        "leadOutreachStatus": "Lead Outreach Status",
+        "timezone": "Timezone",
+        "timezoneConfidence": "Timezone Confidence",
+        "isEmailResponded": "Is Email Responded",
+        "isSMSResponded": "Is SMS Responded",
+        "sMSs": "SMS",
+        "emailUniqueCode": "Email Unique Code"
     },
     "links": {
         "calls": "Calls",
@@ -41,7 +53,8 @@
         "contact1": "Contact1",
         "account": "Account",
         "opportunity": "Opportunity",
-        "salesPlanningMonthlies": "Sales Planning Monthlies"
+        "salesPlanningMonthlies": "Sales Planning Monthlies",
+        "sMSs": "SMS"
     },
     "labels": {
         "Create CDataMaster": "Create Data Master"
@@ -105,6 +118,24 @@
             "High": "High",
             "Medium": "Medium",
             "Low": "Low"
+        },
+        "aiResponseStatus": {
+            "Generated": "Generated",
+            "Not Generated": "Not Generated",
+            "Prompt Generated": "Prompt Generated",
+            "Generate Email": "Generate Email",
+            "Email Generated": "Email Generated",
+            "Send Email": "Send Email",
+            "Email Sent": "Email Sent"
+        },
+        "leadOutreachStatus": {
+            "New": "New",
+            "Initial Email Sent": "Initial Email Sent",
+            "Follow Up 1 Sent": "Follow Up 1 Sent",
+            "Follow Up 2 Sent": "Follow Up 2 Sent",
+            "Follow Up 3 Sent": "Follow Up 3 Sent",
+            "Opened": "Opened",
+            "Cold Follow Up": "Cold Follow Up"
         }
     },
     "tooltips": {

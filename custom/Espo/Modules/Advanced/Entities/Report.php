@@ -11,16 +11,18 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Entities;
 
 use Espo\Core\Field\LinkMultiple;
+use Espo\Core\ORM\Entity;
+use stdClass;
 
-class Report extends \Espo\Core\ORM\Entity
+class Report extends Entity
 {
     public const ENTITY_TYPE = 'Report';
 
@@ -62,21 +64,46 @@ class Report extends \Espo\Core\ORM\Entity
         return $this->getValueObject('portals');
     }
 
+    public function getTableMode(): ?string
+    {
+        return count($this->getGroupBy()) === 2 ?
+            $this->get('tableMode') : null;
+    }
+
+    public function setTableMode(string $mode): self
+    {
+        $this->set('tableMode', $mode);
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
     protected function _hasJoinedReportsIds()
     {
         return $this->has('joinedReportDataList');
     }
 
+    /**
+     * @return bool
+     */
     protected function _hasJoinedReportsNames()
     {
         return $this->has('joinedReportDataList');
     }
 
+    /**
+     * @return bool
+     */
     protected function _hasJoinedReportsColumns()
     {
         return $this->has('joinedReportDataList');
     }
 
+    /**
+     * @return string[][]
+     */
     protected function _getJoinedReportsIds()
     {
         $idList = [];
@@ -97,6 +124,9 @@ class Report extends \Espo\Core\ORM\Entity
         return $idList;
     }
 
+    /**
+     * @return object
+     */
     protected function _getJoinedReportsNames()
     {
         $nameMap = (object) [];
@@ -122,6 +152,9 @@ class Report extends \Espo\Core\ORM\Entity
         return $nameMap;
     }
 
+    /**
+     * @return object
+     */
     protected function _getJoinedReportsColumns()
     {
         $map = (object) [];
@@ -146,5 +179,88 @@ class Report extends \Espo\Core\ORM\Entity
         }
 
         return $map;
+    }
+
+    public function getOrderByList(): ?string
+    {
+        return $this->get('orderByList');
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getColumns(): array
+    {
+        return $this->get('columns') ?? [];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getGroupBy(): array
+    {
+        return $this->get('groupBy') ?? [];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getOrderBy(): array
+    {
+        return $this->get('orderBy') ?? [];
+    }
+
+    public function getColumnsData(): stdClass
+    {
+        return $this->get('columnsData') ?? (object) [];
+    }
+
+    public function getApplyAcl(): bool
+    {
+        return (bool) $this->get('applyAcl');
+    }
+
+    public function setName(string $name): self
+    {
+        $this->set('name', $name);
+
+        return $this;
+    }
+
+    public function setApplyAcl(bool $applyAcl = true): self
+    {
+        $this->set('applyAcl', $applyAcl);
+
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getJoinedReportIdList(): array
+    {
+        return $this->get('joinedReportsIds') ?? [];
+    }
+
+    public function getInternalParams(): stdClass
+    {
+        return $this->get('internalParams') ?? (object) [];
+    }
+
+    public function getInternalClassName(): ?string
+    {
+        return $this->get('internalClassName');
+    }
+
+    public function setChartType(?string $chartType): self
+    {
+        $this->set('chartType', $chartType);
+
+        return $this;
+    }
+
+    public function getChartType(): ?string
+    {
+        return $this->get('chartType');
     }
 }

@@ -11,13 +11,14 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Classes\Select\Common\PrimaryFilters;
 
+use Espo\Core\Exceptions\BadRequest;
 use Espo\Core\Exceptions\Error;
 use Espo\Core\Exceptions\Forbidden;
 use Espo\Core\Select\Primary\Filter;
@@ -32,31 +33,23 @@ use RuntimeException;
 
 class ReportFilter implements Filter
 {
-    private EntityManager $entityManager;
-    private Metadata $metadata;
-    private User $user;
-    private Service $service;
-    private string $name;
-    private string $entityType;
-
     public function __construct(
-        $name,
-        $entityType,
-        EntityManager $entityManager,
-        Metadata $metadata,
-        User $user,
-        Service $service
-    ) {
-        $this->entityManager = $entityManager;
-        $this->metadata = $metadata;
-        $this->user = $user;
-        $this->service = $service;
-        $this->name = $name;
-        $this->entityType = $entityType;
-    }
+        private string $name,
+        private string $entityType,
+        private EntityManager $entityManager,
+        private Metadata $metadata,
+        private User $user,
+        private Service $service
+    ) {}
 
+    /**
+     * @throws BadRequest
+     * @throws Forbidden
+     * @throws Error
+     */
     public function apply(QueryBuilder $queryBuilder): void
     {
+        /** @var ?string $reportFilterId */
         $reportFilterId = $this->metadata
             ->get(['entityDefs', $this->entityType, 'collection', 'filters', $this->name, 'id']);
 

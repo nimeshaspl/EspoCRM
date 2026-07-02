@@ -11,22 +11,30 @@
  * usage to the software or any modified version or derivative work of the software
  * created by or for you.
  *
- * Copyright (C) 2015-2024 Letrium Ltd.
+ * Copyright (C) 2015-2026 EspoCRM, Inc.
  *
- * License ID: ad613d6f17d95068d74b41de4412a563
+ * License ID: c72d5a728d919874e050fe0f122c2d00
  ************************************************************************************/
 
 namespace Espo\Modules\Advanced\Core\Workflow\Actions;
 
-use Espo\ORM\Entity;
+use Espo\Core\ORM\Entity as CoreEntity;
 use Espo\Core\Exceptions\Error;
+use Espo\Modules\Advanced\Business\Workflow\AssignmentRules\LeastBusy;
+use Espo\Modules\Advanced\Business\Workflow\AssignmentRules\RoundRobin;
 use stdClass;
 
+/**
+ * @noinspection PhpUnused
+ */
 class ApplyAssignmentRule extends BaseEntity
 {
-    protected function run(Entity $entity, stdClass $actionData): bool
+    /**
+     * @throws Error
+     */
+    protected function run(CoreEntity $entity, stdClass $actionData, array $options): bool
     {
-        $entityManager = $this->getEntityManager();
+        $entityManager = $this->entityManager;
 
         $target = null;
 
@@ -36,8 +44,7 @@ class ApplyAssignmentRule extends BaseEntity
 
         if ($target === 'process') {
             $entity = $this->bpmnProcess;
-        }
-        else if (strpos($target, 'created:') === 0) {
+        } else if ($target && str_starts_with($target, 'created:')) {
             $entity = $this->getCreatedEntity($target);
         }
 
@@ -49,7 +56,11 @@ class ApplyAssignmentRule extends BaseEntity
             return false;
         }
 
-        $reloadedEntity = $entityManager->getEntity($entity->getEntityType(), $entity->get('id'));
+        $reloadedEntity = $entityManager->getEntityById($entity->getEntityType(), $entity->getId());
+
+        if (!$reloadedEntity) {
+            throw new Error("Entity does not already exist.");
+        }
 
         if (empty($actionData->targetTeamId) || empty($actionData->assignmentRule)) {
             throw new Error('AssignmentRule: Not enough parameters.');
@@ -73,7 +84,7 @@ class ApplyAssignmentRule extends BaseEntity
         if (
             !in_array(
                 $assignmentRule,
-                $this->getMetadata()->get('entityDefs.Workflow.assignmentRuleList', [])
+                $this->metadata->get('entityDefs.Workflow.assignmentRuleList', [])
             )
         ) {
             throw new Error('AssignmentRule: ' . $assignmentRule . ' is not supported.');
@@ -81,6 +92,7 @@ class ApplyAssignmentRule extends BaseEntity
 
         // @todo Use factory and interface.
 
+        /** @var class-string<LeastBusy|RoundRobin> $className */
         $className = 'Espo\\Modules\\Advanced\\Business\\Workflow\\AssignmentRules\\' .
             str_replace('-', '', $assignmentRule);
 
@@ -99,7 +111,7 @@ class ApplyAssignmentRule extends BaseEntity
         $flowchartId = null;
 
         if ($this->bpmnProcess) {
-            $flowchartId = $this->bpmnProcess->get('flowchartId');
+            $flowchartId = $this->bpmnProcess->getFlowchartId();
 
             $workflowId = null;
         }

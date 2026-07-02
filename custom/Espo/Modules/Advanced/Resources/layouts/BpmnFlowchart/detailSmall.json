@@ -4,26 +4,25 @@
         "rows": [
             [
                 {
-                    "name": "name",
-                    "fullWidth": true
+                    "name": "name"
                 }
             ],
             [
                 {
-                    "name": "targetType",
-                    "fullWidth": true
+                    "name": "targetType"
                 }
             ],
             [
                 {
                     "name": "isActive"
                 },
-                false
+                {
+                    "name": "category"
+                }
             ],
             [
                 {
-                    "name": "description",
-                    "fullWidth": true
+                    "name": "description"
                 }
             ]
         ]
