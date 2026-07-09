@@ -1,5 +1,7 @@
 [
     "source",
     "assignedUser",
-    "teams"
+    "massUpdate",
+    "teams",
+    "status"
 ]

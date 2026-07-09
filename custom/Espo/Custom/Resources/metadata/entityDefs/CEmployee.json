@@ -273,6 +273,9 @@
             "inlineEditDisabled": true,
             "tooltip": true,
             "isCustom": true
+        },
+        "payrolls": {
+            "type": "linkMultiple"
         }
     },
     "links": {
@@ -488,6 +491,14 @@
             "type": "hasMany",
             "foreign": "employee",
             "entity": "CAttendanceRecord",
+            "audited": false,
+            "isCustom": true
+        },
+        "payrolls": {
+            "type": "hasMany",
+            "relationName": "cPayrollEmployee",
+            "foreign": "employees",
+            "entity": "CPayroll",
             "audited": false,
             "isCustom": true
         }

@@ -16,5 +16,9 @@
     "numberOfFollowupVoice",
     "address",
     "description",
-    "modifiedAt"
+    "modifiedAt",
+    "priority",
+    "isEmailResponded",
+    "massUpdate",
+    "requirementLink"
 ]

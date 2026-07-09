@@ -5,7 +5,8 @@
     "fields": {
         "isPFEnable": "Is PF Enable ?",
         "isESICEnable": "Is ESIC Enable ?",
-        "payrolls": "Payrolls"
+        "payrolls": "Payrolls",
+        "basicPay": "Basic Pay"
     },
     "links": {
         "payrolls": "Payrolls"

@@ -6,7 +6,10 @@
                     "name": "name"
                 },
                 {
-                    "name": "date"
+                    "name": "month"
+                },
+                {
+                    "name": "year"
                 }
             ],
             [

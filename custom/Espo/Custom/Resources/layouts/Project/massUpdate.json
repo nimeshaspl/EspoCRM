@@ -3,5 +3,6 @@
     "startDate",
     "endDate",
     "assignedUser",
-    "contact"
+    "contact",
+    "account"
 ]

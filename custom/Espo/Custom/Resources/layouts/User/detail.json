@@ -6,10 +6,13 @@
                     "name": "userName"
                 },
                 {
-                    "name": "cIsIntern"
+                    "name": "cEmployeeCode"
                 },
                 {
                     "name": "cIsWorkFromHome"
+                },
+                {
+                    "name": "cIsIntern"
                 }
             ],
             [
@@ -30,9 +33,7 @@
                 {
                     "name": "phoneNumber"
                 },
-                {
-                    "name": "cEmployeeCode"
-                }
+                false
             ],
             [
                 {

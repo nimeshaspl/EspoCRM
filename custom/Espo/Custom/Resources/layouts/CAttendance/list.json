@@ -1,0 +1,18 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "date",
+        "width": 16
+    },
+    {
+        "name": "createdAt",
+        "width": 16
+    },
+    {
+        "name": "createdBy",
+        "width": 16
+    }
+]

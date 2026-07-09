@@ -44,7 +44,9 @@
         "isEmailResponded": "Is Email Responded",
         "isSMSResponded": "Is SMS Responded",
         "sMSs": "SMS",
-        "emailUniqueCode": "Email Unique Code"
+        "emailUniqueCode": "Email Unique Code",
+        "massUpdate": "Mass update",
+        "aiResponseStatusCode": "AI Response Status Code"
     },
     "links": {
         "calls": "Calls",

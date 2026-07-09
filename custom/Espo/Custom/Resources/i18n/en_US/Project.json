@@ -25,7 +25,8 @@
         "projectBudget": "Project Budget",
         "projectExternalExps": "Project External Exps",
         "externalExp": "External Exp",
-        "accountNote": "Account Note"
+        "accountNote": "Account Note",
+        "account": "Account"
     },
     "links": {
         "contact": "Contact",
@@ -38,7 +39,8 @@
         "workToBeBills": "Work To Be Bills",
         "cRTrackings": "CR Tracking",
         "invoiceses": "Invoiceses",
-        "projectExternalExps": "Project External Exps"
+        "projectExternalExps": "Project External Exps",
+        "account": "Account"
     },
     "labels": {
         "Create Project": "Create Project"

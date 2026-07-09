@@ -43,8 +43,8 @@
             "inlineEditDisabled": true,
             "isCustom": true,
             "default": 0,
-            "readOnly": true,
-            "readOnlyAfterCreate": true,
+            "readOnly": false,
+            "readOnlyAfterCreate": false,
             "tooltip": true
         },
         "pTGross": {
@@ -54,9 +54,10 @@
             "inlineEditDisabled": true,
             "isCustom": true,
             "default": 0,
-            "readOnly": true,
-            "readOnlyAfterCreate": true,
-            "tooltip": true
+            "readOnly": false,
+            "readOnlyAfterCreate": false,
+            "tooltip": true,
+            "required": true
         },
         "balancingFigure": {
             "notNull": false,
@@ -73,18 +74,18 @@
             "inlineEditDisabled": true,
             "isCustom": true,
             "default": 0,
-            "readOnly": true,
-            "readOnlyAfterCreate": true,
+            "readOnly": false,
+            "readOnlyAfterCreate": false,
             "tooltip": true
         },
         "hRAGross": {
             "notNull": false,
             "type": "float",
             "audited": true,
-            "inlineEditDisabled": true,
+            "inlineEditDisabled": false,
             "isCustom": true,
-            "readOnly": true,
-            "readOnlyAfterCreate": true,
+            "readOnly": false,
+            "readOnlyAfterCreate": false,
             "tooltip": true
         },
         "isPFEnable": {
@@ -107,12 +108,13 @@
         "basicPay": {
             "notNull": false,
             "type": "float",
-            "audited": true,
-            "inlineEditDisabled": true,
+            "audited": false,
+            "inlineEditDisabled": false,
             "isCustom": true,
-            "readOnly": true,
-            "readOnlyAfterCreate": true,
-            "tooltip": true
+            "readOnly": false,
+            "readOnlyAfterCreate": false,
+            "tooltip": true,
+            "required": true
         }
     },
     "links": {

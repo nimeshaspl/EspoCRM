@@ -6,7 +6,8 @@
                 "Lead",
                 "Contact",
                 "Opportunity",
-                "Case"
+                "Case",
+                "CDataMaster"
             ]
         },
         "cParentAnother": {

@@ -17,7 +17,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
 
         setup: function () {
             Dep.prototype.setup.call(this);
-
+            console.log('Leave view setup called..');
             this.leaveBalance = 0;
             this.isRenderedOnce = false;
             this.isEmployee = false;
@@ -113,11 +113,11 @@ define('custom:views/leave/view', ['view'], function (Dep) {
 
         getPaginationOptions: function (selectedSize) {
             return [
-                { value: 5,    label: '5',   selected: String(selectedSize) === '5'   },
-                { value: 10,   label: '10',  selected: String(selectedSize) === '10'  },
-                { value: 15,   label: '15',  selected: String(selectedSize) === '15'  },
-                { value: 20,   label: '20',  selected: String(selectedSize) === '20'  },
-                { value: 'all',label: 'All', selected: String(selectedSize).toLowerCase() === 'all' }
+                { value: 5, label: '5', selected: String(selectedSize) === '5' },
+                { value: 10, label: '10', selected: String(selectedSize) === '10' },
+                { value: 15, label: '15', selected: String(selectedSize) === '15' },
+                { value: 20, label: '20', selected: String(selectedSize) === '20' },
+                { value: 'all', label: 'All', selected: String(selectedSize).toLowerCase() === 'all' }
             ];
         },
 
@@ -663,9 +663,23 @@ define('custom:views/leave/view', ['view'], function (Dep) {
         swIsPrevMonth: function (startDate, endDate, today) {
             var fmt = this.swFormatDate.bind(this);
             var currentMonth = fmt(today).substring(0, 7); // "YYYY-MM"
-            var startMonth   = startDate.substring(0, 7);
-            var endMonth     = endDate.substring(0, 7);
+            var startMonth = startDate.substring(0, 7);
+            var endMonth = endDate.substring(0, 7);
             return (startMonth < currentMonth || endMonth < currentMonth);
+        },
+        /**
+         * swNormalizeDates(startDate, endDate)
+         * Ensures the returned pair is always in ascending order,
+         * regardless of how the caller supplied them.
+        */
+        swNormalizeDates: function (startDate, endDate) {
+            if (!startDate || !endDate) {
+                return { startDate: startDate, endDate: endDate || startDate };
+            }
+            if (startDate > endDate) {
+                return { startDate: endDate, endDate: startDate };
+            }
+            return { startDate: startDate, endDate: endDate };
         },
 
         /**
@@ -689,8 +703,8 @@ define('custom:views/leave/view', ['view'], function (Dep) {
         /** Format a "YYYY-MM-DD" string → human-readable label. */
         swFormatDisplayDate: function (dateStr) {
             var d = new Date(dateStr + 'T00:00:00');
-            var days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             return days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
         },
 
@@ -704,9 +718,9 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             document.body.appendChild(overlay);
             function closeDialog() { overlay.remove(); }
             var yesBtn = overlay.querySelector('#sw-yes');
-            var noBtn  = overlay.querySelector('#sw-no');
+            var noBtn = overlay.querySelector('#sw-no');
             if (yesBtn) yesBtn.addEventListener('click', function () { closeDialog(); if (onYes) onYes(); });
-            if (noBtn)  noBtn.addEventListener('click',  function () { closeDialog(); });
+            if (noBtn) noBtn.addEventListener('click', function () { closeDialog(); });
             overlay.addEventListener('click', function (e) { if (e.target === overlay) closeDialog(); });
         },
 
@@ -743,9 +757,9 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             }
 
             var impactRows = [
-                { l: 'Applied days',                        v: cfg.impact.applied    + ' day(s)'              },
+                { l: 'Applied days', v: cfg.impact.applied + ' day(s)' },
                 { l: cfg.sandwichedLabel + ' counted as leave', v: '+' + cfg.impact.sandwiched + ' day(s)', c: '#d97706' },
-                { l: 'Total effective days',                v: cfg.impact.total      + ' day(s)', c: '#dc2626' }
+                { l: 'Total effective days', v: cfg.impact.total + ' day(s)', c: '#dc2626' }
             ];
             if (typeof cfg.impact.balance === 'number')
                 impactRows.push({ l: 'Effective paid balance', v: cfg.impact.balance + ' day(s)', c: '#0f766e' });
@@ -765,9 +779,9 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                 var adjBg = cfg.adjacent.isPending ? '#fffbeb' : '#f0fdf4';
                 var adjSt = cfg.adjacent.isPending ? '#92400e' : '#166534';
                 adjCard = card('\ud83d\udcc5', 'Adjacent ' + cfg.adjacent.day + ' Leave Detected', [
-                    { l: 'Period',     v: cfg.adjacent.period             },
-                    { l: 'Status',     v: cfg.adjacent.status, c: adjSt   },
-                    { l: 'Leave Type', v: cfg.adjacent.type               }
+                    { l: 'Period', v: cfg.adjacent.period },
+                    { l: 'Status', v: cfg.adjacent.status, c: adjSt },
+                    { l: 'Leave Type', v: cfg.adjacent.type }
                 ], adjBg);
             }
 
@@ -780,9 +794,9 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                 '<div style="font-size:12px;opacity:.85;margin-top:3px;">' + cfg.title + '</div></div>' +
                 '<div style="padding:16px 18px 4px;">' +
                 card('\ud83d\udcc5', 'Leave Being Applied', [
-                    { l: 'Date',       v: cfg.applying.date     },
-                    { l: 'Leave Type', v: cfg.applying.type     },
-                    { l: 'Duration',   v: cfg.applying.duration }
+                    { l: 'Date', v: cfg.applying.date },
+                    { l: 'Leave Type', v: cfg.applying.type },
+                    { l: 'Duration', v: cfg.applying.duration }
                 ]) +
                 adjCard +
                 card('\ud83d\udcc6', 'Sandwiched ' + cfg.sandwichedLabel, cfg.sandwichedRows, '#f0f9ff') +
@@ -823,6 +837,9 @@ define('custom:views/leave/view', ['view'], function (Dep) {
          */
         swCheckSandwich: function (startDate, endDate, dayMode, userId) {
             var self = this;
+            var norm = this.swNormalizeDates(startDate, endDate);
+            startDate = norm.startDate;
+            endDate = norm.endDate;
 
             function addDays(dateStr, n) {
                 var d = new Date(dateStr + 'T00:00:00');
@@ -837,12 +854,12 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             }
 
             var windowStart = addDays(startDate, -15);
-            var windowEnd   = addDays(endDate,   +15);
+            var windowEnd = addDays(endDate, +15);
 
             var holidayPromise = Espo.Ajax.getRequest('CHoliday', {
                 where: [
                     { type: 'greaterThanOrEquals', attribute: 'date', value: windowStart },
-                    { type: 'lessThanOrEquals',    attribute: 'date', value: windowEnd   }
+                    { type: 'lessThanOrEquals', attribute: 'date', value: windowEnd }
                 ],
                 maxSize: 200
             });
@@ -855,16 +872,16 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             var leavePromise = Espo.Ajax.getRequest('CLeaveRequest', {
                 where: [
                     { type: 'equals', attribute: 'userId', value: userId },
-                    { type: 'in',     attribute: 'status', value: ['Approved', 'Pending'] }
+                    { type: 'in', attribute: 'status', value: ['Approved', 'Pending'] }
                 ],
                 maxSize: 200
             });
 
             return Promise.all([holidayPromise, selectionPromise, leavePromise])
                 .then(function (results) {
-                    var holidays   = results[0].list || [];
+                    var holidays = results[0].list || [];
                     var selections = results[1].list || [];
-                    var leaves     = results[2].list || [];
+                    var leaves = results[2].list || [];
 
                     // Build set of optional holiday IDs the user applied for
                     var appliedOptionalIds = {};
@@ -946,13 +963,16 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                                                 return { l: self.swFormatDisplayDate(d), v: nonWorkingLabel(d), c: '#d97706' };
                                             }),
                                             thisDate: startDate,
-                                            thisDay: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow(startDate)],
-                                            adjDay:  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow(edgeBefore)],
+                                            thisDay: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dow(startDate)],
+                                            adjDay: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dow(edgeBefore)],
                                             adjDate: edgeBefore,
                                             adjLeaveStart: adjLeave.startDate,
-                                            adjLeaveEnd:   adjLeave.endDate || adjLeave.startDate,
-                                            adjLeaveType:  adjLeave.leaveType || 'Paid',
-                                            isPending:     adjLeave.status === 'Pending',
+                                            adjLeaveEnd: adjLeave.endDate || adjLeave.startDate,
+                                            adjLeaveType: adjLeave.leaveType || 'Paid',
+                                            isPending: adjLeave.status === 'Pending',
+                                            // Extend the record to cover the sandwiched gap on this side
+                                            rangeStartDate: swDates[0],   // earliest gap day (e.g. 30 May)
+                                            rangeEndDate: endDate,        // applied end date, unchanged (e.g. 1 Jun)
                                         };
                                     }
                                 }
@@ -984,13 +1004,16 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                                                 return { l: self.swFormatDisplayDate(d), v: nonWorkingLabel(d), c: '#d97706' };
                                             }),
                                             thisDate: endDate,
-                                            thisDay: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow(endDate)],
-                                            adjDay:  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow(edgeAfter)],
+                                            thisDay: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dow(endDate)],
+                                            adjDay: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dow(edgeAfter)],
                                             adjDate: edgeAfter,
                                             adjLeaveStart: adjLeave.startDate,
-                                            adjLeaveEnd:   adjLeave.endDate || adjLeave.startDate,
-                                            adjLeaveType:  adjLeave.leaveType || 'Paid',
-                                            isPending:     adjLeave.status === 'Pending',
+                                            adjLeaveEnd: adjLeave.endDate || adjLeave.startDate,
+                                            adjLeaveType: adjLeave.leaveType || 'Paid',
+                                            isPending: adjLeave.status === 'Pending',
+                                            // Extend the record to cover the sandwiched gap on this side
+                                            rangeStartDate: startDate,               // applied start date, unchanged (e.g. 29 May)
+                                            rangeEndDate: swDates[swDates.length - 1], // latest gap day (e.g. 31 May)
                                         };
                                     }
                                 }
@@ -1005,9 +1028,9 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     function tryHLH() {
                         if (dayMode !== 'Full') return null;
                         var dayBefore = addDays(startDate, -1);
-                        var dayAfter  = addDays(endDate,   +1);
+                        var dayAfter = addDays(endDate, +1);
                         var hBefore = holidayMap[dayBefore];
-                        var hAfter  = holidayMap[dayAfter];
+                        var hAfter = holidayMap[dayAfter];
                         if (!hBefore || !hAfter) return null;
                         return {
                             isSandwich: true,
@@ -1016,10 +1039,13 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                             sandwichedLabel: 'Holiday',
                             sandwichedRows: [
                                 { l: self.swFormatDisplayDate(dayBefore), v: 'Holiday (' + (hBefore.name || '') + ')', c: '#d97706' },
-                                { l: self.swFormatDisplayDate(dayAfter),  v: 'Holiday (' + (hAfter.name  || '') + ')', c: '#d97706' }
+                                { l: self.swFormatDisplayDate(dayAfter), v: 'Holiday (' + (hAfter.name || '') + ')', c: '#d97706' }
                             ],
                             thisDate: startDate,
                             thisDay: 'Leave',
+                            // Extend the saved record to span both bordering holidays
+                            rangeStartDate: dayBefore,
+                            rangeEndDate: dayAfter,
                         };
                     }
 
@@ -1055,16 +1081,16 @@ define('custom:views/leave/view', ['view'], function (Dep) {
          * and the canApplyPaid gate here.
          */
         swHandleResult: function (opts) {
-            var self        = opts.self;
-            var sandwich    = opts.sandwich;
-            var leaveDays   = opts.leaveDays;
-            var leaveTypeVal  = opts.leaveTypeVal;
-            var startDate   = opts.startDate;
-            var endDate     = opts.endDate;
-            var userId      = opts.userId;
+            var self = opts.self;
+            var sandwich = opts.sandwich;
+            var leaveDays = opts.leaveDays;
+            var leaveTypeVal = opts.leaveTypeVal;
+            var startDate = opts.startDate;
+            var endDate = opts.endDate;
+            var userId = opts.userId;
             var displayName = opts.displayName;
-            var isSelf      = opts.isSelf;
-            var today       = opts.today;
+            var isSelf = opts.isSelf;
+            var today = opts.today;
             var processLeaveWithBalance = opts.processLeaveWithBalance;
             var createLeave = opts.createLeave;
 
@@ -1075,27 +1101,49 @@ define('custom:views/leave/view', ['view'], function (Dep) {
 
             var totalDays = leaveDays + sandwich.sandwichedDays;
 
-            // ── Build "applying" date label ──
-            var applyingDateLabel = self.swFormatDisplayDate(startDate);
-            if (startDate !== endDate) {
-                applyingDateLabel += ' to ' + self.swFormatDisplayDate(endDate);
+            // Extend the outer startDate/endDate closures to cover the sandwiched
+            // non-working block (holidays, weekends, or holiday+weekend combos) so
+            // createLeave() persists the full continuous span instead of just the
+            // originally applied date range.
+            //
+            // FIX: previously this only ran for scenario === 'HLH'. That meant the
+            // LHL (Leave - gap - Leave) cases never got their startDate/endDate
+            // extended, even though tryLHL() already computes the correct
+            // rangeStartDate/rangeEndDate for both its "before" and "after" branches.
+            // As a result the persisted record stayed as the single applied date
+            // while `totalDays` (used for balance deduction) already included the
+            // sandwiched days — the date span and the day count went out of sync.
+            //
+            // Applying setDates() for BOTH scenarios keeps the persisted date range
+            // length equal to totalDays in every case (HLH and LHL, before-side and
+            // after-side), matching the days actually deducted.
+            if (opts.setDates && (sandwich.rangeStartDate || sandwich.rangeEndDate)) {
+                console.log('SANDWICH FIX FIRED:', sandwich.scenario, sandwich.rangeStartDate, '->', sandwich.rangeEndDate);
+
+                opts.setDates(
+                    sandwich.rangeStartDate || startDate,
+                    sandwich.rangeEndDate || endDate
+                );
             }
 
+            // ── Build "applying" date label ──
+            var applyingDateLabel = self.swFormatDisplayDate(startDate);
+
             // ── Adjacent-leave block (LHL only) ──
-            var adjacentCfg  = null;
+            var adjacentCfg = null;
             var pendingWarning = null;
             if (sandwich.scenario === 'LHL' && sandwich.adjLeaveStart) {
                 var adjRangeTxt = sandwich.adjLeaveStart === sandwich.adjLeaveEnd
                     ? self.swFormatDisplayDate(sandwich.adjLeaveStart)
                     : self.swFormatDisplayDate(sandwich.adjLeaveStart) + ' to ' +
-                      self.swFormatDisplayDate(sandwich.adjLeaveEnd);
+                    self.swFormatDisplayDate(sandwich.adjLeaveEnd);
 
                 adjacentCfg = {
-                    day:       sandwich.adjDay,
-                    period:    adjRangeTxt,
-                    status:    sandwich.isPending ? '\u23f3 Pending Approval' : '\u2705 Approved',
+                    day: sandwich.adjDay,
+                    period: adjRangeTxt,
+                    status: sandwich.isPending ? '\u23f3 Pending Approval' : '\u2705 Approved',
                     isPending: sandwich.isPending,
-                    type:      sandwich.adjLeaveType
+                    type: sandwich.adjLeaveType
                 };
 
                 if (sandwich.isPending) {
@@ -1119,7 +1167,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                 applying: { date: applyingDateLabel, type: leaveTypeVal, duration: leaveDays + ' day(s)' },
                 adjacent: adjacentCfg,
                 sandwichedLabel: sandwich.sandwichedLabel,
-                sandwichedRows:  sandwich.sandwichedRows,
+                sandwichedRows: sandwich.sandwichedRows,
                 impact: { applied: leaveDays, sandwiched: sandwich.sandwichedDays, total: totalDays },
                 pendingWarning: pendingWarning,
             };
@@ -1127,7 +1175,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             if (leaveTypeVal === 'Paid') {
                 self.fetchLeaveBalance(userId).then(function (rawBalance) {
                     // ── Apply previous-month rule CONSISTENTLY ──
-                    var isPrevMonth     = self.swIsPrevMonth(startDate, endDate, today);
+                    var isPrevMonth = self.swIsPrevMonth(startDate, endDate, today);
                     var effectiveBalance = isPrevMonth ? rawBalance - 1 : rawBalance;
 
                     var prevMonthNote = isPrevMonth
@@ -1140,7 +1188,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                         var balanceAfter = (effectiveBalance - totalDays).toFixed(1);
                         var cfg = Object.assign({}, baseCfg, {
                             impact: Object.assign({}, baseCfg.impact, {
-                                balance:      effectiveBalance,
+                                balance: effectiveBalance,
                                 balanceAfter: balanceAfter
                             }),
                             bottomSection:
@@ -1158,14 +1206,14 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                         // Cannot apply as Paid → offer Unpaid
                         var reasonHtml = effectiveBalance < 3
                             ? (isSelf ? 'Your' : 'Employee\'s') + ' paid balance (<strong>' +
-                              effectiveBalance + ' day(s)</strong>) is below the minimum of ' +
-                              '<strong>3 days</strong> required under the sandwich rule.' +
-                              (isPrevMonth ? ' <em>(previous month: 1 day reserved)</em>' : '')
+                            effectiveBalance + ' day(s)</strong>) is below the minimum of ' +
+                            '<strong>3 days</strong> required under the sandwich rule.' +
+                            (isPrevMonth ? ' <em>(previous month: 1 day reserved)</em>' : '')
                             : (isSelf ? 'Your' : 'Employee\'s') + ' paid balance (<strong>' +
-                              effectiveBalance + ' day(s)</strong>) is insufficient for the ' +
-                              'total deduction of <strong>' + totalDays + ' days</strong> (applied ' +
-                              leaveDays + ' + ' + sandwich.sandwichedDays + ' sandwiched).' +
-                              (isPrevMonth ? ' <em>(previous month: 1 day reserved)</em>' : '');
+                            effectiveBalance + ' day(s)</strong>) is insufficient for the ' +
+                            'total deduction of <strong>' + totalDays + ' days</strong> (applied ' +
+                            leaveDays + ' + ' + sandwich.sandwichedDays + ' sandwiched).' +
+                            (isPrevMonth ? ' <em>(previous month: 1 day reserved)</em>' : '');
 
                         var cfg = Object.assign({}, baseCfg, {
                             impact: Object.assign({}, baseCfg.impact, { balance: effectiveBalance }),
@@ -1251,7 +1299,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             $(document).off('submit', '#creditLeaveForm');
             $(document).on('submit', '#creditLeaveForm', function (e) {
                 e.preventDefault();
-                var employeeId  = $('#employee').val();
+                var employeeId = $('#employee').val();
                 var leaveAmount = parseFloat($('#leaveAmount').val()) || 0;
                 var leaveReason = $('#leaveReason').val();
                 if (!employeeId || leaveAmount <= 0) {
@@ -1260,7 +1308,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                 }
                 Espo.Ajax.getRequest('CLeaveBalance', {
                     where: [
-                        { type: 'equals', attribute: 'userId',     value: employeeId },
+                        { type: 'equals', attribute: 'userId', value: employeeId },
                         { type: 'equals', attribute: 'fiscalYear', value: (new Date()).getFullYear().toString() }
                     ]
                 }).then(function (response) {
@@ -1330,7 +1378,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             $(document).off('submit', '#debitLeaveForm');
             $(document).on('submit', '#debitLeaveForm', function (e) {
                 e.preventDefault();
-                var employeeId  = $('#employee').val();
+                var employeeId = $('#employee').val();
                 var leaveAmount = parseFloat($('#leaveAmount').val()) || 0;
                 var leaveReason = $('#leaveReason').val();
                 if (!employeeId || leaveAmount <= 0) {
@@ -1365,7 +1413,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
         // actionApplyForLeave  (login user applies for their own leave)
         // =====================================================================
         actionApplyForLeave: function () {
-            var self  = this;
+            var self = this;
             var today = new Date();
 
             function formatDate(d) {
@@ -1374,7 +1422,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     String(d.getDate()).padStart(2, '0');
             }
 
-            var minDate  = formatDate(new Date(today.getFullYear(), today.getMonth() - 1, 1));
+            var minDate = formatDate(new Date(today.getFullYear(), today.getMonth() - 1, 1));
             var isIntern = !!this.getUser().get('cIsIntern');
 
             var leaveTypeOptions = isIntern
@@ -1441,17 +1489,17 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             var modalObj = this.simpleModal('Apply Leave', htmlContent);
 
             setTimeout(function () {
-                var modal         = document.getElementById(modalObj.modalId);
-                var leaveType     = modal.querySelector('#leaveType');
-                var singleDate    = modal.querySelector('#singleDate');
-                var fromDate      = modal.querySelector('#fromDate');
-                var toDate        = modal.querySelector('#toDate');
-                var reason        = modal.querySelector('#reason');
-                var singleRadio   = modal.querySelector('#single');
+                var modal = document.getElementById(modalObj.modalId);
+                var leaveType = modal.querySelector('#leaveType');
+                var singleDate = modal.querySelector('#singleDate');
+                var fromDate = modal.querySelector('#fromDate');
+                var toDate = modal.querySelector('#toDate');
+                var reason = modal.querySelector('#reason');
+                var singleRadio = modal.querySelector('#single');
                 var multipleRadio = modal.querySelector('#multiple');
                 var singleDateRow = modal.querySelector('#singleDateRow');
                 var multipleDateRow = modal.querySelector('#multipleDateRow');
-                var firstHalfOpt  = modal.querySelector('#firstHalfOpt');
+                var firstHalfOpt = modal.querySelector('#firstHalfOpt');
                 var secondHalfOpt = modal.querySelector('#secondHalfOpt');
 
                 function markInvalid(el) {
@@ -1465,26 +1513,26 @@ define('custom:views/leave/view', ['view'], function (Dep) {
 
                 [leaveType, singleDate, fromDate, toDate, reason].forEach(function (el) {
                     if (!el) return;
-                    el.addEventListener('input',  function () { clearInvalid(el); });
+                    el.addEventListener('input', function () { clearInvalid(el); });
                     el.addEventListener('change', function () { clearInvalid(el); });
-                    el.addEventListener('focus',  function () { clearInvalid(el); });
+                    el.addEventListener('focus', function () { clearInvalid(el); });
                 });
 
                 function toggleDateFields() {
                     if (singleRadio.checked) {
-                        singleDateRow.style.display   = 'block';
+                        singleDateRow.style.display = 'block';
                         multipleDateRow.style.display = 'none';
-                        firstHalfOpt.style.display    = '';
-                        secondHalfOpt.style.display   = '';
+                        firstHalfOpt.style.display = '';
+                        secondHalfOpt.style.display = '';
                     } else {
-                        singleDateRow.style.display   = 'none';
+                        singleDateRow.style.display = 'none';
                         multipleDateRow.style.display = 'flex';
-                        firstHalfOpt.style.display    = 'none';
-                        secondHalfOpt.style.display   = 'none';
+                        firstHalfOpt.style.display = 'none';
+                        secondHalfOpt.style.display = 'none';
                         modal.querySelector('input[name="duration"][value="Full"]').checked = true;
                     }
                 }
-                singleRadio.addEventListener('change',   toggleDateFields);
+                singleRadio.addEventListener('change', toggleDateFields);
                 multipleRadio.addEventListener('change', toggleDateFields);
 
                 function validateForm() {
@@ -1494,7 +1542,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                         if (!singleDate.value) { singleDate.focus(); markInvalid(singleDate); return false; }
                     } else {
                         if (!fromDate.value) { fromDate.focus(); markInvalid(fromDate); return false; }
-                        if (!toDate.value)   { toDate.focus();   markInvalid(toDate);   return false; }
+                        if (!toDate.value) { toDate.focus(); markInvalid(toDate); return false; }
                         if (new Date(fromDate.value) > new Date(toDate.value)) {
                             toDate.focus(); markInvalid(toDate); return false;
                         }
@@ -1508,23 +1556,29 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     if (!validateForm()) return;
 
                     var leaveTypeVal = leaveType.value;
-                    var leaveMode    = modal.querySelector('input[name="leaveMode"]:checked').value;
-                    var duration     = modal.querySelector('input[name="duration"]:checked').value;
+                    var leaveMode = modal.querySelector('input[name="leaveMode"]:checked').value;
+                    var duration = modal.querySelector('input[name="duration"]:checked').value;
                     var startDate, endDate;
 
                     if (leaveMode === 'single') {
                         startDate = singleDate.value;
-                        endDate   = startDate;
+                        endDate = startDate;
                     } else {
                         startDate = fromDate.value;
-                        endDate   = toDate.value;
+                        endDate = toDate.value;
                     }
-
+                    // normalize regardless of how they were entered
+                    var normalized = self.swNormalizeDates(startDate, endDate);
+                    startDate = normalized.startDate;
+                    endDate = normalized.endDate;
                     var userId = self.getUser().get('id');
+
+                    // lets swHandleResult grow startDate/endDate to cover a sandwiched gap
+                    function setDates(sd, ed) { startDate = sd; endDate = ed; }
 
                     function calcDays(sd, ed, dm) {
                         var isHalf = (dm === 'First Half' || dm === 'Second Half');
-                        var diff   = (new Date(ed) - new Date(sd)) / 86400000 + 1;
+                        var diff = (new Date(ed) - new Date(sd)) / 86400000 + 1;
                         return isHalf ? diff * 0.5 : diff;
                     }
                     var leaveDays = calcDays(startDate, endDate, duration);
@@ -1533,15 +1587,15 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     function createLeave(effectiveDays, overrideType) {
                         var finalType = overrideType || leaveTypeVal;
                         Espo.Ajax.postRequest('CLeaveRequest', {
-                            name:           self.getUser().get('name'),
-                            leaveType:      finalType,
-                            startDate:      startDate,
-                            endDate:        endDate,
-                            reason:         reason.value,
-                            dayMode:        duration,
-                            days:           effectiveDays,
-                            status:         'Pending',
-                            userId:         userId,
+                            name: self.getUser().get('name'),
+                            leaveType: finalType,
+                            startDate: startDate,
+                            endDate: endDate,
+                            reason: reason.value,
+                            dayMode: duration,
+                            days: effectiveDays,
+                            status: 'Pending',
+                            userId: userId,
                             assignedUserId: userId
                         }).then(function () {
                             Espo.Ui.success('Leave Applied Successfully' + (overrideType ? ' as ' + overrideType : ''));
@@ -1551,19 +1605,15 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     }
 
                     // ── processLeaveWithBalance: balance check + deduct + create ──
-                    // Uses swEffectiveBalance / swIsPrevMonth for the eligibility check
-                    // (previous-month rule: employee must keep 1 day margin). The
-                    // FIX: the actual DB deduction only ever subtracts the real
-                    // leave days — it no longer also subtracts the 1-day margin,
-                    // which was previously causing a double deduction for
-                    // previous-month paid leave (e.g. 1 day applied → 2 days deducted).
+                    // Uses swEffectiveBalance for the previous-month rule so the
+                    // same logic applies whether we arrive from normal or sandwich path.
                     function processLeaveWithBalance(effectiveDays, overrideType) {
                         var finalType = overrideType || leaveTypeVal;
                         if (finalType === 'Paid') {
                             self.fetchLeaveBalance(userId).then(function (rawBalance) {
-                                var isPrevMonth      = self.swIsPrevMonth(startDate, endDate, today);
+                                var isPrevMonth = self.swIsPrevMonth(startDate, endDate, today);
                                 var effectiveBalance = isPrevMonth ? rawBalance - 1 : rawBalance;
-                                var prevMonthSuffix  = isPrevMonth ? ' for previous month.' : '.';
+                                var prevMonthSuffix = isPrevMonth ? ' for previous month.' : '.';
 
                                 if (effectiveDays > effectiveBalance) {
                                     Espo.Ui.error(
@@ -1578,10 +1628,6 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                                     where: [{ type: 'equals', attribute: 'userId', value: userId }]
                                 }).then(function (res) {
                                     var record = res.list[0];
-                                    // FIX: deduct only the actual leave days from the
-                                    // real stored balance. The previous-month "-1"
-                                    // margin is used ONLY for the eligibility check
-                                    // above, never for the real deduction.
                                     Espo.Ajax.putRequest('CLeaveBalance/' + record.id, {
                                         balance: parseFloat(record.balance) - effectiveDays
                                     }).then(function () { createLeave(effectiveDays, overrideType); });
@@ -1595,19 +1641,20 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     // ── Sandwich check → shared handler ─────────────────────
                     self.swCheckSandwich(startDate, endDate, duration, userId).then(function (sandwich) {
                         self.swHandleResult({
-                            self:        self,
-                            sandwich:    sandwich,
-                            leaveDays:   leaveDays,
+                            self: self,
+                            sandwich: sandwich,
+                            leaveDays: leaveDays,
                             leaveTypeVal: leaveTypeVal,
-                            startDate:   startDate,
-                            endDate:     endDate,
-                            duration:    duration,
-                            userId:      userId,
+                            startDate: startDate,
+                            endDate: endDate,
+                            duration: duration,
+                            userId: userId,
                             displayName: self.getUser().get('name'),
-                            isSelf:      true,
-                            today:       today,
+                            isSelf: true,
+                            today: today,
                             processLeaveWithBalance: processLeaveWithBalance,
                             createLeave: createLeave,
+                            setDates: setDates,
                         });
                     });
                 });
@@ -1618,7 +1665,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
         // actionApplyForEmployeeLeave  (admin / manager applying for someone)
         // =====================================================================
         actionApplyForEmployeeLeave: function () {
-            var self  = this;
+            var self = this;
             this.loadEmployeeList();
 
             var today = new Date();
@@ -1699,19 +1746,19 @@ define('custom:views/leave/view', ['view'], function (Dep) {
             var modalObj = this.simpleModal('Apply Leave for Employee', htmlContent);
 
             setTimeout(function () {
-                var modal           = document.getElementById(modalObj.modalId);
-                var employeeSelect  = modal.querySelector('#employeeSelect');
-                var leaveType       = modal.querySelector('#leaveType');
-                var singleDate      = modal.querySelector('#singleDate');
-                var fromDate        = modal.querySelector('#fromDate');
-                var toDate          = modal.querySelector('#toDate');
-                var reason          = modal.querySelector('#reason');
-                var singleRadio     = modal.querySelector('#single');
-                var multipleRadio   = modal.querySelector('#multiple');
-                var singleDateRow   = modal.querySelector('#singleDateRow');
+                var modal = document.getElementById(modalObj.modalId);
+                var employeeSelect = modal.querySelector('#employeeSelect');
+                var leaveType = modal.querySelector('#leaveType');
+                var singleDate = modal.querySelector('#singleDate');
+                var fromDate = modal.querySelector('#fromDate');
+                var toDate = modal.querySelector('#toDate');
+                var reason = modal.querySelector('#reason');
+                var singleRadio = modal.querySelector('#single');
+                var multipleRadio = modal.querySelector('#multiple');
+                var singleDateRow = modal.querySelector('#singleDateRow');
                 var multipleDateRow = modal.querySelector('#multipleDateRow');
-                var firstHalfOpt    = modal.querySelector('#firstHalfOpt');
-                var secondHalfOpt   = modal.querySelector('#secondHalfOpt');
+                var firstHalfOpt = modal.querySelector('#firstHalfOpt');
+                var secondHalfOpt = modal.querySelector('#secondHalfOpt');
 
                 function markInvalid(el) {
                     if (!el) return;
@@ -1724,26 +1771,26 @@ define('custom:views/leave/view', ['view'], function (Dep) {
 
                 [employeeSelect, leaveType, singleDate, fromDate, toDate, reason].forEach(function (el) {
                     if (!el) return;
-                    el.addEventListener('input',  function () { clearInvalid(el); });
+                    el.addEventListener('input', function () { clearInvalid(el); });
                     el.addEventListener('change', function () { clearInvalid(el); });
-                    el.addEventListener('focus',  function () { clearInvalid(el); });
+                    el.addEventListener('focus', function () { clearInvalid(el); });
                 });
 
                 function toggleDateFields() {
                     if (singleRadio.checked) {
-                        singleDateRow.style.display   = 'block';
+                        singleDateRow.style.display = 'block';
                         multipleDateRow.style.display = 'none';
-                        firstHalfOpt.style.display    = '';
-                        secondHalfOpt.style.display   = '';
+                        firstHalfOpt.style.display = '';
+                        secondHalfOpt.style.display = '';
                     } else {
-                        singleDateRow.style.display   = 'none';
+                        singleDateRow.style.display = 'none';
                         multipleDateRow.style.display = 'flex';
-                        firstHalfOpt.style.display    = 'none';
-                        secondHalfOpt.style.display   = 'none';
+                        firstHalfOpt.style.display = 'none';
+                        secondHalfOpt.style.display = 'none';
                         modal.querySelector('input[name="duration"][value="Full"]').checked = true;
                     }
                 }
-                singleRadio.addEventListener('change',   toggleDateFields);
+                singleRadio.addEventListener('change', toggleDateFields);
                 multipleRadio.addEventListener('change', toggleDateFields);
 
                 // Populate employee dropdown
@@ -1759,13 +1806,13 @@ define('custom:views/leave/view', ['view'], function (Dep) {
 
                 function validateForm() {
                     if (!employeeSelect.value) { employeeSelect.focus(); markInvalid(employeeSelect); return false; }
-                    if (!leaveType.value)      { leaveType.focus();      markInvalid(leaveType);      return false; }
+                    if (!leaveType.value) { leaveType.focus(); markInvalid(leaveType); return false; }
                     var leaveMode = modal.querySelector('input[name="leaveMode"]:checked').value;
                     if (leaveMode === 'single') {
                         if (!singleDate.value) { singleDate.focus(); markInvalid(singleDate); return false; }
                     } else {
                         if (!fromDate.value) { fromDate.focus(); markInvalid(fromDate); return false; }
-                        if (!toDate.value)   { toDate.focus();   markInvalid(toDate);   return false; }
+                        if (!toDate.value) { toDate.focus(); markInvalid(toDate); return false; }
                         if (new Date(fromDate.value) > new Date(toDate.value)) {
                             markInvalid(toDate); toDate.focus(); return false;
                         }
@@ -1778,25 +1825,31 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     e.preventDefault();
                     if (!validateForm()) return;
 
-                    var employeeId   = employeeSelect.value;
+                    var employeeId = employeeSelect.value;
                     var employeeName = employeeSelect.options[employeeSelect.selectedIndex]
                         ? employeeSelect.options[employeeSelect.selectedIndex].text : '';
                     var leaveTypeVal = leaveType.value;
-                    var leaveMode    = modal.querySelector('input[name="leaveMode"]:checked').value;
-                    var duration     = modal.querySelector('input[name="duration"]:checked').value;
+                    var leaveMode = modal.querySelector('input[name="leaveMode"]:checked').value;
+                    var duration = modal.querySelector('input[name="duration"]:checked').value;
                     var startDate, endDate;
 
                     if (leaveMode === 'single') {
                         startDate = singleDate.value;
-                        endDate   = startDate;
+                        endDate = startDate;
                     } else {
                         startDate = fromDate.value;
-                        endDate   = toDate.value;
+                        endDate = toDate.value;
                     }
+
+                    var normalized = self.swNormalizeDates(startDate, endDate);
+                    startDate = normalized.startDate;
+                    endDate = normalized.endDate;
+
+                    function setDates(sd, ed) { startDate = sd; endDate = ed; }
 
                     function calcDays(sd, ed, dm) {
                         var isHalf = (dm === 'First Half' || dm === 'Second Half');
-                        var diff   = (new Date(ed) - new Date(sd)) / 86400000 + 1;
+                        var diff = (new Date(ed) - new Date(sd)) / 86400000 + 1;
                         return isHalf ? diff * 0.5 : diff;
                     }
                     var leaveDays = calcDays(startDate, endDate, duration);
@@ -1805,15 +1858,15 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     function createLeave(effectiveDays, overrideType) {
                         var finalType = overrideType || leaveTypeVal;
                         Espo.Ajax.postRequest('CLeaveRequest', {
-                            name:           'Leave for ' + employeeName,
-                            leaveType:      finalType,
-                            startDate:      startDate,
-                            endDate:        endDate,
-                            reason:         reason.value,
-                            dayMode:        duration,
-                            days:           effectiveDays,
-                            status:         'Pending',
-                            userId:         employeeId,
+                            name: 'Leave for ' + employeeName,
+                            leaveType: finalType,
+                            startDate: startDate,
+                            endDate: endDate,
+                            reason: reason.value,
+                            dayMode: duration,
+                            days: effectiveDays,
+                            status: 'Pending',
+                            userId: employeeId,
                             assignedUserId: employeeId
                         }).then(function () {
                             Espo.Ui.success('Leave Applied for ' + employeeName + (overrideType ? ' as ' + overrideType : ''));
@@ -1823,17 +1876,14 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     }
 
                     // ── processLeaveWithBalance ──────────────────────────────
-                    // Uses swIsPrevMonth / swEffectiveBalance for the eligibility
-                    // check only. FIX: the actual DB deduction only subtracts the
-                    // real leave days, never the 1-day previous-month margin, so
-                    // a 1-day paid leave in a previous month deducts 1 day, not 2.
+                    // Uses swIsPrevMonth / swEffectiveBalance consistently.
                     function processLeaveWithBalance(effectiveDays, overrideType) {
                         var finalType = overrideType || leaveTypeVal;
                         if (finalType === 'Paid') {
                             self.fetchLeaveBalance(employeeId).then(function (rawBalance) {
-                                var isPrevMonth      = self.swIsPrevMonth(startDate, endDate, today);
+                                var isPrevMonth = self.swIsPrevMonth(startDate, endDate, today);
                                 var effectiveBalance = isPrevMonth ? rawBalance - 1 : rawBalance;
-                                var prevMonthSuffix  = isPrevMonth ? ' for previous month.' : '.';
+                                var prevMonthSuffix = isPrevMonth ? ' for previous month.' : '.';
 
                                 if (effectiveDays > effectiveBalance) {
                                     Espo.Ui.error(
@@ -1845,13 +1895,9 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                                     return;
                                 }
                                 Espo.Ajax.getRequest('CLeaveBalance', {
-                                    where: [{ type: 'equals', attribute: 'userId', value: employeeId }]
+                                    where: [{ type: 'equals', attribute: 'userId', value: employeeId }] // or employeeId
                                 }).then(function (res) {
                                     var record = res.list[0];
-                                    // FIX: deduct only the actual leave days from the
-                                    // real stored balance. The previous-month "-1"
-                                    // margin is used ONLY for the eligibility check
-                                    // above, never for the real deduction.
                                     Espo.Ajax.putRequest('CLeaveBalance/' + record.id, {
                                         balance: parseFloat(record.balance) - effectiveDays
                                     }).then(function () { createLeave(effectiveDays, overrideType); });
@@ -1865,19 +1911,20 @@ define('custom:views/leave/view', ['view'], function (Dep) {
                     // ── Sandwich check → shared handler ─────────────────────
                     self.swCheckSandwich(startDate, endDate, duration, employeeId).then(function (sandwich) {
                         self.swHandleResult({
-                            self:        self,
-                            sandwich:    sandwich,
-                            leaveDays:   leaveDays,
+                            self: self,
+                            sandwich: sandwich,
+                            leaveDays: leaveDays,
                             leaveTypeVal: leaveTypeVal,
-                            startDate:   startDate,
-                            endDate:     endDate,
-                            duration:    duration,
-                            userId:      employeeId,
+                            startDate: startDate,
+                            endDate: endDate,
+                            duration: duration,
+                            userId: employeeId,
                             displayName: employeeName,
-                            isSelf:      false,
-                            today:       today,
+                            isSelf: false,
+                            today: today,
                             processLeaveWithBalance: processLeaveWithBalance,
                             createLeave: createLeave,
+                            setDates: setDates,
                         });
                     });
                 });
@@ -2024,7 +2071,7 @@ define('custom:views/leave/view', ['view'], function (Dep) {
         // =====================================================================
         simpleModal: function (title, htmlContent) {
             var backdropId = 'helloBackdrop-' + Date.now();
-            var modalId    = 'helloModal-'    + Date.now();
+            var modalId = 'helloModal-' + Date.now();
 
             var backdropHtml = '<div id="' + backdropId + '" style="position:fixed;top:0;left:0;' +
                 'width:100%;height:100%;background-color:rgba(0,0,0,0.5);z-index:1030;"></div>';

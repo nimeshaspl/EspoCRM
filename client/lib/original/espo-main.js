@@ -4702,8 +4702,7 @@ define("view-helper", ["exports", "marked", "dompurify", "handlebars"], function
      * @returns {string}
      */
     stripEventHandlersInHtml(html) {
-      let j; // @todo Revise.
-
+      let j;
       function stripHTML() {
         html = html.slice(0, strip) + html.slice(j);
         j = strip;
@@ -4717,7 +4716,7 @@ define("view-helper", ["exports", "marked", "dompurify", "handlebars"], function
       for (let i = 0; i < html.length; i++) {
         if (html[i] === '<' && html[i + 1] && isValidTagChar(html[i + 1])) {
           i++;
-          for (let j = i; j < html.length; j++) {
+          for (j = i; j < html.length; j++) {
             if (!lastQuote && html[j] === '>') {
               if (strip) {
                 stripHTML();
@@ -4734,10 +4733,10 @@ define("view-helper", ["exports", "marked", "dompurify", "handlebars"], function
             if (!lastQuote && html[j - 1] === "=" && (html[j] === "'" || html[j] === '"')) {
               lastQuote = html[j];
             }
-            if (!lastQuote && html[j - 2] === " " && html[j - 1] === "o" && html[j] === "n") {
+            if (!lastQuote && (html[j - 2] === " " || html[j - 2] === "/") && html[j - 1] === "o" && html[j] === "n") {
               strip = j - 2;
             }
-            if (strip && html[j] === " " && !lastQuote) {
+            if (strip !== false && html[j] === " " && !lastQuote) {
               stripHTML();
             }
           }

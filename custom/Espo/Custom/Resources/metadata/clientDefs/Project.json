@@ -42,6 +42,10 @@
         "projectExternalExps": {
             "layout": null,
             "selectPrimaryFilterName": null
+        },
+        "account": {
+            "layout": null,
+            "selectPrimaryFilterName": null
         }
     },
     "kanbanViewMode": false

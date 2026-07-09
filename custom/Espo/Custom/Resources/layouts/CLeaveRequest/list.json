@@ -8,7 +8,43 @@
         "width": 16
     },
     {
+        "name": "startDate",
+        "width": 16
+    },
+    {
+        "name": "endDate",
+        "width": 16
+    },
+    {
+        "name": "appliedDate",
+        "width": 16
+    },
+    {
+        "name": "description",
+        "width": 16
+    },
+    {
+        "name": "days",
+        "width": 16
+    },
+    {
+        "name": "dayMode",
+        "width": 16
+    },
+    {
         "name": "status",
+        "width": 16
+    },
+    {
+        "name": "employee",
+        "width": 16
+    },
+    {
+        "name": "approvedBy",
+        "width": 16
+    },
+    {
+        "name": "assignedUser",
         "width": 16
     }
 ]

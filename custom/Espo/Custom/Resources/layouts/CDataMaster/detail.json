@@ -187,6 +187,14 @@
             ],
             [
                 {
+                    "name": "emailUniqueCode"
+                },
+                {
+                    "name": "aiResponseStatusCode"
+                }
+            ],
+            [
+                {
                     "name": "timezone"
                 },
                 {
@@ -200,12 +208,6 @@
                 {
                     "name": "isEmailResponded"
                 }
-            ],
-            [
-                {
-                    "name": "emailUniqueCode"
-                },
-                false
             ]
         ],
         "dynamicLogicVisible": null,

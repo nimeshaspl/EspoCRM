@@ -41,7 +41,12 @@
         "presentDays": {
             "notNull": false,
             "type": "float",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true,
+            "tooltip": true
         },
         "leaveDays": {
             "notNull": false,
@@ -51,7 +56,11 @@
         "absentDays": {
             "notNull": false,
             "type": "float",
-            "isCustom": true
+            "isCustom": true,
+            "audited": true,
+            "readOnly": true,
+            "readOnlyAfterCreate": true,
+            "inlineEditDisabled": true
         },
         "workDuration": {
             "type": "varchar",
@@ -84,7 +93,9 @@
             "audited": true,
             "readOnlyAfterCreate": true,
             "inlineEditDisabled": true,
-            "isCustom": true
+            "isCustom": true,
+            "readOnly": true,
+            "tooltip": true
         },
         "month": {
             "type": "varchar",

@@ -233,6 +233,9 @@
             "type": "wysiwyg",
             "audited": true,
             "isCustom": true
+        },
+        "account": {
+            "type": "link"
         }
     },
     "links": {
@@ -335,6 +338,13 @@
             "foreign": "project",
             "entity": "CProjectExternalExp",
             "audited": false,
+            "isCustom": true
+        },
+        "account": {
+            "type": "belongsTo",
+            "foreign": "cProjects",
+            "entity": "Account",
+            "audited": true,
             "isCustom": true
         }
     },

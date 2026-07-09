@@ -7,12 +7,18 @@
         "paidLeave": "Paid Leave",
         "unpaidLeave": "Unpaid Leave",
         "employeePayroll": "Employee Payroll",
-        "totalDays": "Total Days"
+        "totalDays": "Total Days",
+        "absentDays": "Absent Days",
+        "leaveDays": "Leave Days",
+        "presentDays": "Present Days",
+        "totalWorkingDays": "Total Working Days"
     },
     "links": {
         "employeePayroll": "Employee Payroll"
     },
     "tooltips": {
-        "totalDays": "Total Attendance records of specific month"
+        "totalDays": "Total Attendance records of specific month",
+        "presentDays": "Present + Week Off + Half Days + Holidays",
+        "totalWorkingDays": "Total Days - ( Absent + WO + Leave + Holiday ) days"
     }
 }

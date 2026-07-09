@@ -6,7 +6,8 @@
         "bugTrackers": "Bug Trackers",
         "projectTasks": "Project Tasks",
         "milestones": "Milestones",
-        "cDataMaster": "Data Master"
+        "cDataMaster": "Data Master",
+        "cProjects": "Projects"
     },
     "links": {
         "accounts": "Accounts",
@@ -15,6 +16,7 @@
         "bugTrackers": "Bug Trackers",
         "projectTasks": "Project Tasks",
         "milestones": "Milestones",
-        "cDataMaster": "Data Master"
+        "cDataMaster": "Data Master",
+        "cProjects": "Projects"
     }
 }

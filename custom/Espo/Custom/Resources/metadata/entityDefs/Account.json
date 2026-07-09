@@ -50,6 +50,9 @@
         "cDataMaster": {
             "type": "linkOne",
             "isCustom": true
+        },
+        "cProjects": {
+            "type": "linkMultiple"
         }
     },
     "links": {
@@ -92,6 +95,13 @@
             "type": "hasOne",
             "foreign": "account",
             "entity": "CDataMaster",
+            "isCustom": true
+        },
+        "cProjects": {
+            "type": "hasMany",
+            "foreign": "account",
+            "entity": "Project",
+            "audited": false,
             "isCustom": true
         }
     }

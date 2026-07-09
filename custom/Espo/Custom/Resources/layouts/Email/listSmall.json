@@ -19,5 +19,9 @@
     {
         "name": "cIsEmailOpened",
         "width": 20
+    },
+    {
+        "name": "cEmailOpenedAt",
+        "width": 20
     }
 ]

@@ -4,7 +4,8 @@
     },
     "fields": {
         "payPackage": "Pay Package",
-        "description": "Description"
+        "description": "Description",
+        "employees": "Employees"
     },
     "links": {
         "payPackage": "Pay Package",

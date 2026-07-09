@@ -133,6 +133,10 @@
         "attendanceRecords1": {
             "layout": null,
             "selectPrimaryFilterName": null
+        },
+        "payrolls": {
+            "layout": null,
+            "selectPrimaryFilterName": null
         }
     }
 }

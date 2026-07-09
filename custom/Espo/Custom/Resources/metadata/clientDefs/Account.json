@@ -12,6 +12,10 @@
         "dataMaster": {
             "layout": null,
             "selectPrimaryFilterName": null
+        },
+        "projects": {
+            "layout": null,
+            "selectPrimaryFilterName": null
         }
     }
 }

@@ -1,0 +1,14 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "grossSalary",
+        "width": 16
+    },
+    {
+        "name": "netSalary",
+        "width": 16
+    }
+]
